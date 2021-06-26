@@ -4,10 +4,11 @@ from ptpy import Canon
 from tkinter import *
 
 from time import sleep
-
+from urllib.request import urlopen
+import base64
 
 ws = Tk()
-ws.title("Magic Lantern PTP Installer")
+ws.title("Magic Lantern USB Installer")
 ws.geometry("450x450+700+200")
 
 output=""
@@ -15,13 +16,17 @@ output=""
 camera = None
 
 def log(text):
+    print(text)
+    
     global output
     output = output + text + "\n"
     output_label.config(text=output)
     ws.update()
 
 def connect():
+    global output
     output=""
+    
     global camera
     log("Attempting to connect to camera...")
     if camera == None:
@@ -65,22 +70,25 @@ def run_custom(Event=None):
 bootflag_button = Button(
     ws,
     text="Enable boot flag",
-    command=install
+    command=install,
+    bg='#d1d1d1'
 )
 
 output_label = Label(
     ws,
     text="Output goes here...",
-    font=('Arial', 10)
+    font=('Arial', 13)
 )
 
 custom_label = Label(
     ws,
-    text="Custom DryOS Shell Command:"
+    text="Run Custom DryOS Shell Command:",
+    font=('Arial', 13)
 )
 
 custom_entry = Entry(
     ws,
+    bg='#d1d1d1'
 )
 
 custom_entry.bind('<Return>',run_custom)

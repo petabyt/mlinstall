@@ -1,3 +1,5 @@
+# For Linux only
+
 all:
 	@python3 main.py
 
@@ -7,4 +9,7 @@ setup:
 	@pip3 install "sequoia-ptpy/"
 
 pack:
-	@pyinstaller main.py
+	@pyinstaller -D -y --onefile main.py
+
+clean:
+	@rm -rf __pycache__ build dist

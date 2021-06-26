@@ -10,6 +10,7 @@ setup:
 
 pack:
 	@pyinstaller -D -y --onefile main.py
+	mv dist/main dist/mlinstall_x86_64_linux
 
 clean:
 	@rm -rf __pycache__ build dist

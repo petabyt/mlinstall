@@ -2,8 +2,14 @@
 Magic Lantern Installer App  
 Enable/Disable boot flag via USB for Canon DSLRs.  
 
-![demo](screenshot.png)
+# Download
+Download a pre-build binary:  
+https://github.com/petabyt/mlinstall/releases/tag/0.1.0  
 
-# TODO:
-- 32/64 bit linux app
-- Windows app
+# Compile from source
+```
+make setup
+make
+```
+
+![demo](screenshot.png)

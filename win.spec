@@ -8,8 +8,8 @@ binaries = [
 ]
 
 a = Analysis(['main.py'],
-             pathex=[], # ?? 'C:\\Users\\daniel\\Documents\\git\\PortableGit\\mlinstall'
-             binaries=[binaries],
+             pathex=[],
+             binaries=binaries,
              datas=[],
              hiddenimports=[],
              hookspath=[],

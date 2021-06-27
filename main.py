@@ -1,17 +1,14 @@
 import ptpy
 from ptpy import Canon
-
 from tkinter import *
-
 from time import sleep
-from urllib.request import urlopen
-import base64
+from canon import *
 
 ws = Tk()
-ws.title("Magic Lantern USB Installer")
+ws.title("Magic Lantern USB Tool")
 ws.geometry("450x450+700+200")
 
-output=""
+output = ""
 
 camera = None
 
@@ -20,42 +17,64 @@ def log(text):
     
     global output
     output = output + text + "\n"
-    output_label.config(text=output)
+    output_label.config(text = output)
     ws.update()
 
 def connect():
     global output
-    output=""
+    output = ""
     
     global camera
     log("Attempting to connect to camera...")
     if camera == None:
         try:
-            camera = ptpy.PTPy()
-            log("Connected to the camera.")
-        except:
-            log("No camera found! Make sure it isn't mounted.")
-            return None
+           camera = ptpy.PTPy()
+        except Exception as e:
+            if "No USB PTP device found." in str(e):
+                log("No camera found. It might be mounted.")
+            elif "No backend available" in str(e):
+                log("Could not find libusb backend.")
+            return 1
     else:
         log("Already connected to camera")
-    return 1
+    return 0
 
-def install():
-    if connect() == None:
-        return
+def check():
+    if connect():
+        return 1
 
     with camera.session():
         info = camera.get_device_info()
-        log("Model: " + info.Model)
-        log("Firmware version: " + info.DeviceVersion[2:])
-        
+        if isCanon(info.Model):
+            log("Model: " + info.Model)
+            log("Firmware version: " + info.DeviceVersion[2:])
+            return 0
+        else:
+            log("Sorry, " + info.Model + " probably isn't supported.")
+            return 1
+
+def bootflag_on():
+    if check():
+        return 1
+    with camera.session():
         result = camera.eos_run_command("EnableBootDisk")
+        print(result)
         if result.ResponseCode == 'OK':
             log("Boot flag enabled.")
         else:
             log("Could not enable boot flag")
 
-def run_custom(Event=None):
+def bootflag_off():
+    if check():
+        return 1
+    with camera.session():
+        result = camera.eos_run_command("DisableBootDisk")
+        if result.ResponseCode == 'OK':
+            log("Boot flag disable.")
+        else:
+            log("Could not disable boot flag")
+
+def run_custom(Event = None):
     if connect() == None:
         return
 
@@ -67,37 +86,58 @@ def run_custom(Event=None):
         log("Response Code: " + str(r.ResponseCode))
         log("Response Value: " + str(r.Parameter[0]))
 
-bootflag_button = Button(
+welcome_label = Label(
     ws,
-    text="Enable boot flag",
-    command=install,
-    bg='#d1d1d1'
+    text = "Magic Lantern USB Tool",
+    font = ('Arial', 20)
+).pack(fill = BOTH, expand = False)
+
+welcome_label = Label(
+    ws,
+    text = "THIS IS NOT GARUNTEED TO WORK - \nKEEP BOTH PIECES IF YOU BREAK IT",
+    font = ('Arial', 10)
+).pack(fill = BOTH, expand = False)
+
+connect_button = Button(
+    ws,
+    text = "Connect",
+    command = check,
+    bg = '#d1d1d1'
+)
+
+bootflag_on_button = Button(
+    ws,
+    text = "Enable boot flag",
+    command = bootflag_on,
+    bg = '#d1d1d1'
 )
 
 output_label = Label(
     ws,
-    text="Output goes here...",
-    font=('Arial', 13)
+    text = "Output goes here...",
+    font = ('Arial', 13)
 )
 
 custom_label = Label(
     ws,
-    text="Run Custom DryOS Shell Command:",
-    font=('Arial', 13)
+    text = "Run Custom DryOS Shell Command:",
+    font = ('Arial', 13)
 )
 
 custom_entry = Entry(
     ws,
-    bg='#d1d1d1'
+    bg = '#d1d1d1'
 )
 
 custom_entry.bind('<Return>',run_custom)
 
 custom_entry.insert(0, "TurnOffDisplay")
 
-bootflag_button.pack(fill=BOTH, expand=False)
-custom_label.pack(fill=BOTH, expand=False)
-custom_entry.pack(fill=BOTH, expand=False)
-output_label.pack(fill=BOTH, expand=False)
+bootflag_on_button.pack(fill = BOTH, expand = False)
+
+custom_label.pack(fill = BOTH, expand = False)
+custom_entry.pack(fill = BOTH, expand = False)
+
+output_label.pack(fill = BOTH, expand = False)
 
 ws.mainloop()

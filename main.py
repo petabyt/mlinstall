@@ -2,7 +2,9 @@ import ptpy
 from ptpy import Canon
 from tkinter import *
 from time import sleep
+import json
 from canon import *
+import requests
 
 ws = Tk()
 ws.title("Magic Lantern USB Tool")
@@ -75,7 +77,7 @@ def bootflag_off():
             log("Could not disable boot flag")
 
 def run_custom(Event = None):
-    if connect() == None:
+    if connect():
         return
 
     with camera.session():
@@ -86,31 +88,69 @@ def run_custom(Event = None):
         log("Response Code: " + str(r.ResponseCode))
         log("Response Value: " + str(r.Parameter[0]))
 
+def install_ml():
+    if connect():
+        return 1
+
+    version = None
+    with camera.session():
+        version = info.DeviceVersion[2:]
+
+    if version == None:
+        log("Could not get version")
+        return
+    
+    info = getML("EOS Canon Rebel T6", version)
+    if not info:
+        log("Failed to download Magic Lantern for\n" + name + " firmware version " + version)
+    
+    log("Downloading ML from " + info["ml"])
+
+    f = open("ml.zip", "wb")
+    r = requests.get(info["ml"], allow_redirects=True, stream=f)
+    log("Done. Unzip ml.zip onto your SD card or mounted camera.")
+
+# Main UI Setup
+
 welcome_label = Label(
     ws,
-    text = "Magic Lantern USB Tool",
+    text = "Magic Lantern USB Installer",
     font = ('Arial', 20)
 ).pack(fill = BOTH, expand = False)
 
 welcome_label = Label(
     ws,
-    text = "THIS IS NOT GARUNTEED TO WORK - \nKEEP BOTH PIECES IF YOU BREAK IT",
+    text = "THIS IS NOT GARUNTEED TO WORK\nOR NOT KILL YOUR CAMERA\nKEEP BOTH PIECES IF YOU BREAK IT",
     font = ('Arial', 10)
 ).pack(fill = BOTH, expand = False)
 
-connect_button = Button(
+Button(
     ws,
     text = "Connect",
     command = check,
     bg = '#d1d1d1'
-)
+).pack(fill = BOTH, expand = False)
 
 bootflag_on_button = Button(
     ws,
     text = "Enable boot flag",
     command = bootflag_on,
     bg = '#d1d1d1'
-)
+).pack(fill = BOTH, expand = False)
+
+Button(
+    ws,
+    text = "Disable boot flag",
+    command = bootflag_off,
+    bg = '#d1d1d1'
+).pack(fill = BOTH, expand = False)
+
+install_ml_button = Button(
+    ws,
+    text = "Install latest Magic Lantern",
+    command = install_ml,
+    bg = '#d1d1d1'
+).pack(fill = BOTH, expand = False)
 
 output_label = Label(
     ws,
@@ -132,8 +172,6 @@ custom_entry = Entry(
 custom_entry.bind('<Return>',run_custom)
 
 custom_entry.insert(0, "TurnOffDisplay")
-
-bootflag_on_button.pack(fill = BOTH, expand = False)
 
 custom_label.pack(fill = BOTH, expand = False)
 custom_entry.pack(fill = BOTH, expand = False)

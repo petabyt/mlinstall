@@ -1,4 +1,4 @@
 @echo off
-copy win.spec main.spec
+copy winspec main.spec
 pyinstaller -w --onefile -D main.spec
 del main.spec

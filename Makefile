@@ -1,7 +1,6 @@
 # For Linux only
 
-# Pack into single executable, dependent
-# On newer glibc
+# Pack into single executable
 F := -D -y --onefile -F
 
 default:
@@ -22,8 +21,11 @@ setup:
 	@cd seq*; pip3 install .
 
 pack:
-	@python3 -m PyInstaller $(F) main.py
+	@cp mainspec main.spec
+	@python3 -m PyInstaller $(F) main.spec
+
+# Pack with glibc into single supermassive 20+ megabyte static executable
 	@staticx dist/main dist/mlinstall_x86_64_linux
 
 clean:
-	@rm -rf __pycache__ build dist
+	@rm -rf __pycache__ build dist *.spec

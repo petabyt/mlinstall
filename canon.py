@@ -1,3 +1,5 @@
+# Code relating to camera information and stuff
+
 import json
 
 # This list may be old and inaccurate
@@ -52,6 +54,8 @@ downloads = {
     "EOS 5D Mark III": ["1.1.3", "https://builds.magiclantern.fm/jenkins/job/5D3.113/468/artifact/platform/5D3.113/magiclantern-Nightly.2018Jul03.5D3113.zip"]
 }
 
+# Get correct ML download link based on 
+# model and firmware version
 def getML(string, version):
     name = ""
     for cam in models:

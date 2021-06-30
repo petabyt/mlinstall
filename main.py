@@ -14,7 +14,7 @@ except:
 	print("Can't find requests, continuing")
 	nodownload = 1
 
-# Disable downloading for now...
+# Disable downloading for now, unfinished
 nodownload = 1
 
 ws = Tk()

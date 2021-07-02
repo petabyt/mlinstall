@@ -5,7 +5,7 @@ from time import sleep
 import json
 
 from canon import *
-from boot import *
+import boot
 
 nodownload = 0
 try:
@@ -84,7 +84,7 @@ def bootflag_off():
     with camera.session():
         result = camera.eos_run_command("DisableBootDisk")
         if result.ResponseCode == "OK":
-            log("Boot flag disable.")
+            log("Boot flag disabled.")
         else:
             log("Could not disable boot flag")
 

@@ -189,14 +189,14 @@ custom_entry = Entry(
 custom_entry.bind("<Return>", run_custom)
 custom_entry.insert(0, "TurnOffDisplay")
 
-
+'''
 install_ml_button = Button(
     ws,
     text = "Make EOS_DIGITAL Card Bootable",
     command = install,
     bg = "#d1d1d1"
 ).pack(fill = BOTH, expand = False)
-
+'''
 
 custom_label.pack(fill = BOTH, expand = False)
 custom_entry.pack(fill = BOTH, expand = False)

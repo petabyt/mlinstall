@@ -1,4 +1,4 @@
-# Make card bootable, and install ml.zip
+# Dummy scripts until something better works.
 
 import os
 

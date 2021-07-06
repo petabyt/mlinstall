@@ -1,3 +1,6 @@
+# Quick script to kill stray tkinter processes:
+# kill -9 `ps -e | grep python3 | awk '{printf $1}'`
+
 import ptpy
 from ptpy import Canon
 from tkinter import *
@@ -5,13 +8,13 @@ from time import sleep
 import json
 
 from canon import *
-import boot
+from install import *
 
 nodownload = 0
 try:
 	import requests
 except:
-	print("Can't find requests, continuing")
+	print("Can't find requests, won't download.")
 	nodownload = 1
 
 # Disable downloading for now, unfinished
@@ -43,6 +46,7 @@ def connect():
         try:
            camera = ptpy.PTPy()
         except Exception as e:
+            print("Connection Exception: " + str(e))
             if "No USB PTP device found." in str(e):
                 log("No camera found. It might be mounted.")
             elif "No backend available" in str(e):
@@ -122,9 +126,6 @@ def install_ml():
     r = requests.get(info["ml"], allow_redirects=True, stream=f)
     log("Done. Unzip ml.zip onto your SD card or mounted camera.")
 
-def bootable_handler(Event = None):
-	make_drive_bootable(bootable_entry.get())
-
 # Main UI Setup
 
 welcome_label = Label(
@@ -188,23 +189,14 @@ custom_entry = Entry(
 custom_entry.bind("<Return>", run_custom)
 custom_entry.insert(0, "TurnOffDisplay")
 
-'''
-Label(
+
+install_ml_button = Button(
     ws,
-    text = "Make SD Card Bootable:",
-    font = ("Arial", 13)
+    text = "Make EOS_DIGITAL Card Bootable",
+    command = install,
+    bg = "#d1d1d1"
 ).pack(fill = BOTH, expand = False)
 
-bootable_entry = Entry(
-    ws,
-    bg = "#d1d1d1"
-)
-
-bootable_entry.bind("<Return>", bootable_handler)
-bootable_entry.insert(0, "F:/")
-
-bootable_entry.pack(fill = BOTH, expand = False)
-'''
 
 custom_label.pack(fill = BOTH, expand = False)
 custom_entry.pack(fill = BOTH, expand = False)

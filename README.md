@@ -5,6 +5,9 @@ A cross-platform Tkinter front-end for my modified version of the
 **This is not guaranteed to work or not brick  
 your camera. Use at your own risk**
 
+If you would like a lower-level alternative, check out  
+my fork of ptpcam: https://github.com/petabyt/ptpcam  
+
 # TODO:
 Feel free to send a pull request.  
 - [x] - Enable/Disable boot disk

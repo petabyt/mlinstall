@@ -3,17 +3,17 @@ A cross-platform Tkinter front-end for my modified version of the
 `sequoia-ptpy` library: https://github.com/petabyt/sequoia-ptpy  
 
 **This is not guaranteed to work or not brick  
-your camera. Use at your own risk**
+your camera. Use at your own risk**  
 
-If you would like a lower-level alternative, check out  
-my fork of ptpcam: https://github.com/petabyt/ptpcam  
+An alternative backend is available in C:  
+https://github.com/petabyt/ptpcam  
 
 # TODO:
 Feel free to send a pull request.  
 - [x] - Enable/Disable boot disk
 - [x] - Execute DryOS shell commands
 - [x] - Basic PTP functionality
-- [ ] - Write EOS_DEVELOP flags to SD card
+- [ ] - Write EOS_DEVELOP flags to SD card (Windows + Linux)
 - [ ] - Download correct ML based on model and FW version (canon.py)
 - [ ] - Fix code style? Not a Python expert here
 - [ ] - RIIR

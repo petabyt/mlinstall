@@ -1,3 +1,4 @@
+// Command line based application
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

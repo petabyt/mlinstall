@@ -69,7 +69,7 @@
 #define BE64TOH(x)      (x) = be64toh(x)
 
 /* Define the C99 standard length-specific integer types */
-#include "libptp-stdint.h"
+#include <stdint.h>
 
 /* Here are some macros to create integers from a byte array */
 /* These are used to get and put integers from/into a uint8_t array */

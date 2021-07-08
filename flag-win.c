@@ -3,25 +3,22 @@
 #include <stdio.h>
 #include <windows.h>
 
-enum FsType {
-	FAT16 = 0,
-	FAT32 = 1,
-	EXFAT = 2
-};
+enum FsType { FAT16 = 0, FAT32 = 1, EXFAT = 2 };
 
 #define SIZE 512
 
 char bootsector[SIZE];
 DWORD bytesRead;
 
-int getDrive(HANDLE d) {
+int getDrive(HANDLE d)
+{
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
 	ReadFile(d, bootsector, SIZE, &bytesRead, NULL);
 
 	if (!strcmp(bootsector + 54, "FAT16   ")) {
 		return FAT16;
 	}
-	
+
 	if (!strcmp(bootsector + 82, "FAT32   ")) {
 		return FAT32;
 	}
@@ -33,7 +30,8 @@ int getDrive(HANDLE d) {
 	return 0;
 }
 
-void setboot(HANDLE d, long of1, long of2) {
+void setboot(HANDLE d, long of1, long of2)
+{
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
 	ReadFile(d, bootsector, SIZE, &bytesRead, NULL);
 
@@ -47,36 +45,35 @@ void setboot(HANDLE d, long of1, long of2) {
 	WriteFile(d, bootsector, SIZE, &bytesRead, NULL);
 }
 
-int enableFlag() {
+int enableFlag()
+{
 	char buffer[64];
 
 	// List info usb type mounted filesystems
-    FILE *f = popen("wmic logicaldisk where drivetype=2 get deviceid, volumename", "r");
+	FILE *f = popen(
+		"wmic logicaldisk where drivetype=2 get deviceid, volumename",
+		"r");
 
-    // Skip first line (title)
-    fgets(buffer, 64, f);
+	// Skip first line (title)
+	fgets(buffer, 64, f);
 
 	// Look for EOS_DIGITAL drive
-    while (fgets(buffer, 64, f) != NULL) {
-        if (!strncmp(buffer + 10, "EOS_DIGITAL", 11)) {
-        	printf("Found EOS_DIGITAL at drive %c\n", buffer[0]);
-            id = buffer[0];
-            break;
-        }
-    }
+	while (fgets(buffer, 64, f) != NULL) {
+		if (!strncmp(buffer + 10, "EOS_DIGITAL", 11)) {
+			printf("Found EOS_DIGITAL at drive %c\n", buffer[0]);
+			id = buffer[0];
+			break;
+		}
+	}
 
 	char driveID[] = "\\\\.\\E:";
 	driveID[4] = id;
 
-	HANDLE d = CreateFile(
-		driveID,
-		GENERIC_READ | GENERIC_WRITE,
-		FILE_SHARE_READ | FILE_SHARE_WRITE,
-		NULL,
-		OPEN_EXISTING,
-		FILE_FLAG_NO_BUFFERING | FILE_FLAG_RANDOM_ACCESS,
-		NULL
-	);
+	HANDLE d = CreateFile(driveID, GENERIC_READ | GENERIC_WRITE,
+			      FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
+			      OPEN_EXISTING,
+			      FILE_FLAG_NO_BUFFERING | FILE_FLAG_RANDOM_ACCESS,
+			      NULL);
 
 	if (d == INVALID_HANDLE_VALUE) {
 		puts("Could not open filesystem. Try running as Administrator.");
@@ -104,7 +101,8 @@ int enableFlag() {
 }
 
 #ifdef TEST
-int main() {
+int main()
+{
 	// E:\ drive
 	enableFlag('E');
 }

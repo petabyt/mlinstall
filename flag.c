@@ -1,15 +1,12 @@
-// Unix Utility to enable 
+// Unix Utility to enable
 // boot disk on EOS_DIGITAL card
 #include <stdio.h>
 #include <string.h>
 
-enum FsType {
-	FAT16 = 0,
-	FAT32 = 1,
-	EXFAT = 2
-};
+enum FsType { FAT16 = 0, FAT32 = 1, EXFAT = 2 };
 
-int getDrive(FILE *d) {
+int getDrive(FILE *d)
+{
 	char buffer[50];
 
 	memset(buffer, '\0', sizeof(buffer));
@@ -18,7 +15,7 @@ int getDrive(FILE *d) {
 	if (!strcmp(buffer, "FAT16   ")) {
 		return FAT16;
 	}
-	
+
 	memset(buffer, '\0', sizeof(buffer));
 	fseek(d, 82, SEEK_SET);
 	fread(buffer, 1, 8, d);
@@ -36,7 +33,8 @@ int getDrive(FILE *d) {
 	return 0;
 }
 
-void setboot(FILE *d, long of1, long of2) {
+void setboot(FILE *d, long of1, long of2)
+{
 	char buffer[64];
 
 	memset(buffer, '\0', sizeof(buffer));
@@ -56,7 +54,8 @@ void setboot(FILE *d, long of1, long of2) {
 	fwrite("BOOTDISK", 1, 8, d);
 }
 
-int enableFlag() {
+int enableFlag()
+{
 	char buffer[50];
 
 	// Get EOS_DIGITAL Drive
@@ -70,7 +69,7 @@ int enableFlag() {
 		return 1;
 	}
 
-	char *fsNames[] = {"FAT16", "FAT32", "EXFAT"};
+	char *fsNames[] = { "FAT16", "FAT32", "EXFAT" };
 	int drive = getDrive(d);
 
 	printf("FS Type: %s\n", fsNames[drive]);
@@ -95,7 +94,8 @@ int enableFlag() {
 }
 
 #ifdef TEST
-int main() {
+int main()
+{
 	enableFlag(0);
 }
 #endif

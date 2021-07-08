@@ -9,25 +9,28 @@
 #include "ptpcam.h"
 
 // From ptp.c
-uint16_t ptp_runeventproc(PTPParams* params, char string[]);
+uint16_t ptp_runeventproc(PTPParams *params, char string[]);
 
 // flag.c, or flag-win.c
 int enableFlag();
 
-int main() {
+int main()
+{
 	int busn = 0, devn = 0;
 	short force = 0;
 
 	PTPParams params;
 	PTP_USB ptp_usb;
-	struct usb_device* dev;
+	struct usb_device *dev;
 
 	puts("ML USB Install Tools (ptpcam backend)");
 	puts("Commands:");
 	puts("    run <COMMAND>        Run a Canon event proc via micro usb");
-	puts("    bootdisk             Run EnableBootDisk and allow autoexec.bin to be run.");
+	puts("    bootdisk             Run EnableBootDisk and allow autoexec.bin to "
+	     "be run.");
 	puts("    bootdiskoff          Run DisableBootDisk");
-	puts("    flags <DRIVE LETTER> Write EOS_DEVELOP and BOOTDISK flag to mounted SD card named \"EOS_DEVELOP\"");
+	puts("    flags <DRIVE LETTER> Write EOS_DEVELOP and BOOTDISK flag to "
+	     "mounted SD card named \"EOS_DEVELOP\"");
 
 	while (1) {
 		putchar(':');
@@ -36,7 +39,8 @@ int main() {
 		strtok(input, "\n");
 
 		if (!strncmp(input, "run ", 4)) {
-			if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
+			if (open_camera(busn, devn, force, &ptp_usb, &params,
+					&dev) < 0) {
 				continue;
 			}
 
@@ -44,7 +48,8 @@ int main() {
 
 			close_camera(&ptp_usb, &params, dev);
 		} else if (!strcmp(input, "bootdisk")) {
-			if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
+			if (open_camera(busn, devn, force, &ptp_usb, &params,
+					&dev) < 0) {
 				continue;
 			}
 
@@ -53,7 +58,8 @@ int main() {
 
 			puts("Enabled boot disk.");
 		} else if (!strcmp(input, "bootdiskoff")) {
-			if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
+			if (open_camera(busn, devn, force, &ptp_usb, &params,
+					&dev) < 0) {
 				continue;
 			}
 

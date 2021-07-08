@@ -39,8 +39,8 @@
 #define IOCTL_USB_GETDRIVER _IOW('U', 8, struct usb_getdriver)
 #define IOCTL_USB_SUBMITURB _IOR('U', 10, struct usb_urb)
 #define IOCTL_USB_DISCARDURB _IO('U', 11)
-#define IOCTL_USB_REAPURB _IOW('U', 12, void*)
-#define IOCTL_USB_REAPURBNDELAY _IOW('U', 13, void*)
+#define IOCTL_USB_REAPURB _IOW('U', 12, void *)
+#define IOCTL_USB_REAPURBNDELAY _IOW('U', 13, void *)
 #define IOCTL_USB_CLAIMINTF _IOR('U', 15, unsigned int)
 #define IOCTL_USB_RELEASEINTF _IOR('U', 16, unsigned int)
 #define IOCTL_USB_IOCTL _IOWR('U', 18, struct usb_ioctl)
@@ -56,29 +56,31 @@ struct usb_bulktransfer {
 	unsigned int timeout; /* in milliseconds */
 
 	/* pointer to data */
-	void* data;
+	void *data;
 };
 
 struct usb_dev_handle {
 	int fd;
 
-	struct usb_bus* bus;
-	struct usb_device* device;
+	struct usb_bus *bus;
+	struct usb_device *device;
 
 	int config;
 	int interface;
 	int altsetting;
 
 	/* Added by RMT so implementations can store other per-open-device data */
-	void* impl_info;
+	void *impl_info;
 };
 
 /* Linux usbdevfs has a limit of one page size per read/write. 4096 is */
 /* the most portable maximum we can do for now */
 #define MAX_READ_WRITE 4096
 
-int myusb_bulk_write(usb_dev_handle* dev, int ep, char* bytes, int length, int timeout);
-int myusb_bulk_write(usb_dev_handle* dev, int ep, char* bytes, int length, int timeout)
+int myusb_bulk_write(usb_dev_handle *dev, int ep, char *bytes, int length,
+		     int timeout);
+int myusb_bulk_write(usb_dev_handle *dev, int ep, char *bytes, int length,
+		     int timeout)
 {
 	struct usb_bulktransfer bulk;
 	int ret, sent = 0;
@@ -93,7 +95,7 @@ int myusb_bulk_write(usb_dev_handle* dev, int ep, char* bytes, int length, int t
 		if (bulk.len > MAX_READ_WRITE)
 			bulk.len = MAX_READ_WRITE;
 		bulk.timeout = timeout;
-		bulk.data = (unsigned char*)bytes + sent;
+		bulk.data = (unsigned char *)bytes + sent;
 
 		ret = ioctl(dev->fd, IOCTL_USB_BULK, &bulk);
 		if (ret < 0)
@@ -105,8 +107,10 @@ int myusb_bulk_write(usb_dev_handle* dev, int ep, char* bytes, int length, int t
 	return sent;
 }
 
-int myusb_bulk_read(usb_dev_handle* dev, int ep, char* bytes, int size, int timeout);
-int myusb_bulk_read(usb_dev_handle* dev, int ep, char* bytes, int size, int timeout)
+int myusb_bulk_read(usb_dev_handle *dev, int ep, char *bytes, int size,
+		    int timeout);
+int myusb_bulk_read(usb_dev_handle *dev, int ep, char *bytes, int size,
+		    int timeout)
 {
 	struct usb_bulktransfer bulk;
 	int ret, retrieved = 0, requested;
@@ -121,7 +125,7 @@ int myusb_bulk_read(usb_dev_handle* dev, int ep, char* bytes, int size, int time
 			requested = MAX_READ_WRITE;
 		bulk.len = requested;
 		bulk.timeout = timeout;
-		bulk.data = (unsigned char*)bytes + retrieved;
+		bulk.data = (unsigned char *)bytes + retrieved;
 
 		ret = ioctl(dev->fd, IOCTL_USB_BULK, &bulk);
 		if (ret < 0)

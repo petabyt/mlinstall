@@ -13,7 +13,7 @@ style:
 	@clang-format $(STYLE) properties.c
 	@clang-format $(STYLE) ptpcam.c
 	@clang-format $(STYLE) flag.c
-	@clang-format $(STYLE) win.c
+	@clang-format $(STYLE) main.c
 	@clang-format $(STYLE) flag-win.c
 
 gtk:

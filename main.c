@@ -5,9 +5,9 @@
 #include <sys/types.h>
 #include <usb.h>
 
-#include "config.h"
-#include "ptp.h"
-#include "ptpcam.h"
+#include "src/config.h"
+#include "src/ptp.h"
+#include "src/ptpcam.h"
 
 // From ptp.c
 uint16_t ptp_runeventproc(PTPParams *params, char string[]);
@@ -40,8 +40,7 @@ int main()
 		strtok(input, "\n");
 
 		if (!strncmp(input, "run ", 4)) {
-			if (open_camera(busn, devn, force, &ptp_usb, &params,
-					&dev) < 0) {
+			if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
 				continue;
 			}
 
@@ -49,8 +48,7 @@ int main()
 
 			close_camera(&ptp_usb, &params, dev);
 		} else if (!strcmp(input, "bootdisk")) {
-			if (open_camera(busn, devn, force, &ptp_usb, &params,
-					&dev) < 0) {
+			if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
 				continue;
 			}
 
@@ -59,8 +57,7 @@ int main()
 
 			puts("Enabled boot disk.");
 		} else if (!strcmp(input, "bootdiskoff")) {
-			if (open_camera(busn, devn, force, &ptp_usb, &params,
-					&dev) < 0) {
+			if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
 				continue;
 			}
 

@@ -6,9 +6,9 @@
 #include <usb.h>
 #include <gtk/gtk.h>
 
-#include "config.h"
-#include "ptp.h"
-#include "ptpcam.h"
+#include "src/config.h"
+#include "src/ptp.h"
+#include "src/ptpcam.h"
 
 // From ptp.c
 uint16_t ptp_runeventproc(PTPParams *params, char string[]);
@@ -23,19 +23,19 @@ PTP_USB ptp_usb;
 struct usb_device *dev;
 
 // Quick, messy, logging mechanism
-GtkWidget *log;
+GtkWidget *logw;
 char logbuf[1000] = "Log info will go here.\n";
 
 void logprint(char string[])
 {
 	strcat(logbuf, string);
-	gtk_label_set_text(GTK_LABEL(log), logbuf);
+	gtk_label_set_text(GTK_LABEL(logw), logbuf);
 }
 
 void logclear()
 {
 	logbuf[0] = '\0';
-	gtk_label_set_text(GTK_LABEL(log), logbuf);
+	gtk_label_set_text(GTK_LABEL(logw), logbuf);
 }
 
 // Log a return message after doing something
@@ -92,16 +92,17 @@ static void deviceinfo(GtkWidget *widget, gpointer data)
 	close_camera(&ptp_usb, &params, dev);
 }
 
-void runcommand(char string[])
+int runcommand(char string[])
 {
 	logclear();
 	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
 		returnMessage(0);
-		return;
+		return 1;
 	}
 
 	returnMessage((unsigned int)ptp_runeventproc(&params, string));
 	close_camera(&ptp_usb, &params, dev);
+	return 0;
 }
 
 // Run a custom event proc
@@ -140,15 +141,26 @@ int main(int argc, char *argv[])
 
 	GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(window), "mlinstall");
-	gtk_window_set_default_size(GTK_WINDOW(window), 400, 300);
-	g_signal_connect(window, "delete-event", G_CALLBACK(delete_event),
-			 NULL);
+	gtk_window_set_default_size(GTK_WINDOW(window), 300, 400);
+	g_signal_connect(window, "delete-event", G_CALLBACK(delete_event), NULL);
 	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
 
+	// Add widgets horizontally
 	int order = 0;
 
 	GtkWidget *grid = gtk_grid_new();
 	gtk_container_add(GTK_CONTAINER(window), grid);
+
+	GtkWidget *title = gtk_label_new(
+		"Magic Lantern USB Installation Tools\n" \
+		"THIS IS NOT GARUNTEED TO WORK\n" \
+		"OR NOT KILL YOUR CAMERA\n" \
+		"KEEP BOTH PIECES IF YOU BREAK IT\n"
+	);
+
+	gtk_label_set_justify(GTK_LABEL(title), GTK_JUSTIFY_CENTER);
+	gtk_grid_attach(GTK_GRID(grid), title, 0, order++, 1, 1);
+	gtk_widget_show(title);
 
 	button = gtk_button_new_with_label("Device Info");
 	g_signal_connect(button, "clicked", G_CALLBACK(deviceinfo), NULL);
@@ -170,20 +182,18 @@ int main(int argc, char *argv[])
 	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
 	gtk_widget_show(button);
 
-	gchar text[] = "TurnOffDisplay";
-	GtkEntryBuffer *buf = gtk_entry_buffer_new(text, sizeof(text));
+	GtkEntryBuffer *buf = gtk_entry_buffer_new("TurnOffDisplay", 14);
 	entry = gtk_entry_new_with_buffer(buf);
 	gtk_grid_attach(GTK_GRID(grid), entry, 0, order++, 1, 1);
 	g_signal_connect(entry, "activate", G_CALLBACK(eventproc), NULL);
+	gtk_widget_show(entry);
 
-	log = gtk_label_new(logbuf);
-	gtk_grid_attach(GTK_GRID(grid), log, 0, order++, 1, 1);
-	gtk_widget_show(log);
+	logw = gtk_label_new(logbuf);
+	gtk_grid_attach(GTK_GRID(grid), logw, 0, order++, 1, 1);
+	gtk_label_set_justify(GTK_LABEL(logw), GTK_JUSTIFY_CENTER);
+	gtk_widget_show(logw);
 
 	gtk_widget_set_hexpand(button, TRUE);
-	gtk_widget_show(entry);
-	gtk_widget_show(log);
-	gtk_widget_show(button);
 	gtk_widget_show(grid);
 	gtk_widget_show(window);
 	gtk_main();

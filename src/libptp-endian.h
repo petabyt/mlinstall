@@ -35,6 +35,9 @@
 /* Arguments to these macros must be properly aligned on natural word */
 /* boundaries in order to work properly on all architectures */
 
+// May not be needed (ton of compiler warnings)
+#ifndef htole32
+
 /* Uncomment if system endian.h does not provide them */
 #define htobe16(x) htons(x)
 #define htobe32(x) htonl(x)
@@ -67,6 +70,8 @@
 
 #define HTOBE64(x)      (x) = htobe64(x)
 #define BE64TOH(x)      (x) = be64toh(x)
+
+#endif
 
 /* Define the C99 standard length-specific integer types */
 #include <stdint.h>

@@ -1,29 +1,26 @@
-CC=tcc
-CFLAGS=-w
+#CC = cc
+CFLAGS= 
 LDFLAGS=-lusb
 STYLE=-style=file -i
-LIBFILES=flag.c myusb.c properties.c ptp.c ptpcam.c
+
+LIBFILES = flag.c myusb.c properties.c ptp.c ptpcam.c
+
+GTKFLAGS = `pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0`
 
 all: ptpcam clean
-gtk: gtkb clean
+gui: gtkb clean
 
 clean:
 	@rm -rf ptpcam *.orig *.gch *.o *.out ptpcam *.exe
 
 style:
-	@clang-format $(STYLE) ptp.c
-	@clang-format $(STYLE) myusb.c
-	@clang-format $(STYLE) properties.c
-	@clang-format $(STYLE) ptpcam.c
-	@clang-format $(STYLE) flag.c
-	@clang-format $(STYLE) main.c
-	@clang-format $(STYLE) flag-win.c
-	@clang-format $(STYLE) gtk.c
+	@cd src; clang-format $(STYLE) *.c
+	@clang-format $(STYLE) *.c
 
 gtkb:
-	@$(CC) gtk.c $(LIBFILES) $(LDFLAGS) $(CFLAGS) -o ptpcam `pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0`
+	@cd src; $(CC) ../gtk.c $(LIBFILES) $(LDFLAGS) $(CFLAGS) $(GTKFLAGS) -o ../ptpcam
 	@./ptpcam
 
 ptpcam:
-	@$(CC) main.c $(LIBFILES) $(LIBFILES) -o ptpcam $(CFLAGS) $(LDFLAGS)
+	@cd src; $(CC) ../main.c $(LIBFILES) -o ../ptpcam $(CFLAGS) $(LDFLAGS)
 	@sudo ./ptpcam

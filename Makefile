@@ -1,6 +1,8 @@
+# Create standalone executable
+STATIC=-static -static-libgcc -static-libstdc++
 #CC = cc
-CFLAGS= 
-LDFLAGS=-lusb
+CFLAGS=-w
+LDFLAGS=$(STATIC) -lusb
 STYLE=-style=file -i
 
 LIBFILES = flag.c myusb.c properties.c ptp.c ptpcam.c
@@ -22,5 +24,5 @@ gtkb:
 	@./ptpcam
 
 ptpcam:
-	@cd src; $(CC) ../main.c $(LIBFILES) -o ../ptpcam $(CFLAGS) $(LDFLAGS)
+	@cd src; $(CC) ../main.c $(LIBFILES) $(CFLAGS) $(LDFLAGS) -o ../ptpcam
 	@sudo ./ptpcam

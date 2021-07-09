@@ -1,0 +1,6 @@
+*.out
+ptpcam
+*.exe
+*.o
+libusb*
+libusb*/

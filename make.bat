@@ -1,4 +1,5 @@
 @echo off
+rem Windows Compilation script
 rem Usage:
 rem make.bat           Compile default CLI app
 rem make.bat gtk       Compile gtk app
@@ -11,13 +12,14 @@ rem This script might work:
 rem curl.exe https://cfhcable.dl.sourceforge.net/project/libusb-win32/libusb-win32-releases/1.2.2.0/libusb-win32-bin-1.2.2.0.zip > libusb.zip
 rem unzip libusb
 
+rem Should be in top directory:
+set LIBUSB=libusb-win32-bin-1.2.2.0
+
 rem !! Required compiler (compatibility)
 set CC=x86_64-w64-mingw32-gcc
-set CFLAGS=-I"%LIBUSB%/include"
+set CFLAGS=-I%LIBUSB%/include -I../%LIBUSB%/include
 
-rem (compiled while in src)
-set LIBUSB=../libusb-win32-bin-1.2.2.0
-set LINK=-lws2_32 -lkernel32 "%LIBUSB%/bin/amd64/libusb0.dll"
+set LINK=-lws2_32 -lkernel32 "../%LIBUSB%/bin/amd64/libusb0.dll"
 
 set FILES=flag.c ptpcam.c myusb.c properties.c ptp.c
 
@@ -27,15 +29,16 @@ if %ERRORLEVEL% neq 0 (
 	exit /b
 )
 
-dir %LIBUSB% >nul
-if %ERRORLEVEL% neq 0 (
+if NOT EXIST %LIBUSB% (
 	echo !!!! Libusb not found. Download it from:
 	echo !!!! https://cfhcable.dl.sourceforge.net/project/libusb-win32/libusb-win32-releases/1.2.2.0/libusb-win32-bin-1.2.2.0.zip
 	exit /b
 )
 
 rem Compile gtk.c
-if %1 == "gtk" (
+rem mingw-gtk3.0
+rem mingw-glib2.0
+if "%1" == "gtk" (
 	cd src
 	%CC% %CFLAGS% ../gtk.c %FILES% %LINK% -o ../ptpcam.exe
 	cd ..

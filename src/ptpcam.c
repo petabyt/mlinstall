@@ -148,14 +148,12 @@ static short ptp_read_func(unsigned char *bytes, unsigned int size, void *data)
 			toread = PTPCAM_USB_URB;
 		else
 			toread = rbytes;
-		result = USB_BULK_READ(ptp_usb->handle, ptp_usb->inep,
-				       (char *)bytes, toread,
+		result = USB_BULK_READ(ptp_usb->handle, ptp_usb->inep, (char *)bytes, toread,
 				       ptpcam_usb_timeout);
 		/* sometimes retry might help */
 		if (result == 0)
-			result = USB_BULK_READ(ptp_usb->handle, ptp_usb->inep,
-					       (char *)bytes, toread,
-					       ptpcam_usb_timeout);
+			result = USB_BULK_READ(ptp_usb->handle, ptp_usb->inep, (char *)bytes,
+					       toread, ptpcam_usb_timeout);
 		if (result < 0)
 			break;
 		rbytes -= PTPCAM_USB_URB;
@@ -175,8 +173,8 @@ static short ptp_write_func(unsigned char *bytes, unsigned int size, void *data)
 	int result;
 	PTP_USB *ptp_usb = (PTP_USB *)data;
 
-	result = USB_BULK_WRITE(ptp_usb->handle, ptp_usb->outep, (char *)bytes,
-				size, ptpcam_usb_timeout);
+	result = USB_BULK_WRITE(ptp_usb->handle, ptp_usb->outep, (char *)bytes, size,
+				ptpcam_usb_timeout);
 	if (result >= 0)
 		return (PTP_RC_OK);
 	else {
@@ -192,14 +190,13 @@ static short ptp_check_int(unsigned char *bytes, unsigned int size, void *data)
 	int result;
 	PTP_USB *ptp_usb = (PTP_USB *)data;
 
-	result = USB_BULK_READ(ptp_usb->handle, ptp_usb->intep, (char *)bytes,
-			       size, ptpcam_usb_timeout);
+	result = USB_BULK_READ(ptp_usb->handle, ptp_usb->intep, (char *)bytes, size,
+			       ptpcam_usb_timeout);
 	if (result == 0)
-		result = USB_BULK_READ(ptp_usb->handle, ptp_usb->intep,
-				       (char *)bytes, size, ptpcam_usb_timeout);
+		result = USB_BULK_READ(ptp_usb->handle, ptp_usb->intep, (char *)bytes, size,
+				       ptpcam_usb_timeout);
 	if (verbose > 2)
-		fprintf(stderr, "USB_BULK_READ returned %i, size=%i\n", result,
-			size);
+		fprintf(stderr, "USB_BULK_READ returned %i, size=%i\n", result, size);
 
 	if (result >= 0) {
 		return result;
@@ -253,11 +250,9 @@ void init_ptp_usb(PTPParams *params, PTP_USB *ptp_usb, struct usb_device *dev)
 			exit(0);
 		}
 		ptp_usb->handle = device_handle;
-		usb_set_configuration(device_handle,
-				      dev->config->bConfigurationValue);
-		usb_claim_interface(
-			device_handle,
-			dev->config->interface->altsetting->bInterfaceNumber);
+		usb_set_configuration(device_handle, dev->config->bConfigurationValue);
+		usb_claim_interface(device_handle,
+				    dev->config->interface->altsetting->bInterfaceNumber);
 	}
 	globalparams = params;
 }
@@ -300,9 +295,8 @@ void clear_stall(PTP_USB *ptp_usb)
 void close_usb(PTP_USB *ptp_usb, struct usb_device *dev)
 {
 	// clear_stall(ptp_usb);
-	usb_release_interface(
-		ptp_usb->handle,
-		dev->config->interface->altsetting->bInterfaceNumber);
+	usb_release_interface(ptp_usb->handle,
+			      dev->config->interface->altsetting->bInterfaceNumber);
 	usb_reset(ptp_usb->handle);
 	usb_close(ptp_usb->handle);
 }
@@ -330,25 +324,18 @@ struct usb_device *find_device(int busn, int devn, short force)
 	for (; bus; bus = bus->next)
 		for (dev = bus->devices; dev; dev = dev->next)
 			if (dev->config)
-				if ((dev->config->interface->altsetting
-					     ->bInterfaceClass ==
+				if ((dev->config->interface->altsetting->bInterfaceClass ==
 				     USB_CLASS_PTP) ||
 				    force)
-					if (dev->descriptor.bDeviceClass !=
-					    USB_CLASS_HUB) {
+					if (dev->descriptor.bDeviceClass != USB_CLASS_HUB) {
 						int curbusn, curdevn;
 
-						curbusn = strtol(bus->dirname,
-								 NULL, 10);
+						curbusn = strtol(bus->dirname, NULL, 10);
 #ifdef WIN32
-						curdevn = strtol(
-							strchr(dev->filename,
-							       '-') +
-								1,
-							NULL, 10);
-#else
-						curdevn = strtol(dev->filename,
+						curdevn = strtol(strchr(dev->filename, '-') + 1,
 								 NULL, 10);
+#else
+						curdevn = strtol(dev->filename, NULL, 10);
 #endif
 
 						if (devn == 0) {
@@ -357,11 +344,9 @@ struct usb_device *find_device(int busn, int devn, short force)
 							if (curbusn == busn)
 								return dev;
 						} else {
-							if ((busn == 0) &&
-							    (curdevn == devn))
+							if ((busn == 0) && (curdevn == devn))
 								return dev;
-							if ((curbusn == busn) &&
-							    (curdevn == devn))
+							if ((curbusn == busn) && (curdevn == devn))
 								return dev;
 						}
 					}
@@ -383,30 +368,25 @@ void find_endpoints(struct usb_device *dev, int *inep, int *outep, int *intep)
 			    USB_ENDPOINT_DIR_MASK) {
 				*inep = ep[i].bEndpointAddress;
 				if (verbose > 1)
-					fprintf(stderr, "Found inep: 0x%02x\n",
-						*inep);
+					fprintf(stderr, "Found inep: 0x%02x\n", *inep);
 			}
-			if ((ep[i].bEndpointAddress & USB_ENDPOINT_DIR_MASK) ==
-			    0) {
+			if ((ep[i].bEndpointAddress & USB_ENDPOINT_DIR_MASK) == 0) {
 				*outep = ep[i].bEndpointAddress;
 				if (verbose > 1)
-					fprintf(stderr, "Found outep: 0x%02x\n",
-						*outep);
+					fprintf(stderr, "Found outep: 0x%02x\n", *outep);
 			}
-		} else if ((ep[i].bmAttributes ==
-			    USB_ENDPOINT_TYPE_INTERRUPT) &&
+		} else if ((ep[i].bmAttributes == USB_ENDPOINT_TYPE_INTERRUPT) &&
 			   ((ep[i].bEndpointAddress & USB_ENDPOINT_DIR_MASK) ==
 			    USB_ENDPOINT_DIR_MASK)) {
 			*intep = ep[i].bEndpointAddress;
 			if (verbose > 1)
-				fprintf(stderr, "Found intep: 0x%02x\n",
-					*intep);
+				fprintf(stderr, "Found intep: 0x%02x\n", *intep);
 		}
 	}
 }
 
-int open_camera(int busn, int devn, short force, PTP_USB *ptp_usb,
-		PTPParams *params, struct usb_device **dev)
+int open_camera(int busn, int devn, short force, PTP_USB *ptp_usb, PTPParams *params,
+		struct usb_device **dev)
 {
 	int retrycnt = 0;
 	uint16_t ret = 0;
@@ -438,14 +418,11 @@ int open_camera(int busn, int devn, short force, PTP_USB *ptp_usb,
 	// first connection attempt often fails if some other app or driver has
 	// accessed the camera, retry for a while
 	retrycnt = 0;
-	while ((retrycnt++ < MAXCONNRETRIES) &&
-	       ((ret = ptp_opensession(params, 1)) != PTP_RC_OK)) {
-		printf("Failed to connect (attempt %d), retrying in 1 s...\n",
-		       retrycnt);
+	while ((retrycnt++ < MAXCONNRETRIES) && ((ret = ptp_opensession(params, 1)) != PTP_RC_OK)) {
+		printf("Failed to connect (attempt %d), retrying in 1 s...\n", retrycnt);
 		close_usb(ptp_usb, *dev);
 		sleep(1);
-		find_endpoints(*dev, &ptp_usb->inep, &ptp_usb->outep,
-			       &ptp_usb->intep);
+		find_endpoints(*dev, &ptp_usb->inep, &ptp_usb->outep, &ptp_usb->intep);
 		init_ptp_usb(params, ptp_usb, *dev);
 	}
 	if (ret != PTP_RC_OK) {
@@ -480,12 +457,10 @@ void list_devices(short force)
 		for (dev = bus->devices; dev; dev = dev->next) {
 			/* if it's a PTP device try to talk to it */
 			if (dev->config)
-				if ((dev->config->interface->altsetting
-					     ->bInterfaceClass ==
+				if ((dev->config->interface->altsetting->bInterfaceClass ==
 				     USB_CLASS_PTP) ||
 				    force)
-					if (dev->descriptor.bDeviceClass !=
-					    USB_CLASS_HUB) {
+					if (dev->descriptor.bDeviceClass != USB_CLASS_HUB) {
 						PTPParams params;
 						PTP_USB ptp_usb;
 						PTPDeviceInfo deviceinfo;
@@ -496,27 +471,19 @@ void list_devices(short force)
 							found = 1;
 						}
 
-						find_endpoints(dev,
-							       &ptp_usb.inep,
-							       &ptp_usb.outep,
+						find_endpoints(dev, &ptp_usb.inep, &ptp_usb.outep,
 							       &ptp_usb.intep);
-						init_ptp_usb(&params, &ptp_usb,
-							     dev);
+						init_ptp_usb(&params, &ptp_usb, dev);
 
 						CC(ptp_opensession(&params, 1),
 						   "Could not open session!\n"
 						   "Try to reset the camera.\n");
-						CC(ptp_getdeviceinfo(
-							   &params,
-							   &deviceinfo),
+						CC(ptp_getdeviceinfo(&params, &deviceinfo),
 						   "Could not get device info!\n");
 
-						printf("%s/%s\t0x%04X/0x%04X\t%s\n",
-						       bus->dirname,
-						       dev->filename,
-						       dev->descriptor.idVendor,
-						       dev->descriptor.idProduct,
-						       deviceinfo.Model);
+						printf("%s/%s\t0x%04X/0x%04X\t%s\n", bus->dirname,
+						       dev->filename, dev->descriptor.idVendor,
+						       dev->descriptor.idProduct, deviceinfo.Model);
 
 						CC(ptp_closesession(&params),
 						   "Could not close session!\n");
@@ -542,12 +509,9 @@ void show_info(int busn, int devn, short force)
 	printf("  manufacturer: %s\n", params.deviceinfo.Manufacturer);
 	printf("  serial number: '%s'\n", params.deviceinfo.SerialNumber);
 	printf("  device version: %s\n", params.deviceinfo.DeviceVersion);
-	printf("  extension ID: 0x%08lx\n",
-	       (long unsigned)params.deviceinfo.VendorExtensionID);
-	printf("  extension description: %s\n",
-	       params.deviceinfo.VendorExtensionDesc);
-	printf("  extension version: 0x%04x\n",
-	       params.deviceinfo.VendorExtensionVersion);
+	printf("  extension ID: 0x%08lx\n", (long unsigned)params.deviceinfo.VendorExtensionID);
+	printf("  extension description: %s\n", params.deviceinfo.VendorExtensionDesc);
+	printf("  extension version: 0x%04x\n", params.deviceinfo.VendorExtensionVersion);
 	printf("\n");
 	close_camera(&ptp_usb, &params, dev);
 }
@@ -576,8 +540,7 @@ void capture_image(int busn, int devn, short force)
 	if (ptp_property_issupported(&params, PTP_DPC_ExposureTime)) {
 		PTPDevicePropDesc dpd;
 		memset(&dpd, 0, sizeof(dpd));
-		ret = ptp_getdevicepropdesc(&params, PTP_DPC_ExposureTime,
-					    &dpd);
+		ret = ptp_getdevicepropdesc(&params, PTP_DPC_ExposureTime, &dpd);
 		if (ret == PTP_RC_OK)
 			ExposureTime = (*(int32_t *)(dpd.CurrentValue)) / 10;
 	}
@@ -604,8 +567,7 @@ void capture_image(int busn, int devn, short force)
 		if (ptp_usb_event_wait(&params, &event) != PTP_RC_OK)
 			goto err;
 		if (verbose)
-			printf("Event received %08x, ret=%x\n", event.Code,
-			       ret);
+			printf("Event received %08x, ret=%x\n", event.Code, ret);
 		if (event.Code == PTP_EC_CaptureComplete) {
 			printf("Capture completed successfully!\n");
 			goto out;
@@ -650,8 +612,7 @@ void loop_capture(int busn, int devn, short force, int n, int overwrite)
 
 		ret = ptp_usb_event_wait(&params, &event);
 		if (verbose)
-			printf("Event received %08x, ret=%x\n", event.Code,
-			       ret);
+			printf("Event received %08x, ret=%x\n", event.Code, ret);
 		if (ret != PTP_RC_OK)
 			goto err;
 		if (event.Code == PTP_EC_CaptureComplete) {
@@ -661,14 +622,12 @@ void loop_capture(int busn, int devn, short force, int n, int overwrite)
 		}
 
 		while (event.Code == PTP_EC_ObjectAdded) {
-			printf("Object added 0x%08lx\n",
-			       (long unsigned)event.Param1);
+			printf("Object added 0x%08lx\n", (long unsigned)event.Param1);
 			handle = event.Param1;
 			if (ptp_usb_event_wait(&params, &event) != PTP_RC_OK)
 				goto err;
 			if (verbose)
-				printf("Event received %08x, ret=%x\n",
-				       event.Code, ret);
+				printf("Event received %08x, ret=%x\n", event.Code, ret);
 			if (event.Code == PTP_EC_CaptureComplete)
 				goto download;
 		}
@@ -677,8 +636,7 @@ void loop_capture(int busn, int devn, short force, int n, int overwrite)
 		memset(&oi, 0, sizeof(PTPObjectInfo));
 		if (verbose)
 			printf("Downloading: 0x%08lx\n", (long unsigned)handle);
-		if ((ret = ptp_getobjectinfo(&params, handle, &oi)) !=
-		    PTP_RC_OK) {
+		if ((ret = ptp_getobjectinfo(&params, handle, &oi)) != PTP_RC_OK) {
 			fprintf(stderr, "ERROR: Could not get object info\n");
 			ptp_perror(&params, ret);
 			if (ret == PTP_ERROR_IO)
@@ -693,14 +651,13 @@ void loop_capture(int busn, int devn, short force, int n, int overwrite)
 		goto out;
 #else
 		file = open(filename,
-			    (overwrite == OVERWRITE_EXISTING ? 0 : O_EXCL) |
-				    O_RDWR | O_CREAT | O_TRUNC,
+			    (overwrite == OVERWRITE_EXISTING ? 0 : O_EXCL) | O_RDWR | O_CREAT |
+				    O_TRUNC,
 			    S_IRWXU | S_IRGRP);
 #endif
 		if (file == -1) {
 			if (errno == EEXIST) {
-				printf("Skipping file: \"%s\", file exists!\n",
-				       filename);
+				printf("Skipping file: \"%s\", file exists!\n", filename);
 				goto out;
 			}
 			perror("open");
@@ -713,8 +670,8 @@ void loop_capture(int busn, int devn, short force, int n, int overwrite)
 			goto out;
 		}
 #ifndef WIN32
-		image = mmap(0, oi.ObjectCompressedSize, PROT_READ | PROT_WRITE,
-			     MAP_SHARED, file, 0);
+		image = mmap(0, oi.ObjectCompressedSize, PROT_READ | PROT_WRITE, MAP_SHARED, file,
+			     0);
 		if (image == MAP_FAILED) {
 			perror("mmap");
 			close(file);
@@ -734,10 +691,9 @@ void loop_capture(int busn, int devn, short force, int n, int overwrite)
 		} else {
 			/* and delete from camera! */
 			printf("is done...\nDeleting from camera.\n");
-			CR(ptp_deleteobject(&params, handle, 0),
-			   "Could not delete object\n");
-			printf("Object 0x%08lx (%s) deleted.\n",
-			       (long unsigned)handle, oi.Filename);
+			CR(ptp_deleteobject(&params, handle, 0), "Could not delete object\n");
+			printf("Object 0x%08lx (%s) deleted.\n", (long unsigned)handle,
+			       oi.Filename);
 		}
 	out:;
 	}
@@ -788,8 +744,7 @@ out:
 	close_camera(&ptp_usb, &params, dev);
 }
 
-void nikon_direct_capture(int busn, int devn, short force, char *filename,
-			  int overwrite)
+void nikon_direct_capture(int busn, int devn, short force, char *filename, int overwrite)
 {
 	PTPParams params;
 	PTP_USB ptp_usb;
@@ -808,8 +763,7 @@ void nikon_direct_capture(int busn, int devn, short force, char *filename,
 
 	printf("Camera: %s\n", params.deviceinfo.Model);
 
-	if ((result = ptp_getobjectinfo(&params, 0xffff0001, &oi)) ==
-	    PTP_RC_OK) {
+	if ((result = ptp_getobjectinfo(&params, 0xffff0001, &oi)) == PTP_RC_OK) {
 		if (filename == NULL)
 			filename = oi.Filename;
 		save_object(&params, 0xffff0001, filename, oi, overwrite);
@@ -889,44 +843,36 @@ void nikon_direct_capture(int busn, int devn, short force, char *filename,
 			void *prop;
 			if (events[i].code == PTP_EC_DevicePropChanged) {
 				printf("Checking: %s\n",
-				       ptp_prop_getname(&params,
-							events[i].param1));
-				ptp_getdevicepropvalue(&params,
-						       events[i].param1, &prop,
+				       ptp_prop_getname(&params, events[i].param1));
+				ptp_getdevicepropvalue(&params, events[i].param1, &prop,
 						       PTP_DTC_UINT64);
 			}
 
-			printf("Event [%i] = 0x%04x,\t param: %08x\n", i,
-			       events[i].code, events[i].param1);
+			printf("Event [%i] = 0x%04x,\t param: %08x\n", i, events[i].code,
+			       events[i].param1);
 			if (events[i].code == PTP_EC_NIKON_CaptureOverflow) {
 				printf("Ram cache overflow? Shooting to fast!\n");
-				if ((result = ptp_getobjectinfo(
-					     &params, 0xffff0001, &oi)) !=
+				if ((result = ptp_getobjectinfo(&params, 0xffff0001, &oi)) !=
 				    PTP_RC_OK) {
-					fprintf(stderr,
-						"Could not get object info\n");
+					fprintf(stderr, "Could not get object info\n");
 					ptp_perror(&params, result);
 					goto out;
 				}
 				if (filename == NULL)
 					filename = oi.Filename;
-				save_object(&params, 0xffff0001, filename, oi,
-					    overwrite);
+				save_object(&params, 0xffff0001, filename, oi, overwrite);
 				BurstNumber = 0;
 				usleep(100);
 			} else if (events[i].code == PTP_EC_NIKON_ObjectReady) {
-				if ((result = ptp_getobjectinfo(
-					     &params, 0xffff0001, &oi)) !=
+				if ((result = ptp_getobjectinfo(&params, 0xffff0001, &oi)) !=
 				    PTP_RC_OK) {
-					fprintf(stderr,
-						"Could not get object info\n");
+					fprintf(stderr, "Could not get object info\n");
 					ptp_perror(&params, result);
 					goto out;
 				}
 				if (filename == NULL)
 					filename = oi.Filename;
-				save_object(&params, 0xffff0001, filename, oi,
-					    overwrite);
+				save_object(&params, 0xffff0001, filename, oi, overwrite);
 				BurstNumber--;
 			}
 		}
@@ -938,8 +884,7 @@ out:
 	close_camera(&ptp_usb, &params, dev);
 }
 
-void nikon_direct_capture2(int busn, int devn, short force, char *filename,
-			   int overwrite)
+void nikon_direct_capture2(int busn, int devn, short force, char *filename, int overwrite)
 {
 	PTPParams params;
 	PTP_USB ptp_usb;
@@ -993,8 +938,7 @@ void nikon_direct_capture2(int busn, int devn, short force, char *filename,
 		return;
 	}
 loop:
-	if ((result = ptp_getobjectinfo(&params, 0xffff0001, &oi)) ==
-	    PTP_RC_OK) {
+	if ((result = ptp_getobjectinfo(&params, 0xffff0001, &oi)) == PTP_RC_OK) {
 		if (filename == NULL)
 			filename = oi.Filename;
 		save_object(&params, 0xffff0001, filename, oi, overwrite);
@@ -1117,8 +1061,7 @@ void list_files(int busn, int devn, short force)
 	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0)
 		return;
 	printf("Camera: %s\n", params.deviceinfo.Model);
-	CR(ptp_getobjecthandles(&params, 0xffffffff, 0x000000, 0x000000,
-				&params.handles),
+	CR(ptp_getobjecthandles(&params, 0xffffffff, 0x000000, 0x000000, &params.handles),
 	   "Could not get object handles\n");
 	printf("Handler:           Size: \tCaptured:      \tname:\n");
 	for (i = 0; i < params.handles.n; i++) {
@@ -1128,9 +1071,8 @@ void list_files(int busn, int devn, short force)
 			continue;
 		tm = gmtime(&oi.CaptureDate);
 		printf("0x%08lx: %12u\t%4i-%02i-%02i %02i:%02i\t%s\n",
-		       (long unsigned)params.handles.Handler[i],
-		       (unsigned)oi.ObjectCompressedSize, tm->tm_year + 1900,
-		       tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min,
+		       (long unsigned)params.handles.Handler[i], (unsigned)oi.ObjectCompressedSize,
+		       tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday, tm->tm_hour, tm->tm_min,
 		       oi.Filename);
 	}
 	printf("\n");
@@ -1146,11 +1088,9 @@ void delete_object(int busn, int devn, short force, uint32_t handle)
 
 	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0)
 		return;
-	CR(ptp_getobjectinfo(&params, handle, &oi),
-	   "Could not get object info\n");
+	CR(ptp_getobjectinfo(&params, handle, &oi), "Could not get object info\n");
 	CR(ptp_deleteobject(&params, handle, 0), "Could not delete object\n");
-	printf("\nObject 0x%08lx (%s) deleted.\n", (long unsigned)handle,
-	       oi.Filename);
+	printf("\nObject 0x%08lx (%s) deleted.\n", (long unsigned)handle, oi.Filename);
 	close_camera(&ptp_usb, &params, dev);
 }
 
@@ -1167,16 +1107,13 @@ void delete_all_files(int busn, int devn, short force)
 	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0)
 		return;
 	printf("Camera: %s\n", params.deviceinfo.Model);
-	CR(ptp_getobjecthandles(&params, 0xffffffff, 0x000000, 0x000000,
-				&params.handles),
+	CR(ptp_getobjecthandles(&params, 0xffffffff, 0x000000, 0x000000, &params.handles),
 	   "Could not get object handles\n");
 
 	for (i = 0; i < params.handles.n; i++) {
 		handle = params.handles.Handler[i];
-		if ((ret = ptp_getobjectinfo(&params, handle, &oi)) !=
-		    PTP_RC_OK) {
-			fprintf(stderr, "Handle: 0x%08lx\n",
-				(long unsigned)handle);
+		if ((ret = ptp_getobjectinfo(&params, handle, &oi)) != PTP_RC_OK) {
+			fprintf(stderr, "Handle: 0x%08lx\n", (long unsigned)handle);
 			fprintf(stderr, "ERROR: Could not get object info\n");
 			ptp_perror(&params, ret);
 			if (ret == PTP_ERROR_IO)
@@ -1185,16 +1122,14 @@ void delete_all_files(int busn, int devn, short force)
 		}
 		if (oi.ObjectFormat == PTP_OFC_Association)
 			continue;
-		CR(ptp_deleteobject(&params, handle, 0),
-		   "Could not delete object\n");
-		printf("Object 0x%08lx (%s) deleted.\n", (long unsigned)handle,
-		       oi.Filename);
+		CR(ptp_deleteobject(&params, handle, 0), "Could not delete object\n");
+		printf("Object 0x%08lx (%s) deleted.\n", (long unsigned)handle, oi.Filename);
 	}
 	close_camera(&ptp_usb, &params, dev);
 }
 
-void save_object(PTPParams *params, uint32_t handle, char *filename,
-		 PTPObjectInfo oi, int overwrite)
+void save_object(PTPParams *params, uint32_t handle, char *filename, PTPObjectInfo oi,
+		 int overwrite)
 {
 	int file;
 	char *image;
@@ -1205,14 +1140,12 @@ void save_object(PTPParams *params, uint32_t handle, char *filename,
 	goto out;
 #else
 	file = open(filename,
-		    (overwrite == OVERWRITE_EXISTING ? 0 : O_EXCL) | O_RDWR |
-			    O_CREAT | O_TRUNC,
+		    (overwrite == OVERWRITE_EXISTING ? 0 : O_EXCL) | O_RDWR | O_CREAT | O_TRUNC,
 		    S_IRWXU | S_IRGRP);
 #endif
 	if (file == -1) {
 		if (errno == EEXIST) {
-			printf("Skipping file: \"%s\", file exists!\n",
-			       filename);
+			printf("Skipping file: \"%s\", file exists!\n", filename);
 			goto out;
 		}
 		perror("open");
@@ -1225,8 +1158,7 @@ void save_object(PTPParams *params, uint32_t handle, char *filename,
 		goto out;
 	}
 #ifndef WIN32
-	image = mmap(0, oi.ObjectCompressedSize, PROT_READ | PROT_WRITE,
-		     MAP_SHARED, file, 0);
+	image = mmap(0, oi.ObjectCompressedSize, PROT_READ | PROT_WRITE, MAP_SHARED, file, 0);
 	if (image == MAP_FAILED) {
 		perror("mmap");
 		close(file);
@@ -1255,8 +1187,7 @@ out:
 	return;
 }
 
-void get_save_object(PTPParams *params, uint32_t handle, char *filename,
-		     int overwrite)
+void get_save_object(PTPParams *params, uint32_t handle, char *filename, int overwrite)
 {
 	PTPObjectInfo oi;
 	int ret;
@@ -1281,8 +1212,7 @@ out:
 	return;
 }
 
-void get_file(int busn, int devn, short force, uint32_t handle, char *filename,
-	      int overwrite)
+void get_file(int busn, int devn, short force, uint32_t handle, char *filename, int overwrite)
 {
 	PTPParams params;
 	PTP_USB ptp_usb;
@@ -1308,13 +1238,11 @@ void get_all_files(int busn, int devn, short force, int overwrite)
 		return;
 	printf("Camera: %s\n", params.deviceinfo.Model);
 
-	CR(ptp_getobjecthandles(&params, 0xffffffff, 0x000000, 0x000000,
-				&params.handles),
+	CR(ptp_getobjecthandles(&params, 0xffffffff, 0x000000, 0x000000, &params.handles),
 	   "Could not get object handles\n");
 
 	for (i = 0; i < params.handles.n; i++) {
-		get_save_object(&params, params.handles.Handler[i], NULL,
-				overwrite);
+		get_save_object(&params, params.handles.Handler[i], NULL, overwrite);
 	}
 	close_camera(&ptp_usb, &params, dev);
 }
@@ -1333,15 +1261,12 @@ void list_operations(int busn, int devn, short force)
 		return;
 	printf("Camera: %s\n", params.deviceinfo.Model);
 	for (i = 0; i < params.deviceinfo.OperationsSupported_len; i++) {
-		name = ptp_get_operation_name(
-			&params, params.deviceinfo.OperationsSupported[i]);
+		name = ptp_get_operation_name(&params, params.deviceinfo.OperationsSupported[i]);
 
 		if (name == NULL)
-			printf("  0x%04x: UNKNOWN\n",
-			       params.deviceinfo.OperationsSupported[i]);
+			printf("  0x%04x: UNKNOWN\n", params.deviceinfo.OperationsSupported[i]);
 		else
-			printf("  0x%04x: %s\n",
-			       params.deviceinfo.OperationsSupported[i], name);
+			printf("  0x%04x: %s\n", params.deviceinfo.OperationsSupported[i], name);
 	}
 	close_camera(&ptp_usb, &params, dev);
 }
@@ -1365,12 +1290,10 @@ void list_properties(int busn, int devn, short force)
 #endif
 	printf("Camera: %s\n", params.deviceinfo.Model);
 	for (i = 0; i < params.deviceinfo.DevicePropertiesSupported_len; i++) {
-		propname = ptp_prop_getname(
-			&params,
-			params.deviceinfo.DevicePropertiesSupported[i]);
+		propname =
+			ptp_prop_getname(&params, params.deviceinfo.DevicePropertiesSupported[i]);
 		if (propname != NULL)
-			printf("  0x%04x: %s\n",
-			       params.deviceinfo.DevicePropertiesSupported[i],
+			printf("  0x%04x: %s\n", params.deviceinfo.DevicePropertiesSupported[i],
 			       propname);
 		else
 			printf("  0x%04x: UNKNOWN\n",
@@ -1394,8 +1317,7 @@ short print_propval(uint16_t datatype, void *value, short hex)
 		return 0;
 	case PTP_DTC_UINT16:
 		if (hex == PTPCAM_PRINT_HEX)
-			printf("0x%04hX (%hi)", *(uint16_t *)value,
-			       *(uint16_t *)value);
+			printf("0x%04hX (%hi)", *(uint16_t *)value, *(uint16_t *)value);
 		else
 			printf("%hi", *(uint16_t *)value);
 		return 0;
@@ -1404,8 +1326,7 @@ short print_propval(uint16_t datatype, void *value, short hex)
 		return 0;
 	case PTP_DTC_UINT32:
 		if (hex == PTPCAM_PRINT_HEX)
-			printf("0x%08lX (%lu)",
-			       (long unsigned)*(uint32_t *)value,
+			printf("0x%08lX (%lu)", (long unsigned)*(uint32_t *)value,
 			       (long unsigned)*(uint32_t *)value);
 		else
 			printf("%lu", (long unsigned)*(uint32_t *)value);
@@ -1416,10 +1337,8 @@ short print_propval(uint16_t datatype, void *value, short hex)
 	return -1;
 }
 
-uint16_t set_property(PTPParams *params, uint16_t property, const char *value,
-		      uint16_t datatype);
-uint16_t set_property(PTPParams *params, uint16_t property, const char *value,
-		      uint16_t datatype)
+uint16_t set_property(PTPParams *params, uint16_t property, const char *value, uint16_t datatype);
+uint16_t set_property(PTPParams *params, uint16_t property, const char *value, uint16_t datatype)
 {
 	void *val = NULL;
 
@@ -1455,10 +1374,8 @@ uint16_t set_property(PTPParams *params, uint16_t property, const char *value,
 	free(val);
 	return 0;
 }
-void getset_property_internal(PTPParams *params, uint16_t property,
-			      const char *value);
-void getset_property_internal(PTPParams *params, uint16_t property,
-			      const char *value)
+void getset_property_internal(PTPParams *params, uint16_t property, const char *value);
+void getset_property_internal(PTPParams *params, uint16_t property, const char *value)
 {
 	PTPDevicePropDesc dpd;
 	const char *propname;
@@ -1480,8 +1397,7 @@ void getset_property_internal(PTPParams *params, uint16_t property,
 
 	if (value == NULL) { /* property GET */
 		if (!verbose) { /* short output, default */
-			printf("'%s' is set to: ",
-			       propname == NULL ? "UNKNOWN" : propname);
+			printf("'%s' is set to: ", propname == NULL ? "UNKNOWN" : propname);
 			if (propdesc != NULL)
 				printf("[%s]", propdesc);
 			else {
@@ -1493,15 +1409,12 @@ void getset_property_internal(PTPParams *params, uint16_t property,
 			printf("\n");
 		} else { /* verbose output */
 
-			printf("%s: [0x%04x, ",
-			       propname == NULL ? "UNKNOWN" : propname,
-			       property);
+			printf("%s: [0x%04x, ", propname == NULL ? "UNKNOWN" : propname, property);
 			if (dpd.GetSet == PTP_DPGS_Get)
 				printf("readonly, ");
 			else
 				printf("readwrite, ");
-			printf("%s] ",
-			       ptp_get_datatype_name(params, dpd.DataType));
+			printf("%s] ", ptp_get_datatype_name(params, dpd.DataType));
 
 			printf("\n  Current value: ");
 			if (dpd.FormFlag == PTP_DPFF_Enumeration)
@@ -1516,8 +1429,7 @@ void getset_property_internal(PTPParams *params, uint16_t property,
 				PRINT_PROPVAL_HEX(dpd.FactoryDefaultValue);
 			else
 				PRINT_PROPVAL_DEC(dpd.FactoryDefaultValue);
-			propdesc = ptp_prop_getdesc(params, &dpd,
-						    dpd.FactoryDefaultValue);
+			propdesc = ptp_prop_getdesc(params, &dpd, dpd.FactoryDefaultValue);
 			if (propdesc != NULL)
 				printf(" [%s]", propdesc);
 			printf("\n");
@@ -1526,13 +1438,10 @@ void getset_property_internal(PTPParams *params, uint16_t property,
 			case PTP_DPFF_Enumeration: {
 				int i;
 				printf("Enumerated:\n");
-				for (i = 0; i < dpd.FORM.Enum.NumberOfValues;
-				     i++) {
-					PRINT_PROPVAL_HEX(
-						dpd.FORM.Enum.SupportedValue[i]);
+				for (i = 0; i < dpd.FORM.Enum.NumberOfValues; i++) {
+					PRINT_PROPVAL_HEX(dpd.FORM.Enum.SupportedValue[i]);
 					propdesc = ptp_prop_getdesc(
-						params, &dpd,
-						dpd.FORM.Enum.SupportedValue[i]);
+						params, &dpd, dpd.FORM.Enum.SupportedValue[i]);
 					if (propdesc != NULL)
 						printf("\t[%s]", propdesc);
 					printf("\n");
@@ -1554,8 +1463,7 @@ void getset_property_internal(PTPParams *params, uint16_t property,
 	} else {
 		uint16_t r;
 		propdesc = ptp_prop_getdesc(params, &dpd, NULL);
-		printf("'%s' is set to: ",
-		       propname == NULL ? "UNKNOWN" : propname);
+		printf("'%s' is set to: ", propname == NULL ? "UNKNOWN" : propname);
 		if (propdesc != NULL)
 			printf("[%s]", propdesc);
 		else {
@@ -1587,10 +1495,8 @@ unidentified value: '%s'\n", value); goto out;
 	ptp_free_devicepropdesc(&dpd);
 }
 
-void getset_propertybyname(int busn, int devn, char *property, char *value,
-			   short force);
-void getset_propertybyname(int busn, int devn, char *property, char *value,
-			   short force)
+void getset_propertybyname(int busn, int devn, char *property, char *value, short force);
+void getset_propertybyname(int busn, int devn, char *property, char *value, short force)
 {
 	PTPParams params;
 	PTP_USB ptp_usb;
@@ -1628,8 +1534,7 @@ void getset_propertybyname(int busn, int devn, char *property, char *value,
 
 	dpc = ptp_prop_getcodebyname(&params, property);
 	if (dpc == 0) {
-		fprintf(stderr, "ERROR: Could not find property '%s'\n",
-			property);
+		fprintf(stderr, "ERROR: Could not find property '%s'\n", property);
 		close_camera(&ptp_usb, &params, dev);
 		return;
 	}
@@ -1653,10 +1558,8 @@ void getset_propertybyname(int busn, int devn, char *property, char *value,
 
 	close_camera(&ptp_usb, &params, dev);
 }
-void getset_property(int busn, int devn, uint16_t property, char *value,
-		     short force);
-void getset_property(int busn, int devn, uint16_t property, char *value,
-		     short force)
+void getset_property(int busn, int devn, uint16_t property, char *value, short force);
+void getset_property(int busn, int devn, uint16_t property, char *value, short force)
 {
 	PTPParams params;
 	PTP_USB ptp_usb;
@@ -1813,19 +1716,15 @@ void show_all_properties(int busn, int devn, short force, int unknown)
 		printf("\n");
 
 	for (i = 0; i < params.deviceinfo.DevicePropertiesSupported_len; i++) {
-		propname = ptp_prop_getname(
-			&params,
-			params.deviceinfo.DevicePropertiesSupported[i]);
+		propname =
+			ptp_prop_getname(&params, params.deviceinfo.DevicePropertiesSupported[i]);
 		if ((unknown) && (propname != NULL))
 			continue;
 
-		printf("0x%04x: ",
-		       params.deviceinfo.DevicePropertiesSupported[i]);
+		printf("0x%04x: ", params.deviceinfo.DevicePropertiesSupported[i]);
 		memset(&dpd, 0, sizeof(dpd));
-		CR(ptp_getdevicepropdesc(
-			   &params,
-			   params.deviceinfo.DevicePropertiesSupported[i],
-			   &dpd),
+		CR(ptp_getdevicepropdesc(&params, params.deviceinfo.DevicePropertiesSupported[i],
+					 &dpd),
 		   "Could not get device property description!\n"
 		   "Try to reset the camera.\n");
 		propdesc = ptp_prop_getdesc(&params, &dpd, NULL);
@@ -1848,33 +1747,27 @@ void show_all_properties(int busn, int devn, short force, int unknown)
 
 int usb_get_endpoint_status(PTP_USB *ptp_usb, int ep, uint16_t *status)
 {
-	return (usb_control_msg(ptp_usb->handle,
-				USB_DP_DTH | USB_RECIP_ENDPOINT,
-				USB_REQ_GET_STATUS, USB_FEATURE_HALT, ep,
-				(char *)status, 2, 3000));
+	return (usb_control_msg(ptp_usb->handle, USB_DP_DTH | USB_RECIP_ENDPOINT,
+				USB_REQ_GET_STATUS, USB_FEATURE_HALT, ep, (char *)status, 2, 3000));
 }
 
 int usb_clear_stall_feature(PTP_USB *ptp_usb, int ep)
 {
-	return (usb_control_msg(ptp_usb->handle, USB_RECIP_ENDPOINT,
-				USB_REQ_CLEAR_FEATURE, USB_FEATURE_HALT, ep,
-				NULL, 0, 3000));
+	return (usb_control_msg(ptp_usb->handle, USB_RECIP_ENDPOINT, USB_REQ_CLEAR_FEATURE,
+				USB_FEATURE_HALT, ep, NULL, 0, 3000));
 }
 
 int usb_ptp_get_device_status(PTP_USB *ptp_usb, uint16_t *devstatus);
 int usb_ptp_get_device_status(PTP_USB *ptp_usb, uint16_t *devstatus)
 {
-	return (usb_control_msg(
-		ptp_usb->handle,
-		USB_DP_DTH | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
-		USB_REQ_GET_DEVICE_STATUS, 0, 0, (char *)devstatus, 4, 3000));
+	return (usb_control_msg(ptp_usb->handle, USB_DP_DTH | USB_TYPE_CLASS | USB_RECIP_INTERFACE,
+				USB_REQ_GET_DEVICE_STATUS, 0, 0, (char *)devstatus, 4, 3000));
 }
 
 int usb_ptp_device_reset(PTP_USB *ptp_usb);
 int usb_ptp_device_reset(PTP_USB *ptp_usb)
 {
-	return (usb_control_msg(ptp_usb->handle,
-				USB_TYPE_CLASS | USB_RECIP_INTERFACE,
+	return (usb_control_msg(ptp_usb->handle, USB_TYPE_CLASS | USB_RECIP_INTERFACE,
 				USB_REQ_DEVICE_RESET, 0, 0, NULL, 0, 3000));
 }
 
@@ -1975,16 +1868,14 @@ static int connected = 0;
 
 static void open_connection()
 {
-	connected = (0 == open_camera(camera_bus, camera_dev, camera_force,
-				      &ptp_usb, &params, &dev));
+	connected =
+		(0 == open_camera(camera_bus, camera_dev, camera_force, &ptp_usb, &params, &dev));
 	if (connected) {
 		int major, minor;
-		if (!ptp_chdk_get_version(&params, &params.deviceinfo, &major,
-					  &minor)) {
+		if (!ptp_chdk_get_version(&params, &params.deviceinfo, &major, &minor)) {
 			printf("error: cannot get camera CHDK PTP version; either it has an "
 			       "unsupported version or no CHDK PTP support at all\n");
-		} else if (major != PTP_CHDK_VERSION_MAJOR ||
-			   minor < PTP_CHDK_VERSION_MINOR) {
+		} else if (major != PTP_CHDK_VERSION_MAJOR || minor < PTP_CHDK_VERSION_MINOR) {
 			printf("error: camera has unsupported camera version %i.%i; some "
 			       "functionality may be missing or cause unintented consequences\n",
 			       major, minor);
@@ -2049,8 +1940,7 @@ static void hexdump(char *buf, unsigned int size, unsigned int offset)
 				print_safe(s, 16);
 				printf("|\n");
 			}
-			printf("0x%08X (+0x%04X)", offset,
-			       offset - start_offset);
+			printf("0x%08X (+0x%04X)", offset, offset - start_offset);
 			if (i < size) {
 				printf(" ");
 			}
@@ -2125,11 +2015,11 @@ int engio_dump(unsigned char *data_buf, int length, int addr)
 	unsigned int pos = 0;
 
 	do {
-		data = data_buf[pos + 0] | (data_buf[pos + 1] << 8) |
-		       (data_buf[pos + 2] << 16) | (data_buf[pos + 3] << 24);
+		data = data_buf[pos + 0] | (data_buf[pos + 1] << 8) | (data_buf[pos + 2] << 16) |
+		       (data_buf[pos + 3] << 24);
 		pos += 4;
-		reg = data_buf[pos + 0] | (data_buf[pos + 1] << 8) |
-		      (data_buf[pos + 2] << 16) | (data_buf[pos + 3] << 24);
+		reg = data_buf[pos + 0] | (data_buf[pos + 1] << 8) | (data_buf[pos + 2] << 16) |
+		      (data_buf[pos + 3] << 24);
 		pos += 4;
 		if (reg != 0xFFFFFFFF) {
 			printf("[0x%08X] <- [0x%08X]\r\n", reg, data);

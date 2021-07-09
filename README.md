@@ -1,10 +1,11 @@
 # mlinstall
-A cross platform app to help with installing Magic Lantern.  
+A Windows/Linux app to help with installing Magic Lantern.  
+Download: https://github.com/petabyt/mlinstall/releases  
 
-The current app is based on [ptpcam](https://github.com/reticulatedpines/magiclantern_simplified/tree/dev/contrib/ptpcam).  
+The backend is a fork of [ptpcam](https://github.com/reticulatedpines/magiclantern_simplified/tree/dev/contrib/ptpcam).  
 
 A Python based version of this app is available at [python-stable](https://github.com/petabyt/mlinstall/tree/python-stable).  
-You can find standalone prebuilts here: https://github.com/petabyt/mlinstall/releases/tag/0.1.0
+You can find standalone prebuilts for it [here](https://github.com/petabyt/mlinstall/releases/tag/0.1.0).
 
 ## Features
 - [x] - Enable/Disable boot disk
@@ -24,3 +25,5 @@ make.bat
 # requires gcc/tcc, libusb-dev
 make
 ```
+
+![screenshot](screenshot.png)

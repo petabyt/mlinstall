@@ -1,4 +1,4 @@
-// GTK+ based GUI app.
+// Spiffy GTK+ based GUI app
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -28,6 +28,7 @@ char logbuf[1000] = "Log info will go here.\n";
 
 void logprint(char string[])
 {
+	g_print("[GUI] %s", string);
 	strcat(logbuf, string);
 	gtk_label_set_text(GTK_LABEL(logw), logbuf);
 }
@@ -43,7 +44,7 @@ int returnMessage(unsigned int code)
 {
 	switch (code) {
 	case 0:
-		logprint("No PTP/USB device found.");
+		logprint("No PTP/USB device found.\n");
 		return 1;
 	}
 
@@ -84,16 +85,28 @@ static void deviceinfo(GtkWidget *widget, gpointer data)
 	PTPDeviceInfo info;
 	ptp_getdeviceinfo(&params, &info);
 
-	printf("Manufacturer: %s\n", info.Manufacturer);
-	printf("Model: %s\n", info.Model);
-	printf("DeviceVersion: %s\n", info.DeviceVersion);
-	printf("SerialNumber: %s\n", info.SerialNumber);
+	char buffer[256];
+	sprintf(
+		buffer,
+		"Manufacturer: %s\n" \
+		"Model: %s\n" \
+		"DeviceVersion: %s\n" \
+		"SerialNumber: %s\n",
+		info.Manufacturer,
+		info.Model,
+		info.DeviceVersion,
+		info.SerialNumber
+	);
+
+	logprint(buffer);
 
 	close_camera(&ptp_usb, &params, dev);
 }
 
 int runcommand(char string[])
 {
+	g_print("Running %s...\n", string);
+
 	logclear();
 	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
 		returnMessage(0);
@@ -151,12 +164,10 @@ int main(int argc, char *argv[])
 	GtkWidget *grid = gtk_grid_new();
 	gtk_container_add(GTK_CONTAINER(window), grid);
 
-	GtkWidget *title = gtk_label_new(
-		"Magic Lantern USB Installation Tools\n" \
-		"THIS IS NOT GARUNTEED TO WORK\n" \
-		"OR NOT KILL YOUR CAMERA\n" \
-		"KEEP BOTH PIECES IF YOU BREAK IT\n"
-	);
+	GtkWidget *title = gtk_label_new("Magic Lantern USB Installation Tools\n"
+					 "THIS IS NOT GARUNTEED TO WORK\n"
+					 "OR NOT KILL YOUR CAMERA\n"
+					 "KEEP BOTH PIECES IF YOU BREAK IT\n");
 
 	gtk_label_set_justify(GTK_LABEL(title), GTK_JUSTIFY_CENTER);
 	gtk_grid_attach(GTK_GRID(grid), title, 0, order++, 1, 1);

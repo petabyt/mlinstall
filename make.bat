@@ -17,11 +17,10 @@ set LIBUSB=libusb-win32-bin-1.2.2.0
 
 rem !! Required compiler (compatibility)
 set CC=x86_64-w64-mingw32-gcc
+set FILES=flag-win.c ptpcam.c myusb.c properties.c ptp.c
+
 set CFLAGS=-I%LIBUSB%/include -I../%LIBUSB%/include
-
 set LINK=-lws2_32 -lkernel32 "../%LIBUSB%/bin/amd64/libusb0.dll"
-
-set FILES=flag.c ptpcam.c myusb.c properties.c ptp.c
 
 where %CC% >nul
 if %ERRORLEVEL% neq 0 (
@@ -35,6 +34,7 @@ if NOT EXIST %LIBUSB% (
 	exit /b
 )
 
+rem TODO: Won't compile gtk.c
 rem Compile gtk.c
 rem mingw-gtk3.0
 rem mingw-glib2.0
@@ -45,7 +45,7 @@ if "%1" == "gtk" (
 	exit /b
 )
 
-rem Default, CLI app
+rem Default console app
 cd src
 %CC% %CFLAGS% ../main.c %FILES% %LINK% -o ../ptpcam.exe
 cd ..

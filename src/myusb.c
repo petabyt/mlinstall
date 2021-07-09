@@ -77,10 +77,8 @@ struct usb_dev_handle {
 /* the most portable maximum we can do for now */
 #define MAX_READ_WRITE 4096
 
-int myusb_bulk_write(usb_dev_handle *dev, int ep, char *bytes, int length,
-		     int timeout);
-int myusb_bulk_write(usb_dev_handle *dev, int ep, char *bytes, int length,
-		     int timeout)
+int myusb_bulk_write(usb_dev_handle *dev, int ep, char *bytes, int length, int timeout);
+int myusb_bulk_write(usb_dev_handle *dev, int ep, char *bytes, int length, int timeout)
 {
 	struct usb_bulktransfer bulk;
 	int ret, sent = 0;
@@ -107,10 +105,8 @@ int myusb_bulk_write(usb_dev_handle *dev, int ep, char *bytes, int length,
 	return sent;
 }
 
-int myusb_bulk_read(usb_dev_handle *dev, int ep, char *bytes, int size,
-		    int timeout);
-int myusb_bulk_read(usb_dev_handle *dev, int ep, char *bytes, int size,
-		    int timeout)
+int myusb_bulk_read(usb_dev_handle *dev, int ep, char *bytes, int size, int timeout);
+int myusb_bulk_read(usb_dev_handle *dev, int ep, char *bytes, int size, int timeout)
 {
 	struct usb_bulktransfer bulk;
 	int ret, retrieved = 0, requested;

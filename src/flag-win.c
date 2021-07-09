@@ -47,12 +47,12 @@ void setboot(HANDLE d, long of1, long of2)
 
 int enableFlag()
 {
+	char id;
+
 	char buffer[64];
 
 	// List info usb type mounted filesystems
-	FILE *f = popen(
-		"wmic logicaldisk where drivetype=2 get deviceid, volumename",
-		"r");
+	FILE *f = popen("wmic logicaldisk where drivetype=2 get deviceid, volumename", "r");
 
 	// Skip first line (title)
 	fgets(buffer, 64, f);
@@ -62,18 +62,20 @@ int enableFlag()
 		if (!strncmp(buffer + 10, "EOS_DIGITAL", 11)) {
 			printf("Found EOS_DIGITAL at drive %c\n", buffer[0]);
 			id = buffer[0];
-			break;
+			goto found;
 		}
 	}
 
+	puts("Could not find drive.");
+	return 1;
+
+found:;
 	char driveID[] = "\\\\.\\E:";
 	driveID[4] = id;
 
 	HANDLE d = CreateFile(driveID, GENERIC_READ | GENERIC_WRITE,
-			      FILE_SHARE_READ | FILE_SHARE_WRITE, NULL,
-			      OPEN_EXISTING,
-			      FILE_FLAG_NO_BUFFERING | FILE_FLAG_RANDOM_ACCESS,
-			      NULL);
+			      FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
+			      FILE_FLAG_NO_BUFFERING | FILE_FLAG_RANDOM_ACCESS, NULL);
 
 	if (d == INVALID_HANDLE_VALUE) {
 		puts("Could not open filesystem. Try running as Administrator.");

@@ -44,11 +44,11 @@
 #endif
 
 #define SVALLEN 256
-#define SVALRET(s)                                                             \
-	{                                                                      \
-		if (n >= SVALLEN)                                              \
-			s[SVALLEN] = '\0';                                     \
-		return s;                                                      \
+#define SVALRET(s)                                                                                 \
+	{                                                                                          \
+		if (n >= SVALLEN)                                                                  \
+			s[SVALLEN] = '\0';                                                         \
+		return s;                                                                          \
 	}
 
 int ptp_property_issupported(PTPParams *params, uint16_t property)
@@ -65,65 +65,61 @@ int ptp_property_issupported(PTPParams *params, uint16_t property)
 static struct {
 	uint16_t dpc;
 	const char *txt;
-} ptp_device_properties[] = {
-	{ PTP_DPC_Undefined, N_("PTP Undefined Property") },
-	{ PTP_DPC_BatteryLevel, N_("Battery Level") },
-	{ PTP_DPC_FunctionalMode, N_("Functional Mode") },
-	{ PTP_DPC_ImageSize, N_("Image Size") },
-	{ PTP_DPC_CompressionSetting, N_("Compression Setting") },
-	{ PTP_DPC_WhiteBalance, N_("White Balance") },
-	{ PTP_DPC_RGBGain, N_("RGB Gain") },
-	{ PTP_DPC_FNumber, N_("F-Number") },
-	{ PTP_DPC_FocalLength, N_("Focal Length") },
-	{ PTP_DPC_FocusDistance, N_("Focus Distance") },
-	{ PTP_DPC_FocusMode, N_("Focus Mode") },
-	{ PTP_DPC_ExposureMeteringMode, N_("Exposure Metering Mode") },
-	{ PTP_DPC_FlashMode, N_("Flash Mode") },
-	{ PTP_DPC_ExposureTime, N_("Exposure Time") },
-	{ PTP_DPC_ExposureProgramMode, N_("Exposure Program Mode") },
-	{ PTP_DPC_ExposureIndex, N_("Exposure Index (film speed ISO)") },
-	{ PTP_DPC_ExposureBiasCompensation, N_("Exposure Bias Compensation") },
-	{ PTP_DPC_DateTime, N_("Date Time") },
-	{ PTP_DPC_CaptureDelay, N_("Pre-Capture Delay") },
-	{ PTP_DPC_StillCaptureMode, N_("Still Capture Mode") },
-	{ PTP_DPC_Contrast, N_("Contrast") },
-	{ PTP_DPC_Sharpness, N_("Sharpness") },
-	{ PTP_DPC_DigitalZoom, N_("Digital Zoom") },
-	{ PTP_DPC_EffectMode, N_("Effect Mode") },
-	{ PTP_DPC_BurstNumber, N_("Burst Number") },
-	{ PTP_DPC_BurstInterval, N_("Burst Interval") },
-	{ PTP_DPC_TimelapseNumber, N_("Timelapse Number") },
-	{ PTP_DPC_TimelapseInterval, N_("Timelapse Interval") },
-	{ PTP_DPC_FocusMeteringMode, N_("Focus Metering Mode") },
-	{ PTP_DPC_UploadURL, N_("Upload URL") },
-	{ PTP_DPC_Artist, N_("Artist") },
-	{ PTP_DPC_CopyrightInfo, N_("Copyright Info") },
-	{ 0, NULL }
-};
+} ptp_device_properties[] = { { PTP_DPC_Undefined, N_("PTP Undefined Property") },
+			      { PTP_DPC_BatteryLevel, N_("Battery Level") },
+			      { PTP_DPC_FunctionalMode, N_("Functional Mode") },
+			      { PTP_DPC_ImageSize, N_("Image Size") },
+			      { PTP_DPC_CompressionSetting, N_("Compression Setting") },
+			      { PTP_DPC_WhiteBalance, N_("White Balance") },
+			      { PTP_DPC_RGBGain, N_("RGB Gain") },
+			      { PTP_DPC_FNumber, N_("F-Number") },
+			      { PTP_DPC_FocalLength, N_("Focal Length") },
+			      { PTP_DPC_FocusDistance, N_("Focus Distance") },
+			      { PTP_DPC_FocusMode, N_("Focus Mode") },
+			      { PTP_DPC_ExposureMeteringMode, N_("Exposure Metering Mode") },
+			      { PTP_DPC_FlashMode, N_("Flash Mode") },
+			      { PTP_DPC_ExposureTime, N_("Exposure Time") },
+			      { PTP_DPC_ExposureProgramMode, N_("Exposure Program Mode") },
+			      { PTP_DPC_ExposureIndex, N_("Exposure Index (film speed ISO)") },
+			      { PTP_DPC_ExposureBiasCompensation,
+				N_("Exposure Bias Compensation") },
+			      { PTP_DPC_DateTime, N_("Date Time") },
+			      { PTP_DPC_CaptureDelay, N_("Pre-Capture Delay") },
+			      { PTP_DPC_StillCaptureMode, N_("Still Capture Mode") },
+			      { PTP_DPC_Contrast, N_("Contrast") },
+			      { PTP_DPC_Sharpness, N_("Sharpness") },
+			      { PTP_DPC_DigitalZoom, N_("Digital Zoom") },
+			      { PTP_DPC_EffectMode, N_("Effect Mode") },
+			      { PTP_DPC_BurstNumber, N_("Burst Number") },
+			      { PTP_DPC_BurstInterval, N_("Burst Interval") },
+			      { PTP_DPC_TimelapseNumber, N_("Timelapse Number") },
+			      { PTP_DPC_TimelapseInterval, N_("Timelapse Interval") },
+			      { PTP_DPC_FocusMeteringMode, N_("Focus Metering Mode") },
+			      { PTP_DPC_UploadURL, N_("Upload URL") },
+			      { PTP_DPC_Artist, N_("Artist") },
+			      { PTP_DPC_CopyrightInfo, N_("Copyright Info") },
+			      { 0, NULL } };
 static struct {
 	uint16_t dpc;
 	const char *txt;
-} ptp_device_properties_EK[] = {
-	{ PTP_DPC_EK_ColorTemperature, N_("EK Color Temperature") },
-	{ PTP_DPC_EK_DateTimeStampFormat, N_("EK Date Time Stamp Format") },
-	{ PTP_DPC_EK_BeepMode, N_("EK Beep Mode") },
-	{ PTP_DPC_EK_VideoOut, N_("EK Video Out") },
-	{ PTP_DPC_EK_PowerSaving, N_("EK Power Saving") },
-	{ PTP_DPC_EK_UI_Language, N_("EK UI Language") },
-	{ 0, NULL }
-};
+} ptp_device_properties_EK[] = { { PTP_DPC_EK_ColorTemperature, N_("EK Color Temperature") },
+				 { PTP_DPC_EK_DateTimeStampFormat,
+				   N_("EK Date Time Stamp Format") },
+				 { PTP_DPC_EK_BeepMode, N_("EK Beep Mode") },
+				 { PTP_DPC_EK_VideoOut, N_("EK Video Out") },
+				 { PTP_DPC_EK_PowerSaving, N_("EK Power Saving") },
+				 { PTP_DPC_EK_UI_Language, N_("EK UI Language") },
+				 { 0, NULL } };
 
 static struct {
 	uint16_t dpc;
 	const char *txt;
-} ptp_device_properties_CANON[] = {
-	{ PTP_DPC_CANON_BeepMode, N_("CANON Beep Mode") },
-	{ PTP_DPC_CANON_UnixTime, N_("CANON Time measured in"
-				     " secondssince 01-01-1970") },
-	{ PTP_DPC_CANON_FlashMemory, N_("CANON Flash Card Capacity") },
-	{ PTP_DPC_CANON_CameraModel, N_("CANON Camera Model") },
-	{ 0, NULL }
-};
+} ptp_device_properties_CANON[] = { { PTP_DPC_CANON_BeepMode, N_("CANON Beep Mode") },
+				    { PTP_DPC_CANON_UnixTime, N_("CANON Time measured in"
+								 " secondssince 01-01-1970") },
+				    { PTP_DPC_CANON_FlashMemory, N_("CANON Flash Card Capacity") },
+				    { PTP_DPC_CANON_CameraModel, N_("CANON Camera Model") },
+				    { 0, NULL } };
 /**
  * Properties reported by Corey Manders and Mehreen Chaudary, revised for
  * D70 by Mariusz Woloszyn
@@ -138,28 +134,19 @@ static struct {
 	{ PTP_DPC_NIKON_ShootingBankNameC, N_("NIKON Shooting Bank Name C") },
 	{ PTP_DPC_NIKON_ShootingBankNameD, N_("NIKON Shooting Bank Name D") },
 	{ PTP_DPC_NIKON_RawCompression, N_("NIKON Raw Compression") },
-	{ PTP_DPC_NIKON_WhiteBalanceAutoBias,
-	  N_("NIKON White Balance Auto Bias") },
-	{ PTP_DPC_NIKON_WhiteBalanceTungstenBias,
-	  N_("NIKON White Balance Tungsten Bias") },
-	{ PTP_DPC_NIKON_WhiteBalanceFlourescentBias,
-	  N_("NIKON White Balance Flourescent Bias") },
-	{ PTP_DPC_NIKON_WhiteBalanceDaylightBias,
-	  N_("NIKON White Balance Daylight Bias") },
-	{ PTP_DPC_NIKON_WhiteBalanceFlashBias,
-	  N_("NIKON White Balance Flash Bias") },
-	{ PTP_DPC_NIKON_WhiteBalanceCloudyBias,
-	  N_("NIKON White Balance Cloudy Bias") },
-	{ PTP_DPC_NIKON_WhiteBalanceShadeBias,
-	  N_("NIKON White Balance Shade Bias") },
-	{ PTP_DPC_NIKON_WhiteBalanceColorTemperature,
-	  N_("NIKON White Balance Color Temperature") },
+	{ PTP_DPC_NIKON_WhiteBalanceAutoBias, N_("NIKON White Balance Auto Bias") },
+	{ PTP_DPC_NIKON_WhiteBalanceTungstenBias, N_("NIKON White Balance Tungsten Bias") },
+	{ PTP_DPC_NIKON_WhiteBalanceFlourescentBias, N_("NIKON White Balance Flourescent Bias") },
+	{ PTP_DPC_NIKON_WhiteBalanceDaylightBias, N_("NIKON White Balance Daylight Bias") },
+	{ PTP_DPC_NIKON_WhiteBalanceFlashBias, N_("NIKON White Balance Flash Bias") },
+	{ PTP_DPC_NIKON_WhiteBalanceCloudyBias, N_("NIKON White Balance Cloudy Bias") },
+	{ PTP_DPC_NIKON_WhiteBalanceShadeBias, N_("NIKON White Balance Shade Bias") },
+	{ PTP_DPC_NIKON_WhiteBalanceColorTemperature, N_("NIKON White Balance Color Temperature") },
 	{ PTP_DPC_NIKON_ImageSharpening, N_("NIKON Image Sharpening") },
 	{ PTP_DPC_NIKON_ToneCompensation, N_("NIKON Tone Compensation") },
 	{ PTP_DPC_NIKON_ColorMode, N_("NIKON Color Mode") },
 	{ PTP_DPC_NIKON_HueAdjustment, N_("NIKON Hue Adjustment") },
-	{ PTP_DPC_NIKON_NonCPULensDataFocalLength,
-	  N_("NIKON Non CPU Lens Data Focal Length") },
+	{ PTP_DPC_NIKON_NonCPULensDataFocalLength, N_("NIKON Non CPU Lens Data Focal Length") },
 	{ PTP_DPC_NIKON_NonCPULensDataMaximumAperture,
 	  N_("NIKON Non CPU Lens Data Maximum Aperture") },
 	{ PTP_DPC_NIKON_CSMMenuBankSelect, N_("NIKON CSM Menu Bank Select") },
@@ -173,10 +160,8 @@ static struct {
 	{ PTP_DPC_NIKON_A4AFActivation, N_("NIKON (A4) AF Activation") },
 	{ PTP_DPC_NIKON_A5FocusAreaIllumManualFocus,
 	  N_("NIKON (A5) Focus Area Illum Manual Focus") },
-	{ PTP_DPC_NIKON_FocusAreaIllumContinuous,
-	  N_("NIKON Focus Area Illum Continuous") },
-	{ PTP_DPC_NIKON_FocusAreaIllumWhenSelected,
-	  N_("NIKON Focus Area Illum When Selected") },
+	{ PTP_DPC_NIKON_FocusAreaIllumContinuous, N_("NIKON Focus Area Illum Continuous") },
+	{ PTP_DPC_NIKON_FocusAreaIllumWhenSelected, N_("NIKON Focus Area Illum When Selected") },
 	{ PTP_DPC_NIKON_FocusAreaWrap, N_("NIKON Focus Area Wrap") },
 	{ PTP_DPC_NIKON_A7VerticalAFON, N_("NIKON (A7) Vertical AF ON") },
 	{ PTP_DPC_NIKON_ISOAuto, N_("NIKON ISO Auto") },
@@ -196,37 +181,27 @@ static struct {
 	{ PTP_DPC_NIKON_ACPower, N_("NIKON AC Power") },
 	{ PTP_DPC_NIKON_D2MaximumShots, N_("NIKON (D2) Maximum Shots") },
 	{ PTP_DPC_NIKON_D3ExpDelayMode, N_("NIKON (D3) ExpDelayMode") },
-	{ PTP_DPC_NIKON_LongExposureNoiseReduction,
-	  N_("NIKON Long Exposure Noise Reduction") },
+	{ PTP_DPC_NIKON_LongExposureNoiseReduction, N_("NIKON Long Exposure Noise Reduction") },
 	{ PTP_DPC_NIKON_FileNumberSequence, N_("NIKON File Number Sequence") },
 	{ PTP_DPC_NIKON_D6ControlPanelFinderRearControl,
 	  N_("NIKON (D6) Control Panel Finder Rear Control") },
-	{ PTP_DPC_NIKON_ControlPanelFinderViewfinder,
-	  N_("NIKON Control Panel Finder Viewfinder") },
+	{ PTP_DPC_NIKON_ControlPanelFinderViewfinder, N_("NIKON Control Panel Finder Viewfinder") },
 	{ PTP_DPC_NIKON_D7Illumination, N_("NIKON (D7) Illumination") },
 	{ PTP_DPC_NIKON_E1FlashSyncSpeed, N_("NIKON (E1) Flash Sync Speed") },
-	{ PTP_DPC_NIKON_FlashShutterSpeed,
-	  N_("NIKON Slowest Flash Shutter Speed") },
+	{ PTP_DPC_NIKON_FlashShutterSpeed, N_("NIKON Slowest Flash Shutter Speed") },
 	{ PTP_DPC_NIKON_E3AAFlashMode, N_("NIKON (E3) AA Flash Mode") },
 	{ PTP_DPC_NIKON_E4ModelingFlash, N_("NIKON (E4) Modeling Flash") },
 	{ PTP_DPC_NIKON_BracketSet, N_("NIKON Bracket Set") },
-	{ PTP_DPC_NIKON_E6ManualModeBracketing,
-	  N_("NIKON (E6) Manual Mode Bracketing") },
+	{ PTP_DPC_NIKON_E6ManualModeBracketing, N_("NIKON (E6) Manual Mode Bracketing") },
 	{ PTP_DPC_NIKON_BracketOrder, N_("NIKON Bracket Order") },
-	{ PTP_DPC_NIKON_E8AutoBracketSelection,
-	  N_("NIKON (E8) Auto Bracket Selection") },
+	{ PTP_DPC_NIKON_E8AutoBracketSelection, N_("NIKON (E8) Auto Bracket Selection") },
 	{ PTP_DPC_NIKON_BracketingSet, N_("NIKON Auto Bracketing Set") },
-	{ PTP_DPC_NIKON_F1CenterButtonShootingMode,
-	  N_("NIKON (F1) Center Button Shooting Mode") },
-	{ PTP_DPC_NIKON_CenterButtonPlaybackMode,
-	  N_("NIKON Center Button Playback Mode") },
+	{ PTP_DPC_NIKON_F1CenterButtonShootingMode, N_("NIKON (F1) Center Button Shooting Mode") },
+	{ PTP_DPC_NIKON_CenterButtonPlaybackMode, N_("NIKON Center Button Playback Mode") },
 	{ PTP_DPC_NIKON_F2Multiselector, N_("NIKON (F2) Multiselector") },
-	{ PTP_DPC_NIKON_F3PhotoInfoPlayback,
-	  N_("NIKON (F3) PhotoInfoPlayback") },
-	{ PTP_DPC_NIKON_F4AssignFuncButton,
-	  N_("NIKON (F4) Assign Function Button") },
-	{ PTP_DPC_NIKON_F5CustomizeCommDials,
-	  N_("NIKON (F5) Customize Comm Dials") },
+	{ PTP_DPC_NIKON_F3PhotoInfoPlayback, N_("NIKON (F3) PhotoInfoPlayback") },
+	{ PTP_DPC_NIKON_F4AssignFuncButton, N_("NIKON (F4) Assign Function Button") },
+	{ PTP_DPC_NIKON_F5CustomizeCommDials, N_("NIKON (F5) Customize Comm Dials") },
 	{ PTP_DPC_NIKON_ReverseCommandDial, N_("NIKON Reverse Command Dials") },
 	{ PTP_DPC_NIKON_ApertureSetting, N_("NIKON Aperture Setting") },
 	{ PTP_DPC_NIKON_MenusAndPlayback, N_("NIKON Menus and Playback") },
@@ -237,21 +212,17 @@ static struct {
 	{ PTP_DPC_NIKON_ExposureBracketingIntervalDist,
 	  N_("NIKON Exposure Bracketing Interval Distance") },
 	{ PTP_DPC_NIKON_BracketingProgram, N_("NIKON Bracketing Program") },
-	{ PTP_DPC_NIKON_WhiteBalanceBracketStep,
-	  N_("NIKON White Balance Bracket Step") },
-	{ PTP_DPC_NIKON_AutofocusLCDTopMode2,
-	  N_("NIKON Autofocus LCD Top Mode 2") },
+	{ PTP_DPC_NIKON_WhiteBalanceBracketStep, N_("NIKON White Balance Bracket Step") },
+	{ PTP_DPC_NIKON_AutofocusLCDTopMode2, N_("NIKON Autofocus LCD Top Mode 2") },
 	{ PTP_DPC_NIKON_AutofocusArea, N_("NIKON Autofocus Area selector") },
 	{ PTP_DPC_NIKON_LightMeter, N_("NIKON Light Meter") },
-	{ PTP_DPC_NIKON_ExposureApertureLock,
-	  N_("NIKON Exposure Aperture Lock") },
+	{ PTP_DPC_NIKON_ExposureApertureLock, N_("NIKON Exposure Aperture Lock") },
 	{ PTP_DPC_NIKON_MaximumShots, N_("NIKON Maximum Shots") },
 	{ PTP_DPC_NIKON_AFLLock, N_("NIKON AF-L Locked") },
 	{ PTP_DPC_NIKON_BeepOff, N_("NIKON Beep") },
 	{ PTP_DPC_NIKON_AutofocusMode, N_("NIKON Autofocus Mode") },
 	{ PTP_DPC_NIKON_AFAssist, N_("NIKON AF Assist Lamp") },
-	{ PTP_DPC_NIKON_PADVPMode,
-	  N_("NIKON Auto ISO shutter limit for P A and DVP Mode") },
+	{ PTP_DPC_NIKON_PADVPMode, N_("NIKON Auto ISO shutter limit for P A and DVP Mode") },
 	{ PTP_DPC_NIKON_ImageReview, N_("NIKON Image Review") },
 	{ PTP_DPC_NIKON_GridDisplay, N_("NIKON Viewfinder Grid Display") },
 	{ PTP_DPC_NIKON_AFAreaIllumination, N_("NIKON AF Area Illumination") },
@@ -259,12 +230,9 @@ static struct {
 	{ PTP_DPC_NIKON_FlashCommanderMode, N_("NIKON Flash Commander Mode") },
 	{ PTP_DPC_NIKON_FlashSign, N_("NIKON Flash Signal Indicator") },
 	{ PTP_DPC_NIKON_GridDisplay, N_("NIKON Grid Display") },
-	{ PTP_DPC_NIKON_FlashModeManualPower,
-	  N_("NIKON Flash Manual Mode Power") },
-	{ PTP_DPC_NIKON_FlashModeCommanderPower,
-	  N_("NIKON Flash Commander Mode Power") },
-	{ PTP_DPC_NIKON_FlashExposureCompensation,
-	  N_("NIKON Flash Exposure Compensation") },
+	{ PTP_DPC_NIKON_FlashModeManualPower, N_("NIKON Flash Manual Mode Power") },
+	{ PTP_DPC_NIKON_FlashModeCommanderPower, N_("NIKON Flash Commander Mode Power") },
+	{ PTP_DPC_NIKON_FlashExposureCompensation, N_("NIKON Flash Exposure Compensation") },
 	{ PTP_DPC_NIKON_RemoteTimeout, N_("NIKON Remote Timeout") },
 	{ PTP_DPC_NIKON_ImageCommentString, N_("NIKON Image Comment String") },
 	{ PTP_DPC_NIKON_ImageCommentAttach, N_("NIKON Image Comment Attach") },
@@ -273,10 +241,8 @@ static struct {
 	{ PTP_DPC_NIKON_LensID, N_("NIKON Lens ID") },
 	{ PTP_DPC_NIKON_FocalLengthMin, N_("NIKON Min. Focal Length") },
 	{ PTP_DPC_NIKON_FocalLengthMax, N_("NIKON Max. Focal Length") },
-	{ PTP_DPC_NIKON_MaxApAtMinFocalLength,
-	  N_("NIKON Max. Aperture at Min. Focal Length") },
-	{ PTP_DPC_NIKON_MaxApAtMaxFocalLength,
-	  N_("NIKON Max. Aperture at Max. Focal Length") },
+	{ PTP_DPC_NIKON_MaxApAtMinFocalLength, N_("NIKON Max. Aperture at Min. Focal Length") },
+	{ PTP_DPC_NIKON_MaxApAtMaxFocalLength, N_("NIKON Max. Aperture at Max. Focal Length") },
 	{ PTP_DPC_NIKON_LowLight, N_("NIKON Low Light Indicator") },
 	{ PTP_DPC_NIKON_CSMMenu, N_("NIKON CSM Menu") },
 	{ PTP_DPC_NIKON_OptimizeImage, N_("NIKON Optimize Image") },
@@ -325,14 +291,12 @@ uint16_t ptp_prop_getcodebyname(PTPParams *params, char *name)
 {
 	int i;
 	for (i = 0; ptp_device_properties[i].txt != NULL; i++)
-		if (!strncasecmp(ptp_device_properties[i].txt, name,
-				 strlen(name)))
+		if (!strncasecmp(ptp_device_properties[i].txt, name, strlen(name)))
 			return ptp_device_properties[i].dpc;
 
 	/* XXX*/
 	for (i = 0; ptp_device_properties_NIKON[i].txt != NULL; i++)
-		if (!strncasecmp(ptp_device_properties_NIKON[i].txt, name,
-				 strlen(name)))
+		if (!strncasecmp(ptp_device_properties_NIKON[i].txt, name, strlen(name)))
 			return ptp_device_properties_NIKON[i].dpc;
 
 	return 0;
@@ -340,8 +304,7 @@ uint16_t ptp_prop_getcodebyname(PTPParams *params, char *name)
 
 /* properties interpretation */
 
-static const char *ptp_prop_NIKON_d100(PTPParams *params,
-				       PTPDevicePropDesc *dpd, char *strval)
+static const char *ptp_prop_NIKON_d100(PTPParams *params, PTPDevicePropDesc *dpd, char *strval)
 {
 	static char strvalret[SVALLEN];
 	uint32_t val = (uint32_t)strtol(strval, NULL, 10);
@@ -353,8 +316,7 @@ static const char *ptp_prop_NIKON_d100(PTPParams *params,
 	SVALRET(strvalret);
 }
 
-static const char *ptp_prop_getdescscale10000(PTPParams *params,
-					      PTPDevicePropDesc *dpd,
+static const char *ptp_prop_getdescscale10000(PTPParams *params, PTPDevicePropDesc *dpd,
 					      char *strval)
 {
 	long long int value = strtoll(strval, NULL, 10);
@@ -375,16 +337,14 @@ static const char *ptp_prop_getdescscale10000(PTPParams *params,
 	// RETPROPDESC(pd);
 	for (i = 0; prop_units[i].dpc != 0; i++) {
 		if (prop_units[i].dpc == dpd->DevicePropertyCode) {
-			n = snprintf(strvalret, SVALLEN, "%.4f%s", floatvalue,
-				     prop_units[i].units);
+			n = snprintf(strvalret, SVALLEN, "%.4f%s", floatvalue, prop_units[i].units);
 			SVALRET(strvalret);
 		}
 	}
 	return NULL;
 }
 
-static const char *ptp_prop_getdescscale1000(PTPParams *params,
-					     PTPDevicePropDesc *dpd,
+static const char *ptp_prop_getdescscale1000(PTPParams *params, PTPDevicePropDesc *dpd,
 					     char *strval)
 {
 	long long int value = strtoll(strval, NULL, 10);
@@ -395,8 +355,7 @@ static const char *ptp_prop_getdescscale1000(PTPParams *params,
 		uint16_t dpc;
 		const char *units;
 		int prec;
-	} prop_units[] = { { PTP_DPC_ExposureBiasCompensation, N_(""), 1 },
-			   { 0, NULL } };
+	} prop_units[] = { { PTP_DPC_ExposureBiasCompensation, N_(""), 1 }, { 0, NULL } };
 	static struct {
 		uint16_t dpc;
 		const char *units;
@@ -406,12 +365,9 @@ static const char *ptp_prop_getdescscale1000(PTPParams *params,
 	switch (params->deviceinfo.VendorExtensionID) {
 	case PTP_VENDOR_NIKON:
 		for (i = 0; prop_units_NIKON[i].dpc != 0; i++) {
-			if (prop_units_NIKON[i].dpc ==
-			    dpd->DevicePropertyCode) {
-				n = snprintf(strvalret, SVALLEN, "%.*f%s",
-					     prop_units_NIKON[i].prec,
-					     floatvalue,
-					     prop_units_NIKON[i].units);
+			if (prop_units_NIKON[i].dpc == dpd->DevicePropertyCode) {
+				n = snprintf(strvalret, SVALLEN, "%.*f%s", prop_units_NIKON[i].prec,
+					     floatvalue, prop_units_NIKON[i].units);
 				SVALRET(strvalret);
 			}
 		}
@@ -420,8 +376,7 @@ static const char *ptp_prop_getdescscale1000(PTPParams *params,
 
 	for (i = 0; prop_units[i].dpc != 0; i++) {
 		if (prop_units[i].dpc == dpd->DevicePropertyCode) {
-			n = snprintf(strvalret, SVALLEN, "%.*f%s",
-				     prop_units[i].prec, floatvalue,
+			n = snprintf(strvalret, SVALLEN, "%.*f%s", prop_units[i].prec, floatvalue,
 				     prop_units[i].units);
 			SVALRET(strvalret);
 		}
@@ -429,9 +384,7 @@ static const char *ptp_prop_getdescscale1000(PTPParams *params,
 	return NULL;
 }
 
-static const char *ptp_prop_getdescscale100(PTPParams *params,
-					    PTPDevicePropDesc *dpd,
-					    char *strval)
+static const char *ptp_prop_getdescscale100(PTPParams *params, PTPDevicePropDesc *dpd, char *strval)
 {
 	long long int value = strtoll(strval, NULL, 10);
 	double floatvalue = (double)value / (double)100.0;
@@ -448,23 +401,18 @@ static const char *ptp_prop_getdescscale100(PTPParams *params,
 		uint16_t dpc;
 		const char *units;
 		int prec;
-	} prop_units_NIKON[] = {
-		{ PTP_DPC_NIKON_FocalLengthMin, N_(""), 0 },
-		{ PTP_DPC_NIKON_FocalLengthMax, N_(""), 0 },
-		{ PTP_DPC_NIKON_MaxApAtMinFocalLength, N_(""), 1 },
-		{ PTP_DPC_NIKON_MaxApAtMaxFocalLength, N_(""), 1 },
-		{ 0, NULL }
-	};
+	} prop_units_NIKON[] = { { PTP_DPC_NIKON_FocalLengthMin, N_(""), 0 },
+				 { PTP_DPC_NIKON_FocalLengthMax, N_(""), 0 },
+				 { PTP_DPC_NIKON_MaxApAtMinFocalLength, N_(""), 1 },
+				 { PTP_DPC_NIKON_MaxApAtMaxFocalLength, N_(""), 1 },
+				 { 0, NULL } };
 
 	switch (params->deviceinfo.VendorExtensionID) {
 	case PTP_VENDOR_NIKON:
 		for (i = 0; prop_units_NIKON[i].dpc != 0; i++) {
-			if (prop_units_NIKON[i].dpc ==
-			    dpd->DevicePropertyCode) {
-				n = snprintf(strvalret, SVALLEN, "%.*f%s",
-					     prop_units_NIKON[i].prec,
-					     floatvalue,
-					     prop_units_NIKON[i].units);
+			if (prop_units_NIKON[i].dpc == dpd->DevicePropertyCode) {
+				n = snprintf(strvalret, SVALLEN, "%.*f%s", prop_units_NIKON[i].prec,
+					     floatvalue, prop_units_NIKON[i].units);
 				SVALRET(strvalret);
 			}
 		}
@@ -473,8 +421,7 @@ static const char *ptp_prop_getdescscale100(PTPParams *params,
 
 	for (i = 0; prop_units[i].dpc != 0; i++) {
 		if (prop_units[i].dpc == dpd->DevicePropertyCode) {
-			n = snprintf(strvalret, SVALLEN, "%.*f%s",
-				     prop_units[i].prec, floatvalue,
+			n = snprintf(strvalret, SVALLEN, "%.*f%s", prop_units[i].prec, floatvalue,
 				     prop_units[i].units);
 			SVALRET(strvalret);
 		}
@@ -486,48 +433,46 @@ static struct {
 	uint16_t dpc;
 	char *val;
 	const char *txt;
-} ptp_property_meaning[] = {
-	{ PTP_DPC_WhiteBalance, "1", N_("Manual") },
-	{ PTP_DPC_WhiteBalance, "2", N_("Automatic") },
-	{ PTP_DPC_WhiteBalance, "3", N_("One-push Automatic") },
-	{ PTP_DPC_WhiteBalance, "4", N_("Daylight") },
-	{ PTP_DPC_WhiteBalance, "5", N_("Fluorescent") },
-	{ PTP_DPC_WhiteBalance, "6", N_("Tungsten") },
-	{ PTP_DPC_WhiteBalance, "7", N_("Flash") },
-	{ PTP_DPC_FocusMode, "1", N_("Manual") },
-	{ PTP_DPC_FocusMode, "2", N_("Automatic") },
-	{ PTP_DPC_FocusMode, "3", N_("Automatic Macro") },
-	{ PTP_DPC_ExposureMeteringMode, "1", N_("Manual") },
-	{ PTP_DPC_ExposureMeteringMode, "2", N_("Center-weighted") },
-	{ PTP_DPC_ExposureMeteringMode, "3", N_("Multi-spot") },
-	{ PTP_DPC_ExposureMeteringMode, "4", N_("Center-spot") },
-	{ PTP_DPC_FlashMode, "1", N_("Auto flash") },
-	{ PTP_DPC_FlashMode, "2", N_("Flash off") },
-	{ PTP_DPC_FlashMode, "3", N_("Fill flash") },
-	{ PTP_DPC_FlashMode, "4", N_("Red eye auto") },
-	{ PTP_DPC_FlashMode, "5", N_("Red eye fill") },
-	{ PTP_DPC_FlashMode, "6", N_("External flash") },
-	{ PTP_DPC_ExposureProgramMode, "1", N_("Manual") },
-	{ PTP_DPC_ExposureProgramMode, "2", N_("Automatic (P)") },
-	{ PTP_DPC_ExposureProgramMode, "3", N_("Aperture Priority") },
-	{ PTP_DPC_ExposureProgramMode, "4", N_("Shutter Priority") },
-	{ PTP_DPC_ExposureProgramMode, "5", N_("Program Creative") },
-	{ PTP_DPC_ExposureProgramMode, "6", N_("Program Action") },
-	{ PTP_DPC_ExposureProgramMode, "7", N_("Portrait") },
-	{ PTP_DPC_StillCaptureMode, "1", N_("Normal") },
-	{ PTP_DPC_StillCaptureMode, "2", N_("Burst") },
-	{ PTP_DPC_StillCaptureMode, "3", N_("Timelapse") },
-	{ PTP_DPC_FocusMeteringMode, "1", N_("Center-spot") },
-	{ PTP_DPC_FocusMeteringMode, "2", N_("Multi-spot") },
+} ptp_property_meaning[] = { { PTP_DPC_WhiteBalance, "1", N_("Manual") },
+			     { PTP_DPC_WhiteBalance, "2", N_("Automatic") },
+			     { PTP_DPC_WhiteBalance, "3", N_("One-push Automatic") },
+			     { PTP_DPC_WhiteBalance, "4", N_("Daylight") },
+			     { PTP_DPC_WhiteBalance, "5", N_("Fluorescent") },
+			     { PTP_DPC_WhiteBalance, "6", N_("Tungsten") },
+			     { PTP_DPC_WhiteBalance, "7", N_("Flash") },
+			     { PTP_DPC_FocusMode, "1", N_("Manual") },
+			     { PTP_DPC_FocusMode, "2", N_("Automatic") },
+			     { PTP_DPC_FocusMode, "3", N_("Automatic Macro") },
+			     { PTP_DPC_ExposureMeteringMode, "1", N_("Manual") },
+			     { PTP_DPC_ExposureMeteringMode, "2", N_("Center-weighted") },
+			     { PTP_DPC_ExposureMeteringMode, "3", N_("Multi-spot") },
+			     { PTP_DPC_ExposureMeteringMode, "4", N_("Center-spot") },
+			     { PTP_DPC_FlashMode, "1", N_("Auto flash") },
+			     { PTP_DPC_FlashMode, "2", N_("Flash off") },
+			     { PTP_DPC_FlashMode, "3", N_("Fill flash") },
+			     { PTP_DPC_FlashMode, "4", N_("Red eye auto") },
+			     { PTP_DPC_FlashMode, "5", N_("Red eye fill") },
+			     { PTP_DPC_FlashMode, "6", N_("External flash") },
+			     { PTP_DPC_ExposureProgramMode, "1", N_("Manual") },
+			     { PTP_DPC_ExposureProgramMode, "2", N_("Automatic (P)") },
+			     { PTP_DPC_ExposureProgramMode, "3", N_("Aperture Priority") },
+			     { PTP_DPC_ExposureProgramMode, "4", N_("Shutter Priority") },
+			     { PTP_DPC_ExposureProgramMode, "5", N_("Program Creative") },
+			     { PTP_DPC_ExposureProgramMode, "6", N_("Program Action") },
+			     { PTP_DPC_ExposureProgramMode, "7", N_("Portrait") },
+			     { PTP_DPC_StillCaptureMode, "1", N_("Normal") },
+			     { PTP_DPC_StillCaptureMode, "2", N_("Burst") },
+			     { PTP_DPC_StillCaptureMode, "3", N_("Timelapse") },
+			     { PTP_DPC_FocusMeteringMode, "1", N_("Center-spot") },
+			     { PTP_DPC_FocusMeteringMode, "2", N_("Multi-spot") },
 
-	/* returned by function call */
-	{ PTP_DPC_FNumber, (char *)ptp_prop_getdescscale100, NULL },
-	{ PTP_DPC_FocalLength, (char *)ptp_prop_getdescscale100, NULL },
-	{ PTP_DPC_ExposureTime, (char *)ptp_prop_getdescscale10000, NULL },
-	{ PTP_DPC_ExposureBiasCompensation, (char *)ptp_prop_getdescscale1000,
-	  NULL },
-	{ 0, NULL, NULL }
-};
+			     /* returned by function call */
+			     { PTP_DPC_FNumber, (char *)ptp_prop_getdescscale100, NULL },
+			     { PTP_DPC_FocalLength, (char *)ptp_prop_getdescscale100, NULL },
+			     { PTP_DPC_ExposureTime, (char *)ptp_prop_getdescscale10000, NULL },
+			     { PTP_DPC_ExposureBiasCompensation, (char *)ptp_prop_getdescscale1000,
+			       NULL },
+			     { 0, NULL, NULL } };
 
 static struct {
 	uint16_t dpc;
@@ -772,33 +717,28 @@ static struct {
 	{ PTP_DPC_NIKON_ExposureTime, "4294967295", N_("bulb") },
 
 	/* returned by function call */
-	{ PTP_DPC_NIKON_FocalLengthMin, (char *)ptp_prop_getdescscale100,
-	  NULL },
-	{ PTP_DPC_NIKON_FocalLengthMax, (char *)ptp_prop_getdescscale100,
-	  NULL },
-	{ PTP_DPC_NIKON_MaxApAtMinFocalLength, (char *)ptp_prop_getdescscale100,
-	  NULL },
-	{ PTP_DPC_NIKON_MaxApAtMaxFocalLength, (char *)ptp_prop_getdescscale100,
-	  NULL },
+	{ PTP_DPC_NIKON_FocalLengthMin, (char *)ptp_prop_getdescscale100, NULL },
+	{ PTP_DPC_NIKON_FocalLengthMax, (char *)ptp_prop_getdescscale100, NULL },
+	{ PTP_DPC_NIKON_MaxApAtMinFocalLength, (char *)ptp_prop_getdescscale100, NULL },
+	{ PTP_DPC_NIKON_MaxApAtMaxFocalLength, (char *)ptp_prop_getdescscale100, NULL },
 	{ PTP_DPC_NIKON_ExposureTime, (char *)ptp_prop_NIKON_d100, NULL },
 	{ 0, NULL, NULL }
 };
 
 /* return property value description */
-#define RETPROPDESC(desc)                                                      \
-	{                                                                      \
-		for (i = 0; desc[i].dpc != 0; i++) {                           \
-			if (desc[i].txt != NULL) {                             \
-				if (desc[i].dpc == dpd->DevicePropertyCode &&  \
-				    !strcmp(desc[i].val, strval))              \
-					return (desc[i].txt);                  \
-			} else {                                               \
-				if (desc[i].dpc == dpd->DevicePropertyCode)    \
-					return (((const char *(*)())desc[i]    \
-							 .val)(params, dpd,    \
-							       strval));       \
-			}                                                      \
-		}                                                              \
+#define RETPROPDESC(desc)                                                                          \
+	{                                                                                          \
+		for (i = 0; desc[i].dpc != 0; i++) {                                               \
+			if (desc[i].txt != NULL) {                                                 \
+				if (desc[i].dpc == dpd->DevicePropertyCode &&                      \
+				    !strcmp(desc[i].val, strval))                                  \
+					return (desc[i].txt);                                      \
+			} else {                                                                   \
+				if (desc[i].dpc == dpd->DevicePropertyCode)                        \
+					return (((const char *(*)())desc[i].val)(params, dpd,      \
+										 strval));         \
+			}                                                                          \
+		}                                                                                  \
 	}
 
 /**
@@ -813,8 +753,7 @@ static struct {
  *		meaning as string
  *
  **/
-const char *ptp_prop_getdescbystring(PTPParams *params, PTPDevicePropDesc *dpd,
-				     const char *strval)
+const char *ptp_prop_getdescbystring(PTPParams *params, PTPDevicePropDesc *dpd, const char *strval)
 {
 	int i;
 
@@ -841,8 +780,7 @@ const char *ptp_prop_getdescbystring(PTPParams *params, PTPDevicePropDesc *dpd,
  *		meaning as string
  *
  **/
-const char *ptp_prop_getdesc(PTPParams *params, PTPDevicePropDesc *dpd,
-			     void *val)
+const char *ptp_prop_getdesc(PTPParams *params, PTPDevicePropDesc *dpd, void *val)
 {
 	const char *strval;
 	/* Get Device Property value as string */
@@ -886,12 +824,10 @@ const char *ptp_prop_tostr(PTPParams *params, PTPDevicePropDesc *dpd, void *val)
 		n = snprintf(strval, SVALLEN, "%hu", *(uint16_t *)value);
 		SVALRET(strval);
 	case PTP_DTC_INT32:
-		n = snprintf(strval, SVALLEN, "%li",
-			     (long int)*(int32_t *)value);
+		n = snprintf(strval, SVALLEN, "%li", (long int)*(int32_t *)value);
 		SVALRET(strval);
 	case PTP_DTC_UINT32:
-		n = snprintf(strval, SVALLEN, "%lu",
-			     (unsigned long)*(uint32_t *)value);
+		n = snprintf(strval, SVALLEN, "%lu", (unsigned long)*(uint32_t *)value);
 		SVALRET(strval);
 	case PTP_DTC_STR:
 		n = snprintf(strval, SVALLEN, "\"%s\"", (char *)value);
@@ -906,15 +842,13 @@ const char *ptp_prop_getvalbyname(PTPParams *params, char *name, uint16_t dpc)
 	/* doeasn't match for function interpretation */
 	for (i = 0; ptp_property_meaning[i].txt != NULL; i++)
 		if (ptp_property_meaning[i].dpc == dpc)
-			if (!strncasecmp(ptp_property_meaning[i].txt, name,
-					 strlen(name)))
+			if (!strncasecmp(ptp_property_meaning[i].txt, name, strlen(name)))
 				return ptp_property_meaning[i].val;
 
 	/* XXX */
 	for (i = 0; ptp_property_meaning_NIKON[i].txt != NULL; i++)
 		if (ptp_property_meaning_NIKON[i].dpc == dpc)
-			if (!strncasecmp(ptp_property_meaning_NIKON[i].txt,
-					 name, strlen(name)))
+			if (!strncasecmp(ptp_property_meaning_NIKON[i].txt, name, strlen(name)))
 				return ptp_property_meaning_NIKON[i].val;
 
 	return NULL;

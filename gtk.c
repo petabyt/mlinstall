@@ -15,6 +15,7 @@ uint16_t ptp_runeventproc(PTPParams *params, char string[]);
 
 // flag.c, or flag-win.c
 int enableFlag();
+int disableFlag();
 
 int busn = 0, devn = 0;
 short force = 0;
@@ -70,6 +71,16 @@ static void writeflag(GtkWidget *widget, gpointer data)
 		logprint("Could not enable flags. Make sure\nto run as Administrator/superuser.");
 	} else {
 		logprint("Wrote card flags on EOS_DIGITAL");
+	}
+}
+
+static void destroyflag(GtkWidget *widget, gpointer data)
+{
+	logclear();
+	if (disableFlag()) {
+		logprint("Could not destroy flags. Make sure\nto run as Administrator/superuser.");
+	} else {
+		logprint("Overwrote card flags.");
 	}
 }
 
@@ -174,6 +185,11 @@ int main(int argc, char *argv[])
 
 	button = gtk_button_new_with_label("Write SD card flags on 'EOS_DIGITAL'");
 	g_signal_connect(button, "clicked", G_CALLBACK(writeflag), NULL);
+	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
+	gtk_widget_show(button);
+
+	button = gtk_button_new_with_label("Destroy SD card flags");
+	g_signal_connect(button, "clicked", G_CALLBACK(destroyflag), NULL);
 	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
 	gtk_widget_show(button);
 

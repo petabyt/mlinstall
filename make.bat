@@ -1,4 +1,5 @@
 @echo off
+
 rem Windows Compilation script
 rem Usage:
 rem make.bat           Compile default CLI app

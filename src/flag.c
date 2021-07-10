@@ -5,6 +5,9 @@
 
 enum FsType { FAT16 = 0, FAT32 = 1, EXFAT = 2 };
 
+char flag1[] = "EOS_DEVELOP";
+char flag2[] = "BOOTDISK";
+
 int getDrive(FILE *d)
 {
 	char buffer[50];
@@ -48,13 +51,17 @@ void setboot(FILE *d, long of1, long of2)
 	printf("Current Flag 2: %s\n", buffer);
 
 	fseek(d, of1, SEEK_SET);
-	fwrite("EOS_DEVELOP", 1, 11, d);
+	fwrite(flag1, 1, 11, d);
 
 	fseek(d, of2, SEEK_SET);
-	fwrite("BOOTDISK", 1, 8, d);
+	fwrite(flag2, 1, 8, d);
+
+	printf("Wrote %s and %s.\n", flag1, flag2);
 }
 
-int enableFlag()
+// Detect the filesystem and write the flags
+// in the correct place
+int writeflags()
 {
 	char buffer[50];
 
@@ -76,6 +83,7 @@ int enableFlag()
 
 	if (drive == EXFAT) {
 		puts("Quitting, no EXFAT support. Try EOSCARD.");
+		fclose(d);
 		return 1;
 	} else if (drive == FAT16) {
 		setboot(d, 71, 92);
@@ -83,13 +91,37 @@ int enableFlag()
 		setboot(d, 71, 92);
 	} else {
 		puts("Unsupported FS");
+		fclose(d);
 		return 1;
 	}
 
-	puts("Wrote EOS_DEVELOP AND BOOTDISK.");
+	puts("Wrote card flags.");
 	puts("Unmount the device to save changes.");
-
 	fclose(d);
+	return 0;
+}
+
+// Disable the flag by writing underscores
+// on the first character
+int disableFlag()
+{
+	flag1[0] = '_';
+	flag2[0] = '_';
+	if (writeflags()) {
+		return 1;
+	}
+
+	flag1[0] = 'E';
+	flag2[0] = 'B';
+	return 0;
+}
+
+int enableFlag()
+{
+	if (writeflags()) {
+		return 1;
+	}
+
 	return 0;
 }
 

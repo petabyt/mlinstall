@@ -7,6 +7,9 @@ enum FsType { FAT16 = 0, FAT32 = 1, EXFAT = 2 };
 
 #define SIZE 512
 
+char flag1[] = "EOS_DEVELOP";
+char flag2[] = "BOOTDISK";
+
 char bootsector[SIZE];
 DWORD bytesRead;
 
@@ -45,7 +48,7 @@ void setboot(HANDLE d, long of1, long of2)
 	WriteFile(d, bootsector, SIZE, &bytesRead, NULL);
 }
 
-int enableFlag()
+int writeflags()
 {
 	char id;
 
@@ -72,6 +75,7 @@ int enableFlag()
 found:;
 	if (id == 'C' || id == 'c') {
 		puts("Somehow I got the C drive, and I ain't writing to it.");
+		return 1;
 	}
 
 	char driveID[] = "\\\\.\\E:";
@@ -104,12 +108,29 @@ found:;
 
 	puts("Wrote EOS_DEVELOP AND BOOTDISK.");
 	puts("Unmount the device to save changes.");
+	return 0;
 }
 
-#ifdef TEST
-int main()
+// Disable the flag by writing underscores
+// on the first character
+int disableFlag()
 {
-	// E:\ drive
-	enableFlag('E');
+	flag1[0] = '_';
+	flag2[0] = '_';
+	if (writeflags()) {
+		return 1;
+	}
+
+	flag1[0] = 'E';
+	flag2[0] = 'B';
+	return 0;
 }
-#endif
+
+int enableFlag()
+{
+	if (writeflags()) {
+		return 1;
+	}
+
+	return 0;
+}

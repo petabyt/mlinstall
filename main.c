@@ -1,4 +1,5 @@
 // Command line based application
+// (very simple, bare bones, could be improved)
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,6 +15,7 @@ uint16_t ptp_runeventproc(PTPParams *params, char string[]);
 
 // flag.c, or flag-win.c
 int enableFlag();
+int disableFlag();
 
 int main()
 {
@@ -30,8 +32,9 @@ int main()
 	puts("    bootdisk             Run EnableBootDisk and allow autoexec.bin to "
 	     "be run.");
 	puts("    bootdiskoff          Run DisableBootDisk");
-	puts("    flags <DRIVE LETTER> Write EOS_DEVELOP and BOOTDISK flag to "
+	puts("    flags                Write EOS_DEVELOP and BOOTDISK flag to "
 	     "mounted SD card named \"EOS_DEVELOP\"");
+	puts("    dflags               Destroy the card flags by writing an underscore on the first character.");
 
 	while (1) {
 		putchar(':');
@@ -67,6 +70,8 @@ int main()
 			puts("Enabled boot disk.");
 		} else if (!strncmp(input, "flags", 6)) {
 			enableFlag();
+		} else if (!strncmp(input, "dflags", 6)) {
+			disableFlag();
 		} else if (input[0] == 'x' || input[0] == 'q') {
 			return 0;
 		} else {

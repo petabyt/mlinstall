@@ -40,7 +40,7 @@ void setboot(FILE *d, long of1, long of2)
 	memset(buffer, '\0', sizeof(buffer));
 	fseek(d, of1, SEEK_SET);
 	fread(buffer, 1, 11, d);
-	printf("Curren  Flag 1: %s\n", buffer);
+	printf("Current Flag 1: %s\n", buffer);
 
 	memset(buffer, '\0', sizeof(buffer));
 	fseek(d, of2, SEEK_SET);

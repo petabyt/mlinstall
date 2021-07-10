@@ -8,7 +8,6 @@ STYLE = -style=file -i
 #LDFLAGS+=$(STATIC)
 
 LIBFILES = myusb.c properties.c ptp.c ptpcam.c
-
 GTKFLAGS = `pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0`
 
 all: mlinstall clean
@@ -29,6 +28,11 @@ gtkb:
 mlinstall:
 	@cd src; $(CC) ../main.c flag.c $(LIBFILES) $(CFLAGS) $(LDFLAGS) -o ../mlinstall
 	@sudo ./mlinstall
+
+# Use staticx to convert dynamic to static executable
+# pip3 install staticx
+static:
+	@staticx mlinstall mlinstall
 
 # ------------------------------------------------
 # Targets to cross compile for windows, from Linux

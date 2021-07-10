@@ -28,7 +28,6 @@ char logbuf[1000] = "Log info will go here.\n";
 
 void logprint(char string[])
 {
-	g_print("[GUI] %s", string);
 	strcat(logbuf, string);
 	gtk_label_set_text(GTK_LABEL(logw), logbuf);
 }
@@ -86,17 +85,12 @@ static void deviceinfo(GtkWidget *widget, gpointer data)
 	ptp_getdeviceinfo(&params, &info);
 
 	char buffer[256];
-	sprintf(
-		buffer,
-		"Manufacturer: %s\n" \
-		"Model: %s\n" \
-		"DeviceVersion: %s\n" \
+	sprintf(buffer,
+		"Manufacturer: %s\n"
+		"Model: %s\n"
+		"DeviceVersion: %s\n"
 		"SerialNumber: %s\n",
-		info.Manufacturer,
-		info.Model,
-		info.DeviceVersion,
-		info.SerialNumber
-	);
+		info.Manufacturer, info.Model, info.DeviceVersion, info.SerialNumber);
 
 	logprint(buffer);
 
@@ -153,7 +147,7 @@ int main(int argc, char *argv[])
 	gtk_init(&argc, &argv);
 
 	GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(window), "mlinstall");
+	gtk_window_set_title(GTK_WINDOW(window), "ML Install");
 	gtk_window_set_default_size(GTK_WINDOW(window), 300, 400);
 	g_signal_connect(window, "delete-event", G_CALLBACK(delete_event), NULL);
 	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
@@ -178,7 +172,7 @@ int main(int argc, char *argv[])
 	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
 	gtk_widget_show(button);
 
-	button = gtk_button_new_with_label("Write card flags on EOS_DIGITAL");
+	button = gtk_button_new_with_label("Write SD card flags on 'EOS_DIGITAL'");
 	g_signal_connect(button, "clicked", G_CALLBACK(writeflag), NULL);
 	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
 	gtk_widget_show(button);

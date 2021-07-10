@@ -70,6 +70,10 @@ int enableFlag()
 	return 1;
 
 found:;
+	if (id == 'C' || id == 'c') {
+		puts("Somehow I got the C drive, and I ain't writing to it.");
+	}
+
 	char driveID[] = "\\\\.\\E:";
 	driveID[4] = id;
 

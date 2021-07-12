@@ -18,6 +18,11 @@ or not brick your camera. Use at your own risk.**
 - [x] - Destroy card flags
 - [ ] - Download correct ML based on model and FW version (?)
 
+## TODO:
+- [ ] - Fix drive.c/drive-win.c spahgetti code
+- [ ] - Lots of fuzz testing
+- [ ] - Try on Mac
+
 ## Compilation
 ```
 rem Requires libusb + x86_64-w64-mingw32-gcc.

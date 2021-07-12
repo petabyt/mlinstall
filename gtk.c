@@ -9,13 +9,10 @@
 #include "src/config.h"
 #include "src/ptp.h"
 #include "src/ptpcam.h"
+#include "src/drive.h"
 
 // From ptp.c
 uint16_t ptp_runeventproc(PTPParams *params, char string[]);
-
-// flag.c, or flag-win.c
-int enableFlag();
-int disableFlag();
 
 int busn = 0, devn = 0;
 short force = 0;

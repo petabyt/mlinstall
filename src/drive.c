@@ -8,7 +8,7 @@ enum FsType { FAT16 = 0, FAT32 = 1, EXFAT = 2 };
 char flag1[] = "EOS_DEVELOP";
 char flag2[] = "BOOTDISK";
 
-int getDrive(FILE *d)
+int getFilesystem(FILE *d)
 {
 	char buffer[50];
 
@@ -36,7 +36,7 @@ int getDrive(FILE *d)
 	return 0;
 }
 
-void setboot(FILE *d, long of1, long of2)
+void setBoot(FILE *d, long of1, long of2)
 {
 	char buffer[64];
 
@@ -59,25 +59,42 @@ void setboot(FILE *d, long of1, long of2)
 	printf("Wrote %s and %s.\n", flag1, flag2);
 }
 
-// Detect the filesystem and write the flags
-// in the correct place
-int writeflags()
-{
-	char buffer[50];
-
+void getDrive(char buffer[]) {
 	// Get EOS_DIGITAL Drive
 	FILE *c = popen("mount | grep EOS_DIGITAL | awk '{printf $1}'", "r");
 	fgets(buffer, 50, c);
+}
 
+int getUsableDrive(char buffer[]) {
+	char filesystem[64];
+	getDrive(filesystem);
+
+	char command[256];
+	sprintf(
+		command,
+		"cat /proc/mounts | grep %s | awk '{printf $2'}",
+		filesystem
+	);
+
+	FILE *c = popen(command, "r");
+	fgets(buffer, 50, c);
+}
+
+// Detect the filesystem and write the flags
+// in the correct place
+int writeFlags()
+{
+	char buffer[128];
+	getDrive(buffer);
 	FILE *d = fopen(buffer, "rw+");
-
+	
 	if (!d) {
 		puts("Could not open filesystem.");
 		return 1;
 	}
 
 	char *fsNames[] = { "FAT16", "FAT32", "EXFAT" };
-	int drive = getDrive(d);
+	int drive = getFilesystem(d);
 
 	printf("FS Type: %s\n", fsNames[drive]);
 
@@ -86,9 +103,9 @@ int writeflags()
 		fclose(d);
 		return 1;
 	} else if (drive == FAT16) {
-		setboot(d, 71, 92);
+		setBoot(d, 71, 92);
 	} else if (drive == FAT32) {
-		setboot(d, 71, 92);
+		setBoot(d, 71, 92);
 	} else {
 		puts("Unsupported FS");
 		fclose(d);
@@ -107,7 +124,7 @@ int disableFlag()
 {
 	flag1[0] = '_';
 	flag2[0] = '_';
-	if (writeflags()) {
+	if (writeFlags()) {
 		return 1;
 	}
 
@@ -118,7 +135,7 @@ int disableFlag()
 
 int enableFlag()
 {
-	if (writeflags()) {
+	if (writeFlags()) {
 		return 1;
 	}
 
@@ -128,6 +145,8 @@ int enableFlag()
 #ifdef TEST
 int main()
 {
-	enableFlag(0);
+	char buffer[128];
+	getUsableDrive(buffer);
+	puts(buffer);
 }
 #endif

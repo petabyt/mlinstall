@@ -10,6 +10,8 @@ You can find standalone prebuilts for it [here](https://github.com/petabyt/mlins
 **This is not guaranteed to work perfectly  
 or not brick your camera. Use at your own risk.**  
 
+![screenshot](screenshot.png)
+
 ## Features
 - [x] - Enable/Disable boot disk
 - [x] - Execute DryOS shell commands (event procedures)
@@ -19,20 +21,41 @@ or not brick your camera. Use at your own risk.**
 - [ ] - Download correct ML based on model and FW version (?)
 
 ## TODO:
-- [ ] - Fix drive.c/drive-win.c spahgetti code
 - [ ] - Lots of fuzz testing
 - [ ] - Try on Mac
 
 ## Compilation
+Compile from Windows  
 ```
 rem Requires libusb + x86_64-w64-mingw32-gcc.
 rem See make.bat
 make.bat
 ```
 
+Compile on Linux  
 ```
 # requires gcc/tcc, libusb-dev
+# (sudo apt install libusb-dev)
 make
+
+# Compile GTK-based program
+make gui
 ```
 
-![screenshot](screenshot.png)
+Cross compile for Windows, from Linux  
+Some libs must be downloaded to provide  
+the DLLs for the compiler and zip file.  
+Requires `x86_64-w64-mingw32`.  
+```
+# Compile and pack gui program zip
+make setuplibs
+make windowsgtk
+make windowsgtkpack
+make removelibs
+
+# Compile and pack cli program zip
+make setuplibs
+make windows
+make windowspack
+make removelibs
+```

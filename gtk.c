@@ -23,7 +23,7 @@ PTPParams params;
 PTP_USB ptp_usb;
 struct usb_device *dev;
 
-// Quick, messy, logging mechanism
+// Quick, messy, logging mechanism:
 GtkWidget *logw;
 char logbuf[1000] = "Log info will go here.\n";
 
@@ -39,7 +39,7 @@ void logclear()
 	gtk_label_set_text(GTK_LABEL(logw), logbuf);
 }
 
-// Log a return message after doing something
+// Log a return message after doing a usb thing
 int returnMessage(unsigned int code)
 {
 	switch (code) {
@@ -101,7 +101,8 @@ static void deviceinfo(GtkWidget *widget, gpointer data)
 		"Model: %s\n"
 		"DeviceVersion: %s\n"
 		"SerialNumber: %s\n",
-		info.Manufacturer, info.Model, info.DeviceVersion, info.SerialNumber);
+		info.Manufacturer, info.Model, info.DeviceVersion, info.SerialNumber
+	);
 
 	logprint(buffer);
 

@@ -1,11 +1,7 @@
-# Create standalone executable
-STATIC = -static -static-libgcc -static-libstdc++
-
 #CC = tcc
 CFLAGS = -w
 LDFLAGS = -lusb
 STYLE = -style=file -i
-#LDFLAGS+=$(STATIC)
 
 LIBFILES = myusb.c properties.c ptp.c ptpcam.c
 GTKFLAGS = `pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0`
@@ -14,7 +10,7 @@ all: mlinstall clean
 gui: gtkb clean
 
 clean:
-	@rm -rf ptpcam *.orig *.gch *.o *.out ptpcam mlinstall *.exe *.zip
+	@rm -rf ptpcam *.orig *.gch *.o *.out ptpcam mlinstall *.exe *.zip *.res
 
 # Format kernel style
 style:
@@ -22,11 +18,11 @@ style:
 	@clang-format $(STYLE) *.c
 
 gtkb:
-	cd src; $(CC) ../gtk.c flag.c $(LIBFILES) $(LDFLAGS) $(CFLAGS) $(GTKFLAGS) -o ../mlinstall
+	cd src; $(CC) ../gtk.c drive.c $(LIBFILES) $(LDFLAGS) $(CFLAGS) $(GTKFLAGS) -o ../mlinstall
 	@./mlinstall
 
 mlinstall:
-	@cd src; $(CC) ../main.c flag.c $(LIBFILES) $(CFLAGS) $(LDFLAGS) -o ../mlinstall
+	@cd src; $(CC) ../main.c drive.c $(LIBFILES) $(CFLAGS) $(LDFLAGS) -o ../mlinstall
 	@sudo ./mlinstall
 
 # Use staticx to convert dynamic to static executable
@@ -42,7 +38,7 @@ static:
 # And export top directory to folder "gtk"
 # Unzip https://sourceforge.net/projects/libusb-win32/files/libusb-win32-releases/1.2.2.0/libusb-win32-bin-1.2.2.0.zip/download
 
-WINCC = x86_64-w64-mingw32-gcc
+WINCC = x86_64-w64-mingw32
 LIBUSB = libusb-win32-bin-1.2.2.0
 
 # Desired libusb dll directory
@@ -67,10 +63,11 @@ removelibs:
 	@rm -rf gtk libusb-win32-bin-1.2.2.0
 
 windowsgtk:
-	cd src; $(WINCC) ../gtk.c flag-win.c $(LIBFILES) $(LIB) $(GLIB) $(CFLAGS) -o ../mlinstall.exe
+	@$(WINCC)-windres win.rc -O coff -o win.res
+	cd src; $(WINCC)-gcc ../gtk.c ../win.res drive-win.c $(LIBFILES) $(LIB) $(GLIB) $(CFLAGS) -o ../mlinstall.exe
 
 windows:
-	cd src; $(WINCC) ../main.c flag-win.c $(LIBFILES) $(LIB) $(CFLAGS) -o ../mlinstall.exe
+	cd src; $(WINCC)-gcc ../main.c drive-win.c $(LIBFILES) $(LIB) $(CFLAGS) -o ../mlinstall.exe
 
 windowsgtkpack:
 	@rm -rf mlinstall

@@ -35,6 +35,7 @@ int main()
 	puts("    flags                Write EOS_DEVELOP and BOOTDISK flag to "
 	     "mounted SD card named \"EOS_DEVELOP\"");
 	puts("    dflags               Destroy the card flags by writing an underscore on the first character.");
+	puts("    info                 Get information on the camera.");
 
 	while (1) {
 		putchar(':');
@@ -49,6 +50,23 @@ int main()
 
 			ptp_runeventproc(&params, input + 4);
 
+			close_camera(&ptp_usb, &params, dev);
+		} else if (!strcmp(input, "info")) {
+			if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
+				continue;
+			}
+		
+			PTPDeviceInfo info;
+			ptp_getdeviceinfo(&params, &info);
+		
+			printf(
+				"Manufacturer: %s\n"
+				"Model: %s\n"
+				"DeviceVersion: %s\n"
+				"SerialNumber: %s\n",
+				info.Manufacturer, info.Model, info.DeviceVersion, info.SerialNumber
+			);
+		
 			close_camera(&ptp_usb, &params, dev);
 		} else if (!strcmp(input, "bootdisk")) {
 			if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {

@@ -2245,7 +2245,7 @@ uint16_t ptp_runeventproc(PTPParams *params, char string[])
 
 	// Generous zero padding to prevent crashes
 	char command[100] = { 0 };
-	strcpy(command, string);
+	strncpy(command, string, sizeof(command));
 	char *_command = command;
 
 	// Memset ptp to zero

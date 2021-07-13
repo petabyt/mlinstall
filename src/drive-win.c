@@ -57,10 +57,10 @@ int getDrive() {
 	FILE *f = popen("wmic logicaldisk where drivetype=2 get deviceid, volumename", "r");
 
 	// Skip first line (title)
-	fgets(command, 64, f);
+	fgets(command, 128, f);
 
 	// Look for EOS_DIGITAL drive
-	while (fgets(command, 64, f) != NULL) {
+	while (fgets(command, 128, f) != NULL) {
 		if (!strncmp(command + 10, "EOS_DIGITAL", 11)) {
 			printf("Found EOS_DIGITAL at drive %c\n", buffer[0]);
 			id = command[0];
@@ -93,6 +93,7 @@ int getUsableDrive(char buffer[]) {
 
 int writeFlags()
 {
+	// Filesystem must be opened like this: \\.\\E
 	char buffer[64] = "\\\\.\\E:";
 	int drive = getDrive(buffer);
 	if (drive == -1) {

@@ -7,9 +7,6 @@ The backend is a fork of [ptpcam](https://github.com/reticulatedpines/magiclante
 A Python based version of this app is available at [python-stable](https://github.com/petabyt/mlinstall/tree/python-stable).  
 You can find standalone prebuilts for it [here](https://github.com/petabyt/mlinstall/releases/tag/0.1.0).
 
-**This is not guaranteed to work perfectly  
-or not brick your camera. Use at your own risk.**  
-
 ![screenshot](screenshot.png)
 
 ## Features

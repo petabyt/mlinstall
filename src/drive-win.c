@@ -3,17 +3,15 @@
 #include <stdio.h>
 #include <windows.h>
 
-enum FsType { FAT16 = 0, FAT32 = 1, EXFAT = 2 };
-
+// Bootsector size
 #define SIZE 512
-
-char flag1[] = "EOS_DEVELOP";
-char flag2[] = "BOOTDISK";
 
 char bootsector[SIZE];
 DWORD bytesRead = 0;
 
-int getFilesystem(HANDLE d)
+HANDLE d;
+
+int flag_getfs()
 {
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
 	ReadFile(d, bootsector, SIZE, &bytesRead, NULL);
@@ -33,24 +31,20 @@ int getFilesystem(HANDLE d)
 	return 0;
 }
 
-void setBoot(HANDLE d, long of1, long of2)
+void flag_write(long offset, char string[])
 {
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
 	ReadFile(d, bootsector, SIZE, &bytesRead, NULL);
 
-	printf("Current Flag 1: %s\n", bootsector + of1);
-	printf("Current Flag 2: %s\n", bootsector + of2);
-
-	memcpy(bootsector + of1, "EOS_DEVELOP", 11);
-	memcpy(bootsector + of2, "BOOTDISK", 8);
+	printf("Current Flag: %s\n", bootsector + offset);
+	memcpy(bootsector + offset, string, strlen(string));
 
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
 	WriteFile(d, bootsector, SIZE, &bytesRead, NULL);
 }
 
-int getDrive() {
+int flag_getdrive() {
 	char id;
-
 	char command[128];
 
 	// List info usb type mounted filesystems
@@ -80,8 +74,8 @@ found:;
 	return (int)id;
 }
 
-int getUsableDrive(char buffer[]) {
-	int drive = getDrive();
+int flag_usable_drive(char buffer[]) {
+	int drive = flag_getdrive();
 	if (drive == -1) {
 		return 1;
 	}
@@ -91,7 +85,7 @@ int getUsableDrive(char buffer[]) {
 	return 0;
 }
 
-int writeFlags()
+int flags_write(int mode)
 {
 	// Filesystem must be opened like this: \\.\\E
 	char buffer[64] = "\\\\.\\E:";
@@ -102,7 +96,7 @@ int writeFlags()
 
 	buffer[4] = (char)drive;
 
-	HANDLE d = CreateFile(driveID, GENERIC_READ | GENERIC_WRITE,
+	d = CreateFile(driveID, GENERIC_READ | GENERIC_WRITE,
 			      FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
 			      FILE_FLAG_NO_BUFFERING | FILE_FLAG_RANDOM_ACCESS, NULL);
 
@@ -113,45 +107,43 @@ int writeFlags()
 
 	int drive = getFilesystem(d);
 
+	int of[3] = { 0, 0, 0 };
+
 	if (drive == EXFAT) {
+		// TODO: VBR checksum (?)
 		puts("Quitting, no EXFAT support yet. Try EOSCARD.");
 		return 1;
 	} else if (drive == FAT16) {
 		puts("Writing to FAT16 filesystem.");
-		setBoot(d, 71, 92);
+		of[0] = 0x2b;
+		of[1] = 0x40;
+		of[2] = 0x1f0;
 	} else if (drive == FAT32) {
 		puts("Writing to FAT32 filesystem.");
-		setBoot(d, 71, 92);
+		of[0] = 0x2b;
+		of[1] = 0x40;
+		of[2] = 0x1f0;
 	} else {
 		puts("Unsupported FS");
 		return 1;
 	}
 
-	puts("Wrote EOS_DEVELOP AND BOOTDISK.");
+	switch (mode) {
+	case FLAG_ALL:
+		writeFlag(of[0], flag_develop);
+		writeFlag(of[1], flag_bootdisk);
+		writeFlag(of[2], flag_script);
+		break;
+	case FLAG_SCRIPT:
+		writeFlag(of[2], flag_script);
+		break;
+	case FLAG_BOOT:
+		writeFlag(of[0], flag_develop);
+		writeFlag(of[1], flag_bootdisk);
+		break;
+	}
+
+	puts("Wrote card flags.");
 	puts("Unmount the device to save changes.");
-	return 0;
-}
-
-// Disable the flag by writing underscores
-// on the first character
-int disableFlag()
-{
-	flag1[0] = '_';
-	flag2[0] = '_';
-	if (writeFlags()) {
-		return 1;
-	}
-
-	flag1[0] = 'E';
-	flag2[0] = 'B';
-	return 0;
-}
-
-int enableFlag()
-{
-	if (writeFlags()) {
-		return 1;
-	}
-
 	return 0;
 }

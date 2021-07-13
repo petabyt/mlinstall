@@ -1,12 +1,11 @@
-#CC = tcc
-CFLAGS = -w
+CFLAGS = -Wextra
 LDFLAGS = -lusb
 STYLE = -style=file -i
 
-LIBFILES = myusb.c properties.c ptp.c ptpcam.c
+LIBFILES = drive.c myusb.c properties.c ptp.c ptpcam.c
 GTKFLAGS = `pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0`
 
-all: mlinstall clean
+cli: mlinstall clean
 gui: gtkb clean
 
 clean:
@@ -17,12 +16,14 @@ style:
 	@cd src; clang-format $(STYLE) *.c
 	@clang-format $(STYLE) *.c
 
+# Build with GTK, and test
 gtkb:
-	cd src; $(CC) ../gtk.c drive.c $(LIBFILES) $(LDFLAGS) $(CFLAGS) $(GTKFLAGS) -o ../mlinstall
+	cd src; $(CC) ../gtk.c drive-unix.c $(LIBFILES) $(LDFLAGS) $(CFLAGS) $(GTKFLAGS) -o ../mlinstall
 	@./mlinstall
 
+# Build with cli, and test
 mlinstall:
-	@cd src; $(CC) ../main.c drive.c $(LIBFILES) $(CFLAGS) $(LDFLAGS) -o ../mlinstall
+	@cd src; $(CC) ../main.c drive-unix.c $(LIBFILES) $(CFLAGS) $(LDFLAGS) -o ../mlinstall
 	@sudo ./mlinstall
 
 # Use staticx to convert dynamic to static executable

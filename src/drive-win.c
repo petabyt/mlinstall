@@ -112,4 +112,9 @@ int flag_openfs(int mode)
 
 	return flag_getfs();
 }
+
+void flag_close() {
+	// TODO: figure out FileClose (?)
+}
+
 #endif

@@ -81,9 +81,11 @@ int main()
 
 			puts("Enabled boot disk.");
 		} else if (!strncmp(input, "flags", 6)) {
-			flags_write(FLAG_BOOT);
+			flag_write_flag(FLAG_BOOT);
+			flag_close();
 		} else if (!strncmp(input, "dflags", 6)) {
-			flags_write(FLAG_DESTROY_BOOT);
+			flag_write_flag(FLAG_DESTROY_BOOT);
+			flag_close();
 		} else if (input[0] == 'x' || input[0] == 'q') {
 			return 0;
 		} else {

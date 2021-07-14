@@ -61,22 +61,22 @@ int returnMessage(unsigned int code)
 static void writeflag(GtkWidget *widget, gpointer data)
 {
 	logclear();
-	if (flags_write(FLAG_BOOT)) {
+	if (flag_write_flag(FLAG_BOOT)) {
 		logprint("Could not enable flags. Make sure\nto run as Administrator/superuser.");
 	} else {
 		logprint("Wrote card flags on EOS_DIGITAL");
+		flag_close();
 	}
-
-	flag_close();
 }
 
 static void destroyflag(GtkWidget *widget, gpointer data)
 {
 	logclear();
-	if (flags_write(FLAG_DESTROY_BOOT)) {
+	if (flag_write_flag(FLAG_DESTROY_BOOT)) {
 		logprint("Could not destroy flags. Make sure\nto run as Administrator/superuser.");
 	} else {
 		logprint("Overwrote card flags.");
+		flag_close();
 	}
 }
 

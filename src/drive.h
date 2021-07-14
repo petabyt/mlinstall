@@ -23,7 +23,8 @@ static char flag_script[] = "SCRIPT";
 // making files and stuff
 int flag_usable_drive(char buffer[]);
 
-int flags_write(int mode);
+int flag_write_flag(int mode);
+void flag_close();
 
 // TODO: flag_closefs
 int flag_openfs();

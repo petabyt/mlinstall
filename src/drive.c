@@ -3,7 +3,7 @@
 
 // Detect the filesystem and write the flags
 // in the correct place
-int flags_write(int mode)
+int flag_write_flag(int mode)
 {
 	int drive = flag_openfs();
 	if (drive == -1) {

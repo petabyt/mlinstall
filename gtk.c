@@ -166,44 +166,55 @@ int main(int argc, char *argv[])
 	GtkWidget *grid = gtk_grid_new();
 	gtk_container_add(GTK_CONTAINER(window), grid);
 
-	GtkWidget *title = gtk_label_new("Magic Lantern USB Installation Tools\n"
-					 "THIS IS NOT GARUNTEED TO WORK\n"
+	GtkWidget *title = gtk_label_new(NULL);
+
+	gtk_label_set_markup(GTK_LABEL(title),
+					 "<span size=\"large\">ML USB Installation Tools</span>\n"
+					 "<span size=\"small\">THIS IS NOT GARUNTEED TO WORK\n"
 					 "OR NOT KILL YOUR CAMERA\n"
-					 "KEEP BOTH PIECES IF YOU BREAK IT\n");
+					 "KEEP BOTH PIECES IF YOU BREAK IT</span>\n");
 
 	gtk_label_set_justify(GTK_LABEL(title), GTK_JUSTIFY_CENTER);
 	gtk_grid_attach(GTK_GRID(grid), title, 0, order++, 1, 1);
 	gtk_widget_show(title);
 
-	button = gtk_button_new_with_label("Device Info");
-	g_signal_connect(button, "clicked", G_CALLBACK(deviceinfo), NULL);
-	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
-	gtk_widget_show(button);
-
-	button = gtk_button_new_with_label("Write SD card flags on 'EOS_DIGITAL'");
+	// Mounted filesystem controls
+	button = gtk_button_new_with_label("Write SD card boot flags");
 	g_signal_connect(button, "clicked", G_CALLBACK(writeflag), NULL);
 	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
+	gtk_widget_set_tooltip_text(button, "Writes EOS_DIGITAL and BOOTDISK to a\nmounted SD card named EOS_DIGITAL.");
 	gtk_widget_show(button);
 
-	button = gtk_button_new_with_label("Destroy SD card flags");
+	button = gtk_button_new_with_label("Destroy SD card boot flags");
 	g_signal_connect(button, "clicked", G_CALLBACK(destroyflag), NULL);
 	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
+	gtk_widget_set_tooltip_text(button, "Destroys boot flags by replacing their\nfirst character with an underscore.");
+	gtk_widget_show(button);
+
+	// PTP/USB controls
+	button = gtk_button_new_with_label("Get Device Info");
+	g_signal_connect(button, "clicked", G_CALLBACK(deviceinfo), NULL);
+	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
+	gtk_widget_set_tooltip_text(button, "Show Model, FW, etc.");
 	gtk_widget_show(button);
 
 	button = gtk_button_new_with_label("Enable Boot Disk");
 	g_signal_connect(button, "clicked", G_CALLBACK(enablebootdisk), NULL);
 	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
+	gtk_widget_set_tooltip_text(button, "Write the bootdisk flag inside of the\ncamera, rather than on the card.");
 	gtk_widget_show(button);
 
 	button = gtk_button_new_with_label("Disable Boot Disk");
 	g_signal_connect(button, "clicked", G_CALLBACK(disablebootdisk), NULL);
 	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
+	gtk_widget_set_tooltip_text(button, "Disable the cameras, bootdisk flag.");
 	gtk_widget_show(button);
 
 	GtkEntryBuffer *buf = gtk_entry_buffer_new("TurnOffDisplay", 14);
 	entry = gtk_entry_new_with_buffer(buf);
 	gtk_grid_attach(GTK_GRID(grid), entry, 0, order++, 1, 1);
 	g_signal_connect(entry, "activate", G_CALLBACK(eventproc), NULL);
+	gtk_widget_set_tooltip_text(entry, "Execute a custom event procedure.");
 	gtk_widget_show(entry);
 
 	logw = gtk_label_new(logbuf);

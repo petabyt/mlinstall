@@ -11,9 +11,6 @@
 #include "src/ptpcam.h"
 #include "src/drive.h"
 
-// From ptp.c
-uint16_t ptp_runeventproc(PTPParams *params, char string[]);
-
 int busn = 0, devn = 0;
 short force = 0;
 PTPParams params;
@@ -64,7 +61,7 @@ int returnMessage(unsigned int code)
 static void writeflag(GtkWidget *widget, gpointer data)
 {
 	logclear();
-	if (enableFlag()) {
+	if (flags_write(FLAG_BOOT)) {
 		logprint("Could not enable flags. Make sure\nto run as Administrator/superuser.");
 	} else {
 		logprint("Wrote card flags on EOS_DIGITAL");
@@ -74,7 +71,7 @@ static void writeflag(GtkWidget *widget, gpointer data)
 static void destroyflag(GtkWidget *widget, gpointer data)
 {
 	logclear();
-	if (disableFlag()) {
+	if (flags_write(FLAG_DESTROY_BOOT)) {
 		logprint("Could not destroy flags. Make sure\nto run as Administrator/superuser.");
 	} else {
 		logprint("Overwrote card flags.");

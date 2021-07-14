@@ -11,9 +11,6 @@
 #include "src/ptpcam.h"
 #include "src/drive.h"
 
-// From ptp.c
-uint16_t ptp_runeventproc(PTPParams *params, char string[]);
-
 int main()
 {
 	int busn = 0, devn = 0;

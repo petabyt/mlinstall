@@ -95,7 +95,7 @@ static void ptp_error(PTPParams *params, const char *format, ...)
 
 /* Pack / unpack functions */
 
-#include "ptp-pack.c"
+#include "ptp-pack.h"
 
 /* send / receive functions */
 

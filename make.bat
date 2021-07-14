@@ -18,7 +18,7 @@ set LIBUSB=libusb-win32-bin-1.2.2.0
 
 rem !! Required compiler (compatibility)
 set CC=x86_64-w64-mingw32-gcc
-set FILES=drive-win.c ptpcam.c myusb.c properties.c ptp.c
+set FILES=drive-win.c drive.c ptpcam.c myusb.c properties.c ptp.c
 
 set CFLAGS=-I%LIBUSB%/include -I../%LIBUSB%/include
 set LINK=-lws2_32 -lkernel32 "../%LIBUSB%/bin/amd64/libusb0.dll"

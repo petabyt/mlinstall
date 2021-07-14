@@ -1,7 +1,12 @@
-// Alternative enabler that interacts
-// with filesystems via win32 fileapi
+// Windows fileapi based code
+
+// Don't include me unless we're windows
+#ifdef WIN32
+
 #include <stdio.h>
 #include <windows.h>
+
+#include "drive.h"
 
 // Bootsector size
 #define SIZE 512
@@ -16,11 +21,11 @@ int flag_getfs()
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
 	ReadFile(d, bootsector, SIZE, &bytesRead, NULL);
 
-	if (!strcmp(bootsector + 54, "FAT16   ", 8)) {
+	if (!strncmp(bootsector + 54, "FAT16   ", 8)) {
 		return FAT16;
 	}
 
-	if (!strcmp(bootsector + 82, "FAT32   ", 8)) {
+	if (!strncmp(bootsector + 82, "FAT32   ", 8)) {
 		return FAT32;
 	}
 
@@ -28,7 +33,7 @@ int flag_getfs()
 		return EXFAT;
 	}
 
-	return 0;
+	return -1;
 }
 
 void flag_write(long offset, char string[])
@@ -56,7 +61,7 @@ int flag_getdrive() {
 	// Look for EOS_DIGITAL drive
 	while (fgets(command, 128, f) != NULL) {
 		if (!strncmp(command + 10, "EOS_DIGITAL", 11)) {
-			printf("Found EOS_DIGITAL at drive %c\n", buffer[0]);
+			printf("Found EOS_DIGITAL at drive %c\n", command[0]);
 			id = command[0];
 			goto found;
 		}
@@ -85,65 +90,26 @@ int flag_usable_drive(char buffer[]) {
 	return 0;
 }
 
-int flags_write(int mode)
+int flag_openfs(int mode)
 {
 	// Filesystem must be opened like this: \\.\\E
 	char buffer[64] = "\\\\.\\E:";
-	int drive = getDrive(buffer);
+	int drive = flag_getdrive(buffer);
 	if (drive == -1) {
 		return 1;
 	}
 
 	buffer[4] = (char)drive;
 
-	d = CreateFile(driveID, GENERIC_READ | GENERIC_WRITE,
+	d = CreateFile(buffer, GENERIC_READ | GENERIC_WRITE,
 			      FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
 			      FILE_FLAG_NO_BUFFERING | FILE_FLAG_RANDOM_ACCESS, NULL);
 
 	if (d == INVALID_HANDLE_VALUE) {
 		puts("Could not open filesystem. Try running as Administrator.");
-		return 1;
+		return -1;
 	}
 
-	int drive = getFilesystem(d);
-
-	int of[3] = { 0, 0, 0 };
-
-	if (drive == EXFAT) {
-		// TODO: VBR checksum (?)
-		puts("Quitting, no EXFAT support yet. Try EOSCARD.");
-		return 1;
-	} else if (drive == FAT16) {
-		puts("Writing to FAT16 filesystem.");
-		of[0] = 0x2b;
-		of[1] = 0x40;
-		of[2] = 0x1f0;
-	} else if (drive == FAT32) {
-		puts("Writing to FAT32 filesystem.");
-		of[0] = 0x2b;
-		of[1] = 0x40;
-		of[2] = 0x1f0;
-	} else {
-		puts("Unsupported FS");
-		return 1;
-	}
-
-	switch (mode) {
-	case FLAG_ALL:
-		writeFlag(of[0], flag_develop);
-		writeFlag(of[1], flag_bootdisk);
-		writeFlag(of[2], flag_script);
-		break;
-	case FLAG_SCRIPT:
-		writeFlag(of[2], flag_script);
-		break;
-	case FLAG_BOOT:
-		writeFlag(of[0], flag_develop);
-		writeFlag(of[1], flag_bootdisk);
-		break;
-	}
-
-	puts("Wrote card flags.");
-	puts("Unmount the device to save changes.");
-	return 0;
+	return flag_getfs();
 }
+#endif

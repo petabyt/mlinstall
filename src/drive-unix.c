@@ -1,4 +1,5 @@
 // Common filesystem drive code for Unix
+#ifdef __unix__
 
 #include <stdio.h>
 #include <string.h>
@@ -31,7 +32,7 @@ int flag_getfs()
 		return EXFAT;
 	}
 
-	return 0;
+	return -1;
 }
 
 void flag_write(long offset, char string[])
@@ -79,3 +80,5 @@ int flag_openfs() {
 
 	return flag_getfs();
 }
+
+#endif

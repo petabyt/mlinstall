@@ -1,29 +1,27 @@
-CFLAGS = -Wextra
+CFLAGS = -w
 LDFLAGS = -lusb
 STYLE = -style=file -i
 
-LIBFILES = drive.c myusb.c properties.c ptp.c ptpcam.c
-GTKFLAGS = `pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0`
-
-cli: mlinstall clean
+all: mlinstall clean
 gui: gtkb clean
 
 clean:
 	@rm -rf ptpcam *.orig *.gch *.o *.out ptpcam mlinstall *.exe *.zip *.res
 
-# Format kernel style
+# Format files to kernel style
 style:
 	@cd src; clang-format $(STYLE) *.c
 	@clang-format $(STYLE) *.c
 
 # Build with GTK, and test
+GTKFLAGS = `pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0`
 gtkb:
-	cd src; $(CC) ../gtk.c drive-unix.c $(LIBFILES) $(LDFLAGS) $(CFLAGS) $(GTKFLAGS) -o ../mlinstall
+	$(CC) gtk.c src/*.c $(LDFLAGS) $(CFLAGS) $(GTKFLAGS) -o mlinstall
 	@./mlinstall
 
 # Build with cli, and test
 mlinstall:
-	@cd src; $(CC) ../main.c drive-unix.c $(LIBFILES) $(CFLAGS) $(LDFLAGS) -o ../mlinstall
+	@$(CC) cli.c src/*.c $(CFLAGS) $(LDFLAGS) -o mlinstall
 	@sudo ./mlinstall
 
 # Use staticx to convert dynamic to static executable
@@ -65,10 +63,10 @@ removelibs:
 
 windowsgtk:
 	@$(WINCC)-windres win.rc -O coff -o win.res
-	cd src; $(WINCC)-gcc ../gtk.c ../win.res drive-win.c $(LIBFILES) $(LIB) $(GLIB) $(CFLAGS) -o ../mlinstall.exe
+	cd src; $(WINCC)-gcc ../gtk.c ../win.res *.c $(LIB) $(GLIB) $(CFLAGS) -o ../mlinstall.exe
 
 windows:
-	cd src; $(WINCC)-gcc ../main.c drive-win.c $(LIBFILES) $(LIB) $(CFLAGS) -o ../mlinstall.exe
+	cd src; $(WINCC)-gcc ../cli.c *.c $(LIB) $(CFLAGS) -o ../mlinstall.exe
 
 windowsgtkpack:
 	@rm -rf mlinstall

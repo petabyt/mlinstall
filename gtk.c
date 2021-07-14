@@ -66,6 +66,8 @@ static void writeflag(GtkWidget *widget, gpointer data)
 	} else {
 		logprint("Wrote card flags on EOS_DIGITAL");
 	}
+
+	flag_close();
 }
 
 static void destroyflag(GtkWidget *widget, gpointer data)

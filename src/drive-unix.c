@@ -1,5 +1,7 @@
 // Common filesystem drive code for Unix
-#ifdef __unix__
+// Works on Windows, just but won't write
+// to the drive
+#ifndef WIN32
 
 #include <stdio.h>
 #include <string.h>
@@ -35,22 +37,27 @@ int flag_getfs()
 	return -1;
 }
 
-void flag_write(long offset, char string[])
+void flag_write(long int offset, char string[])
 {
 	char buffer[64] = {0};
-	
-	fseek(d, offset, SEEK_SET);
-	fread(buffer, 1, 11, d);
-	printf("Current Flag: %s\n", buffer);
 
 	fseek(d, offset, SEEK_SET);
-	fwrite(string, 1, 11, d);
+	fread(buffer, 1, strlen(string), d);
+
+	printf("Current Flag: \"%s\"\n", buffer);
+	printf("Writing \"%s\" at 0x%lx\n", string, offset);
+
+	fseek(d, offset, SEEK_SET);
+	fwrite(string, 1, strlen(string), d);
+
+	// fseek-ing seems to be updating the file
+	fseek(d, 0, SEEK_SET);
 }
 
 void flag_getdrive(char buffer[]) {
 	// Get EOS_DIGITAL Drive
 	FILE *c = popen("mount | grep EOS_DIGITAL | awk '{printf $1}'", "r");
-	fgets(buffer, 50, c);
+	fgets(buffer, 64, c);
 }
 
 int flag_usable_drive(char buffer[]) {
@@ -71,7 +78,7 @@ int flag_usable_drive(char buffer[]) {
 int flag_openfs() {
 	char buffer[128];
 	flag_getdrive(buffer);
-	FILE *d = fopen(buffer, "rw+");
+	d = fopen(buffer, "rw+");
 	
 	if (!d) {
 		puts("Could not open filesystem.");
@@ -79,6 +86,10 @@ int flag_openfs() {
 	}
 
 	return flag_getfs();
+}
+
+void flag_close() {
+	fclose(d);
 }
 
 #endif

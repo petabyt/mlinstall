@@ -1,4 +1,4 @@
-CFLAGS = -w
+CFLAGS = 
 LDFLAGS = -lusb
 STYLE = -style=file -i
 
@@ -43,7 +43,7 @@ LIBUSB = libusb-win32-bin-1.2.2.0
 # Desired libusb dll directory
 LLIBUSB = ../$(LIBUSB)/bin/amd64/libusb0.dll
 
-# LIBUSB libs
+# win32 + LIBUSB libs
 LIB = -lws2_32 -lkernel32 -I$(LIBUSB)/include -I../$(LIBUSB)/include $(LLIBUSB) 
 
 GLIB = -mms-bitfields -I../gtk/include/gtk-3.0 -I../gtk/include/cairo -I../gtk/include/pango-1.0 -I../gtk/include/atk-1.0 -I../gtk/include/cairo -I../gtk/include/pixman-1 -I../gtk/include -I../gtk/include/freetype2 -I../gtk/include/libxml2 -I../gtk/include/freetype2 -I../gtk/include/libpng16 -I../gtk/include/gdk-pixbuf-2.0 -I../gtk/include/libpng16 -I../gtk/include/glib-2.0 -I../gtk/lib/glib-2.0/include -L../gtk/lib -lgdi32 -limm32 -lshell32 -lole32 -Wl,-luuid -lwinmm -lpangocairo-1.0 -lpangowin32-1.0 -lgdi32 -lpango-1.0 -lm -latk-1.0 -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lglib-2.0
@@ -74,11 +74,11 @@ windowsgtkpack:
 	@cd src; cp $(LLIBUSB) ../mlinstall/
 	@cp gtk/bin/*.dll mlinstall/
 	@cp mlinstall.exe mlinstall/
-	@zip -r install.zip mlinstall
+	@zip -r win64-gui-mlinstall.zip mlinstall
 
 windowspack:
 	@rm -rf mlinstall
 	@mkdir mlinstall
 	@cd src; cp $(LLIBUSB) ../mlinstall/
 	@cp mlinstall.exe mlinstall/
-	@zip -r install.zip mlinstall
+	@zip -r win64-gui-mlinstall.zip mlinstall

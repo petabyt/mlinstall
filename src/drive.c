@@ -5,20 +5,19 @@
 // in the correct place
 int flags_write(int mode)
 {
-	char *fsNames[] = { "FAT16", "FAT32", "EXFAT" };
-
 	int drive = flag_openfs();
 	if (drive == -1) {
 		return 1;
 	}
 
-	printf("FS Type: %s\n", fsNames[drive]);
-
-	int of[3] = { 0, 0, 0 };
+	long int of[3] = {0, 0, 0};
 
 	if (drive == EXFAT) {
 		puts("Quitting, no EXFAT support yet. Try EOSCARD.");
 		return 1;
+		of[0] = 0x82;
+		of[1] = 0x7a;
+		of[2] = 0x1f0;
 	} else if (drive == FAT16) {
 		puts("Writing to FAT16 filesystem.");
 		of[0] = 0x2b;
@@ -26,8 +25,8 @@ int flags_write(int mode)
 		of[2] = 0x1f0;
 	} else if (drive == FAT32) {
 		puts("Writing to FAT32 filesystem.");
-		of[0] = 0x2b;
-		of[1] = 0x40;
+		of[0] = 0x47;
+		of[1] = 0x5c;
 		of[2] = 0x1f0;
 	} else {
 		puts("Unsupported FS");

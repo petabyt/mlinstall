@@ -81,4 +81,4 @@ windowspack:
 	@mkdir mlinstall
 	@cd src; cp $(LLIBUSB) ../mlinstall/
 	@cp mlinstall.exe mlinstall/
-	@zip -r win64-gui-mlinstall.zip mlinstall
+	@zip -r win64-cli-mlinstall.zip mlinstall

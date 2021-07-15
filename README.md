@@ -16,6 +16,7 @@ You can find standalone prebuilts for it [here](https://github.com/petabyt/mlins
 - [x] - Write EOS_DEVELOP and BOOTFLAG to card (Windows + Linux)
 - [x] - Destroy card flags
 - [ ] - Download correct ML based on model and FW version (?)
+- [ ] - Clean up build system
 
 ## TODO:
 - [ ] - Lots of fuzz testing

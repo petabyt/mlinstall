@@ -15,11 +15,12 @@ You can find standalone prebuilts for it [here](https://github.com/petabyt/mlins
 - [x] - Basic PTP functionality
 - [x] - Write EOS_DEVELOP and BOOTFLAG to card (Windows + Linux)
 - [x] - Destroy card flags
-- [ ] - Download correct ML based on model and FW version (?)
-- [ ] - Clean up build system
 
 ## TODO:
 - [ ] - Lots of fuzz testing
+- [ ] - Download correct ML based on model and FW version (?)
+- [ ] - Clean up makefiles
+- [ ] - Get WiFi ptp working
 - [ ] - Try on Mac
 
 ## Compilation
@@ -44,6 +45,7 @@ Cross compile for Windows, from Linux
 Some libs must be downloaded to provide  
 the DLLs for the compiler and zip file.  
 Requires `x86_64-w64-mingw32`.  
+
 ```
 # Compile and pack gui program zip
 make setuplibs

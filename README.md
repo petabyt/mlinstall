@@ -59,3 +59,10 @@ make windows
 make windowspack
 make removelibs
 ```
+
+
+Licensed under `GNU General Public License v2.0`.
+`ptpcam  (c)2001-2006 Mariusz Woloszyn <emsi@ipartners.pl>`  
+Magic Lantern fork: Minor changes by g3gg0 and nanomad  
+This fork: Applied some research from https://github.com/petabyt/sequoia-ptpy  
+(also formatted to kernel style, and removed cli part)

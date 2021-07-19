@@ -80,6 +80,17 @@ static void destroyflag(GtkWidget *widget, gpointer data)
 	}
 }
 
+static void scriptflag(GtkWidget *widget, gpointer data)
+{
+	logclear();
+	if (flag_write_flag(FLAG_SCRIPT)) {
+		logprint("Could not write script flags. Make sure\nto run as Administrator/superuser.");
+	} else {
+		logprint("Wrote Canon Basic script flags.");
+		flag_close();
+	}
+}
+
 static void deviceinfo(GtkWidget *widget, gpointer data)
 {
 	logclear();
@@ -179,17 +190,24 @@ int main(int argc, char *argv[])
 	gtk_widget_show(title);
 
 	// Mounted filesystem controls
-	button = gtk_button_new_with_label("Write SD card boot flags");
+	button = gtk_button_new_with_label("Write card boot flags");
 	g_signal_connect(button, "clicked", G_CALLBACK(writeflag), NULL);
 	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
-	gtk_widget_set_tooltip_text(button, "Writes EOS_DIGITAL and BOOTDISK to a\nmounted SD card named EOS_DIGITAL.");
+	gtk_widget_set_tooltip_text(button, "Writes EOS_DIGITAL and BOOTDISK to a\nmounted SD/CF card named EOS_DIGITAL.");
 	gtk_widget_show(button);
 
-	button = gtk_button_new_with_label("Destroy SD card boot flags");
+	button = gtk_button_new_with_label("Destroy card boot flags");
 	g_signal_connect(button, "clicked", G_CALLBACK(destroyflag), NULL);
 	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
 	gtk_widget_set_tooltip_text(button, "Destroys boot flags by replacing their\nfirst character with an underscore.");
 	gtk_widget_show(button);
+
+	button = gtk_button_new_with_label("Make Card scriptable");
+	g_signal_connect(button, "clicked", G_CALLBACK(scriptflag), NULL);
+	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
+	gtk_widget_set_tooltip_text(button, "Allows SD/CF card to run Canon Basic code.");
+	gtk_widget_show(button);
+
 
 	// PTP/USB controls
 	button = gtk_button_new_with_label("Get Device Info");

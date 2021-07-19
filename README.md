@@ -24,14 +24,7 @@ You can find standalone prebuilts for it [here](https://github.com/petabyt/mlins
 - [ ] - Try on Mac
 
 ## Compilation
-Compile from Windows  
-```
-rem Requires libusb + x86_64-w64-mingw32-gcc.
-rem See make.bat
-make.bat
-```
-
-Compile on Linux  
+Compile for Linux:  
 ```
 # requires gcc/tcc, libusb-dev
 # (sudo apt install libusb-dev)
@@ -39,6 +32,13 @@ make
 
 # Compile GTK-based program
 make gui
+```
+
+Compile from Windows:  
+```
+rem Requires libusb + x86_64-w64-mingw32-gcc.
+rem See make.bat
+make.bat
 ```
 
 Cross compile for Windows, from Linux  

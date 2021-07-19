@@ -1,3 +1,5 @@
+// Platform independent code. Will use functions from
+// either drive-win.c or drive-unix.c
 #include <stdio.h>
 #include "drive.h"
 

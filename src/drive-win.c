@@ -1,6 +1,6 @@
 // Windows fileapi based code
 
-// Don't include me unless we're windows
+// Don't include me unless we're windows!
 #ifdef WIN32
 
 #include <stdio.h>

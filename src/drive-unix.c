@@ -1,6 +1,10 @@
 // Common filesystem drive code for Unix
-// Works on Windows, just but won't write
-// to the drive
+// fopen/fwrite/fseek Works on Windows,
+// just but won't write to the drive, so we
+// have to rewrite everything :)
+
+// This is for non-windows. I think it should
+// work on Linux and MacOS (?)
 #ifndef WIN32
 
 #include <stdio.h>

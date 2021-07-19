@@ -113,6 +113,8 @@ static void deviceinfo(GtkWidget *widget, gpointer data)
 
 	logprint(buffer);
 
+	printf("model_get() = %d\n", model_get(info.Model));
+
 	close_camera(&ptp_usb, &params, dev);
 }
 
@@ -167,7 +169,7 @@ int main(int argc, char *argv[])
 
 	GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(window), "ML Install");
-	gtk_window_set_default_size(GTK_WINDOW(window), 300, 400);
+	gtk_window_set_default_size(GTK_WINDOW(window), 350, 500);
 	g_signal_connect(window, "delete-event", G_CALLBACK(delete_event), NULL);
 	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
 

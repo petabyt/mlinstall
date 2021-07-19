@@ -2258,3 +2258,20 @@ uint16_t ptp_runeventproc(PTPParams *params, char string[])
 
 	return ret;
 }
+
+// https://www.magiclantern.fm/forum/index.php?topic=26162.msg236146#msg236146
+uint16_t ptp_9050(PTPParams *params, char string[])
+{
+	uint16_t ret;
+	PTPContainer ptp;
+
+	// Memset ptp to zero
+	PTP_CNT_INIT(ptp);
+
+	ptp.Code = 0x9050;
+	ptp.Nparam = 0;
+
+	ret = ptp_transaction(params, &ptp, PTP_DP_NODATA, 0, NULL);
+
+	return ret;
+}

@@ -49,18 +49,17 @@ int main()
 			if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
 				continue;
 			}
-		
+
 			PTPDeviceInfo info;
 			ptp_getdeviceinfo(&params, &info);
-		
-			printf(
-				"Manufacturer: %s\n"
-				"Model: %s\n"
-				"DeviceVersion: %s\n"
-				"SerialNumber: %s\n",
-				info.Manufacturer, info.Model, info.DeviceVersion, info.SerialNumber
-			);
-		
+
+			printf("Manufacturer: %s\n"
+			       "Model: %s\n"
+			       "DeviceVersion: %s\n"
+			       "SerialNumber: %s\n",
+			       info.Manufacturer, info.Model, info.DeviceVersion,
+			       info.SerialNumber);
+
 			close_camera(&ptp_usb, &params, dev);
 		} else if (!strcmp(input, "bootdisk")) {
 			if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {

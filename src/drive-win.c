@@ -48,7 +48,8 @@ void flag_write(long offset, char string[])
 	WriteFile(d, bootsector, SIZE, &bytesRead, NULL);
 }
 
-int flag_getdrive() {
+int flag_getdrive()
+{
 	char id;
 	char command[128];
 
@@ -75,11 +76,12 @@ found:;
 		puts("Somehow I got the C drive, and I ain't writing to it.");
 		return -1;
 	}
-	
+
 	return (int)id;
 }
 
-int flag_usable_drive(char buffer[]) {
+int flag_usable_drive(char buffer[])
+{
 	int drive = flag_getdrive();
 	if (drive == -1) {
 		return 1;
@@ -101,9 +103,8 @@ int flag_openfs(int mode)
 
 	buffer[4] = (char)drive;
 
-	d = CreateFile(buffer, GENERIC_READ | GENERIC_WRITE,
-			      FILE_SHARE_READ | FILE_SHARE_WRITE, NULL, OPEN_EXISTING,
-			      FILE_FLAG_NO_BUFFERING | FILE_FLAG_RANDOM_ACCESS, NULL);
+	d = CreateFile(buffer, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
+		       NULL, OPEN_EXISTING, FILE_FLAG_NO_BUFFERING | FILE_FLAG_RANDOM_ACCESS, NULL);
 
 	if (d == INVALID_HANDLE_VALUE) {
 		puts("Could not open filesystem. Try running as Administrator.");
@@ -113,7 +114,8 @@ int flag_openfs(int mode)
 	return flag_getfs();
 }
 
-void flag_close() {
+void flag_close()
+{
 	// TODO: figure out FileClose (?)
 }
 

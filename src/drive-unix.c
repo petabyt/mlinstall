@@ -43,7 +43,7 @@ int flag_getfs()
 
 void flag_write(long int offset, char string[])
 {
-	char buffer[64] = {0};
+	char buffer[64] = { 0 };
 
 	fseek(d, offset, SEEK_SET);
 	fread(buffer, 1, strlen(string), d);
@@ -58,32 +58,31 @@ void flag_write(long int offset, char string[])
 	fseek(d, 0, SEEK_SET);
 }
 
-void flag_getdrive(char buffer[]) {
+void flag_getdrive(char buffer[])
+{
 	// Get EOS_DIGITAL Drive
 	FILE *c = popen("mount | grep EOS_DIGITAL | awk '{printf $1}'", "r");
 	fgets(buffer, 64, c);
 }
 
-int flag_usable_drive(char buffer[]) {
+int flag_usable_drive(char buffer[])
+{
 	char filesystem[64];
 	flag_getdrive(filesystem);
 
 	char command[256];
-	sprintf(
-		command,
-		"cat /proc/mounts | grep %s | awk '{printf $2'}",
-		filesystem
-	);
+	sprintf(command, "cat /proc/mounts | grep %s | awk '{printf $2'}", filesystem);
 
 	FILE *c = popen(command, "r");
 	fgets(buffer, 50, c);
 }
 
-int flag_openfs() {
+int flag_openfs()
+{
 	char buffer[128];
 	flag_getdrive(buffer);
 	d = fopen(buffer, "rw+");
-	
+
 	if (!d) {
 		puts("Could not open filesystem.");
 		return -1;
@@ -92,7 +91,8 @@ int flag_openfs() {
 	return flag_getfs();
 }
 
-void flag_close() {
+void flag_close()
+{
 	fclose(d);
 }
 

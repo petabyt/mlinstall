@@ -84,7 +84,8 @@ static void scriptflag(GtkWidget *widget, gpointer data)
 {
 	logclear();
 	if (flag_write_flag(FLAG_SCRIPT)) {
-		logprint("Could not write script flags. Make sure\nto run as Administrator/superuser.");
+		logprint(
+			"Could not write script flags. Make sure\nto run as Administrator/superuser.");
 	} else {
 		logprint("Wrote Canon Basic script flags.");
 		flag_close();
@@ -108,8 +109,7 @@ static void deviceinfo(GtkWidget *widget, gpointer data)
 		"Model: %s\n"
 		"DeviceVersion: %s\n"
 		"SerialNumber: %s\n",
-		info.Manufacturer, info.Model, info.DeviceVersion, info.SerialNumber
-	);
+		info.Manufacturer, info.Model, info.DeviceVersion, info.SerialNumber);
 
 	logprint(buffer);
 
@@ -182,10 +182,10 @@ int main(int argc, char *argv[])
 	GtkWidget *title = gtk_label_new(NULL);
 
 	gtk_label_set_markup(GTK_LABEL(title),
-					 "<span size=\"large\">ML USB Installation Tools</span>\n"
-					 "<span size=\"small\">THIS IS NOT GARUNTEED TO WORK\n"
-					 "OR NOT KILL YOUR CAMERA\n"
-					 "KEEP BOTH PIECES IF YOU BREAK IT</span>\n");
+			     "<span size=\"large\">ML USB Installation Tools</span>\n"
+			     "<span size=\"small\">THIS IS NOT GARUNTEED TO WORK\n"
+			     "OR NOT KILL YOUR CAMERA\n"
+			     "KEEP BOTH PIECES IF YOU BREAK IT</span>\n");
 
 	gtk_label_set_justify(GTK_LABEL(title), GTK_JUSTIFY_CENTER);
 	gtk_grid_attach(GTK_GRID(grid), title, 0, order++, 1, 1);
@@ -195,13 +195,17 @@ int main(int argc, char *argv[])
 	button = gtk_button_new_with_label("Write card boot flags");
 	g_signal_connect(button, "clicked", G_CALLBACK(writeflag), NULL);
 	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
-	gtk_widget_set_tooltip_text(button, "Writes EOS_DIGITAL and BOOTDISK to a\nmounted SD/CF card named EOS_DIGITAL.");
+	gtk_widget_set_tooltip_text(
+		button,
+		"Writes EOS_DIGITAL and BOOTDISK to a\nmounted SD/CF card named EOS_DIGITAL.");
 	gtk_widget_show(button);
 
 	button = gtk_button_new_with_label("Destroy card boot flags");
 	g_signal_connect(button, "clicked", G_CALLBACK(destroyflag), NULL);
 	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
-	gtk_widget_set_tooltip_text(button, "Destroys boot flags by replacing their\nfirst character with an underscore.");
+	gtk_widget_set_tooltip_text(
+		button,
+		"Destroys boot flags by replacing their\nfirst character with an underscore.");
 	gtk_widget_show(button);
 
 	button = gtk_button_new_with_label("Make Card scriptable");
@@ -209,7 +213,6 @@ int main(int argc, char *argv[])
 	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
 	gtk_widget_set_tooltip_text(button, "Allows SD/CF card to run Canon Basic code.");
 	gtk_widget_show(button);
-
 
 	// PTP/USB controls
 	button = gtk_button_new_with_label("Get Device Info");
@@ -221,7 +224,8 @@ int main(int argc, char *argv[])
 	button = gtk_button_new_with_label("Enable Boot Disk");
 	g_signal_connect(button, "clicked", G_CALLBACK(enablebootdisk), NULL);
 	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
-	gtk_widget_set_tooltip_text(button, "Write the bootdisk flag inside of the\ncamera, rather than on the card.");
+	gtk_widget_set_tooltip_text(
+		button, "Write the bootdisk flag inside of the\ncamera, rather than on the card.");
 	gtk_widget_show(button);
 
 	button = gtk_button_new_with_label("Disable Boot Disk");

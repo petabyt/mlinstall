@@ -12,7 +12,7 @@ int flag_write_flag(int mode)
 		return 1;
 	}
 
-	long int of[3] = {0, 0, 0};
+	long int of[3] = { 0, 0, 0 };
 
 	if (drive == EXFAT) {
 		puts("Quitting, no EXFAT support yet. Try EOSCARD.");

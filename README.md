@@ -5,8 +5,6 @@ Download: https://github.com/petabyt/mlinstall/releases
 The backend is a fork of [ptpcam](https://github.com/reticulatedpines/magiclantern_simplified/tree/dev/contrib/ptpcam).  
 
 A Python based version of this app is available at [python-stable](https://github.com/petabyt/mlinstall/tree/python-stable).  
-You can find standalone prebuilts for it [here](https://github.com/petabyt/mlinstall/releases/tag/0.1.0).
-
 ![screenshot](screenshot.png)
 
 ## Features
@@ -17,8 +15,8 @@ You can find standalone prebuilts for it [here](https://github.com/petabyt/mlins
 - [x] - Destroy card flags
 
 ## TODO:
-- [ ] - Lots of fuzz testing
-- [ ] - Download correct ML based on model and FW version (?)
+- [ ] - LOTS of fuzz testing
+- [ ] - Download correct ML based on model and FW version [?](https://developers.canon-europe.com/developers/s/article/Latest-EOS-SDK-Version-3-x)
 - [ ] - Clean up makefiles
 - [ ] - Get WiFi ptp working
 - [ ] - Try on Mac

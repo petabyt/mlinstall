@@ -10,6 +10,7 @@
 #include "src/ptp.h"
 #include "src/ptpcam.h"
 #include "src/drive.h"
+#include "src/model.h"
 
 int busn = 0, devn = 0;
 short force = 0;

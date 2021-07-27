@@ -1,4 +1,5 @@
 @echo off
+rem (This is probably unmaintained)
 
 rem Windows Compilation script
 rem Usage:

@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
 
 #include "config.h"
 
@@ -1977,6 +1978,8 @@ int ptp_chdk_switch_mode(int mode, PTPParams *params, PTPDeviceInfo *deviceinfo)
 
 static int script_id;
 
+int ptp_chdk_print_all_script_messages(PTPParams *params, PTPDeviceInfo *deviceinfo);
+
 // get_result: 0 just start the script. 1 wait for script to end or error. 2 add
 // return and wait
 int ptp_chdk_exec_lua(char *script, int get_result, PTPParams *params, PTPDeviceInfo *deviceinfo)
@@ -2173,7 +2176,7 @@ void ptp_chdk_print_script_message(ptp_chdk_script_msg *msg)
 	//
 	switch (msg->subtype) {
 	case PTP_CHDK_TYPE_UNSUPPORTED:
-		printf("unsupported data type: ", msg->data);
+		printf("unsupported data type: %s", msg->data);
 		fwrite(msg->data, msg->size, 1,
 		       stdout); // may not be null terminated
 		break;

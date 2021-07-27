@@ -2,10 +2,10 @@ CFLAGS =
 LDFLAGS = -lusb
 STYLE = -style=file -i
 
-all: mlinstall clean
-gui: gtkb clean
+default: unix-cli clean
+gui-test: unix-gtk unix-clean
 
-clean:
+unix-clean:
 	@rm -rf ptpcam *.orig *.gch *.o *.out ptpcam mlinstall *.exe *.zip *.res
 
 # Format files to kernel style
@@ -15,27 +15,24 @@ style:
 
 # Build with GTK, and test
 GTKFLAGS = `pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0`
-gtkb:
+unix-gtk:
 	$(CC) gtk.c src/*.c $(LDFLAGS) $(CFLAGS) $(GTKFLAGS) -o mlinstall
 	@./mlinstall
 
 # Build with cli, and test
-mlinstall:
+unix-cli:
 	@$(CC) cli.c src/*.c $(CFLAGS) $(LDFLAGS) -o mlinstall
 	@sudo ./mlinstall
 
 # Use staticx to convert dynamic to static executable
-# pip3 install staticx
-static:
+# (pip3 install staticx)
+unix-static:
 	@staticx mlinstall mlinstall
 
 # ------------------------------------------------
 # Targets to cross compile for windows, from Linux
 # ------------------------------------------------
-
-# Download from https://web.archive.org/web/20171023023802if_/http://win32builder.gnome.org/gtk+-bundle_3.10.4-20131202_win64.zip
-# And export top directory to folder "gtk"
-# Unzip https://sourceforge.net/projects/libusb-win32/files/libusb-win32-releases/1.2.2.0/libusb-win32-bin-1.2.2.0.zip/download
+# You need to have x86_64-w64-mingw32-gcc.
 
 WINCC = x86_64-w64-mingw32
 LIBUSB = libusb-win32-bin-1.2.2.0
@@ -50,7 +47,7 @@ GLIB = -mms-bitfields -I../gtk/include/gtk-3.0 -I../gtk/include/cairo -I../gtk/i
 GLIB += ../gtk/bin/libgtk-3-0.dll ../gtk/bin/libgobject-2.0-0.dll
 
 # Download Windows libs (libusb, gtk)
-setuplibs:
+win-libs:
 	@mkdir gtk
 	@wget https://web.archive.org/web/20171023023802if_/http://win32builder.gnome.org/gtk+-bundle_3.10.4-20131202_win64.zip
 	@unzip gtk+-bundle_3.10.4-20131202_win64.zip -d gtk
@@ -58,17 +55,17 @@ setuplibs:
 	@unzip libusb-win32-bin-1.2.2.0.zip
 	@rm *.zip
 
-removelibs:
+win-clean:
 	@rm -rf gtk libusb-win32-bin-1.2.2.0
 
-windowsgtk:
+win-gtk:
 	@$(WINCC)-windres win.rc -O coff -o win.res
 	cd src; $(WINCC)-gcc ../gtk.c ../win.res *.c $(LIB) $(GLIB) $(CFLAGS) -o ../mlinstall.exe
 
-windows:
+win-cli:
 	cd src; $(WINCC)-gcc ../cli.c *.c $(LIB) $(CFLAGS) -o ../mlinstall.exe
 
-windowsgtkpack:
+win-gtk-pack:
 	@rm -rf mlinstall
 	@mkdir mlinstall
 	@cd src; cp $(LLIBUSB) ../mlinstall/
@@ -76,7 +73,7 @@ windowsgtkpack:
 	@cp mlinstall.exe mlinstall/
 	@zip -r win64-gui-mlinstall.zip mlinstall
 
-windowspack:
+win-cli-pack:
 	@rm -rf mlinstall
 	@mkdir mlinstall
 	@cd src; cp $(LLIBUSB) ../mlinstall/

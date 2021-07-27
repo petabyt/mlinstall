@@ -21,46 +21,35 @@ A Python based version of this app is available at [python-stable](https://githu
 - [ ] - Get WiFi ptp working
 - [ ] - Try on Mac
 
-## Compilation
-Compile for Linux:  
+## Unix Compilation
 ```
-# requires gcc/tcc, libusb-dev
+# requires C99 compiler, libusb-dev
 # (sudo apt install libusb-dev)
-make
+make unix-cli
 
 # Compile GTK-based program
-make gui
-```
-
-Compile from Windows:  
-```
-rem Requires libusb + x86_64-w64-mingw32-gcc.
-rem See make.bat
-make.bat
+make unix-gtk
 ```
 
 Cross compile for Windows, from Linux  
 Some libs must be downloaded to provide  
 the DLLs for the compiler and zip file.  
-Requires `x86_64-w64-mingw32`.  
+You must use `gcc-mingw-w64-x86-64`.  
 
 ```
 # Compile and pack gui program zip
-make setuplibs
-make windowsgtk
-make windowsgtkpack
-make removelibs
+make win-libs
+make win-gtk
+make win-gtk-pack
 
 # Compile and pack cli program zip
-make setuplibs
-make windows
-make windowspack
-make removelibs
+make win-libs
+make win-cli
+make win-cli-pack
 ```
 
-
-Licensed under `GNU General Public License v2.0`.
+Licensed under `GNU General Public License v2.0`.  
 `ptpcam  (c)2001-2006 Mariusz Woloszyn <emsi@ipartners.pl>`  
 Magic Lantern fork: Minor changes by g3gg0 and nanomad  
 This fork: Applied some research from https://github.com/petabyt/sequoia-ptpy  
-(also formatted to kernel style, and removed cli part)
+(also formatted to kernel style, and removed cli part)  

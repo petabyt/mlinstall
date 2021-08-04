@@ -12,7 +12,8 @@ enum FlagsMode {
 	FLAG_BOOT,
 	FLAG_SCRIPT,
 
-	FLAG_DESTROY_BOOT
+	FLAG_DESTROY_BOOT,
+	FLAG_DESTROY_SCRIPT
 };
 
 enum FlagsErr {

@@ -51,14 +51,20 @@ int flag_write_flag(int mode)
 	case FLAG_DESTROY_BOOT:
 		flag_develop[0] = '_';
 		flag_bootdisk[0] = '_';
-		flag_script[0] = '_';
 
 		flag_write(of[0], flag_develop);
 		flag_write(of[1], flag_bootdisk);
 
 		flag_develop[0] = 'E';
 		flag_bootdisk[0] = 'B';
+		break;
+	case FLAG_DESTROY_SCRIPT:
+		flag_script[0] = '_';
+
+		flag_write(of[2], flag_script);
+
 		flag_script[0] = 'S';
+		break;
 	}
 
 	puts("Wrote card flags.");

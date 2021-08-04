@@ -31,6 +31,7 @@ void logclear()
 	gtk_label_set_text(GTK_LABEL(logw), logbuf);
 }
 
+
 // Log a return message after doing a usb thing
 int returnMessage(unsigned int code)
 {
@@ -100,6 +101,22 @@ static void scriptflag(GtkWidget *widget, gpointer data)
 		return;
 	case 0:
 		logprint("Wrote script flags.");
+		flag_close();
+	}
+}
+
+static void unscriptflag(GtkWidget *widget, gpointer data)
+{
+	logclear();
+	switch (flag_write_flag(FLAG_DESTROY_SCRIPT)) {
+	case DRIVE_UNSUPPORTED:
+		logprint(driveNotSupported);
+		return;
+	case DRIVE_NOT_AVAILABLE:
+		logprint(driveNotFound);
+		return;
+	case 0:
+		logprint("Destroyed script flags.");
 		flag_close();
 	}
 }
@@ -214,8 +231,8 @@ int main(int argc, char *argv[])
 	gtk_init(&argc, &argv);
 
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(window), "Magic Lantern");
-	gtk_window_set_default_size(GTK_WINDOW(window), 350, 500);
+	gtk_window_set_title(GTK_WINDOW(window), "ML Install");
+	gtk_window_set_default_size(GTK_WINDOW(window), 400, 600);
 	g_signal_connect(window, "delete-event", G_CALLBACK(delete_event), NULL);
 	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
 
@@ -248,6 +265,14 @@ int main(int argc, char *argv[])
 	gtk_container_set_border_width(GTK_CONTAINER(grid), 10);
 	gtk_widget_show(grid);
 
+	label = gtk_label_new("This will automatically find and write to\n"
+							"a card named \"EOS_DIGITAL\".\n\n"
+							"This code has not been tested much\n"
+							"and may be dangerous. Use EOSCard.\n");
+	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
+	gtk_grid_attach(GTK_GRID(grid), label, 0, order++, 1, 1);
+	gtk_widget_show(label);
+
 	MENU_ADD_BUTTON(
 		"Write card boot flags",
 		writeflag,
@@ -261,9 +286,15 @@ int main(int argc, char *argv[])
 	)
 
 	MENU_ADD_BUTTON(
-		"Make Card scriptable",
+		"Make card scriptable",
 		scriptflag,
 		"Allows SD/CF card to run Canon Basic code."
+	)
+
+	MENU_ADD_BUTTON(
+		"Make card un-scriptable",
+		unscriptflag,
+		"Destroys script flags, same method as destroy card boot flags."
 	)
 
 	label = gtk_label_new("SD/CF Card");
@@ -313,8 +344,8 @@ int main(int argc, char *argv[])
 
 	label = gtk_label_new(NULL);
 	gtk_label_set_markup(GTK_LABEL(label),
-						"\nMade by Daniel C (@petabyt)\n"
-						"github.com/petabyt/mlinstall\n\n"
+						"\nMade by <a href='https://petabyt.dev/'>Daniel C</a>\n"
+						"Source code: <a href='https://github.com/petabyt/mlinstall'>github.com/petabyt/mlinstall</a>\n\n"
 						"Licenced under GNU General Public License v2.0\n"
 						"If you break it, you get to keep both pieces!");
 	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);

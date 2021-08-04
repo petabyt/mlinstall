@@ -9,14 +9,14 @@ int flag_write_flag(int mode)
 {
 	int drive = flag_openfs();
 	if (drive == -1) {
-		return 1;
+		return DRIVE_NOT_AVAILABLE;
 	}
 
 	long int of[3] = { 0, 0, 0 };
 
 	if (drive == EXFAT) {
 		puts("Quitting, no EXFAT support yet. Try EOSCARD.");
-		return 1;
+		return DRIVE_UNSUPPORTED;
 		of[0] = 0x82;
 		of[1] = 0x7a;
 		of[2] = 0x1f0;
@@ -32,7 +32,7 @@ int flag_write_flag(int mode)
 		of[2] = 0x1f0;
 	} else {
 		puts("Unsupported FS");
-		return 1;
+		return DRIVE_UNSUPPORTED;
 	}
 
 	switch (mode) {

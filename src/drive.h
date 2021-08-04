@@ -15,6 +15,11 @@ enum FlagsMode {
 	FLAG_DESTROY_BOOT
 };
 
+enum FlagsErr {
+	DRIVE_UNSUPPORTED = 1,
+	DRIVE_NOT_AVAILABLE = 2,
+};
+
 static char flag_develop[] = "EOS_DEVELOP";
 static char flag_bootdisk[] = "BOOTDISK";
 static char flag_script[] = "SCRIPT";

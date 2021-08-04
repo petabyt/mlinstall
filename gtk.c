@@ -12,11 +12,8 @@
 #include "src/drive.h"
 #include "src/model.h"
 
-int busn = 0, devn = 0;
-short force = 0;
-PTPParams params;
-PTP_USB ptp_usb;
-struct usb_device *dev;
+char *driveNotFound = "Could not find card. Make sure\nto run as Administrator/superuser.";
+char *driveNotSupported = "Card not supported.\nSee console message.";
 
 // Quick, messy, logging mechanism:
 GtkWidget *logw;
@@ -62,9 +59,14 @@ int returnMessage(unsigned int code)
 static void writeflag(GtkWidget *widget, gpointer data)
 {
 	logclear();
-	if (flag_write_flag(FLAG_BOOT)) {
-		logprint("Could not find card. Make sure\nto run as Administrator/superuser.");
-	} else {
+	switch (flag_write_flag(FLAG_BOOT)) {
+	case DRIVE_UNSUPPORTED:
+		logprint(driveNotSupported);
+		return;
+	case DRIVE_NOT_AVAILABLE:
+		logprint(driveNotFound);
+		return;
+	case 0:
 		logprint("Wrote card flags on EOS_DIGITAL");
 		flag_close();
 	}
@@ -73,9 +75,14 @@ static void writeflag(GtkWidget *widget, gpointer data)
 static void destroyflag(GtkWidget *widget, gpointer data)
 {
 	logclear();
-	if (flag_write_flag(FLAG_DESTROY_BOOT)) {
-		logprint("Could not destroy flags. Make sure\nto run as Administrator/superuser.");
-	} else {
+	switch (flag_write_flag(FLAG_DESTROY_BOOT)) {
+	case DRIVE_UNSUPPORTED:
+		logprint(driveNotSupported);
+		return;
+	case DRIVE_NOT_AVAILABLE:
+		logprint(driveNotFound);
+		return;
+	case 0:
 		logprint("Overwrote card flags.");
 		flag_close();
 	}
@@ -84,11 +91,15 @@ static void destroyflag(GtkWidget *widget, gpointer data)
 static void scriptflag(GtkWidget *widget, gpointer data)
 {
 	logclear();
-	if (flag_write_flag(FLAG_SCRIPT)) {
-		logprint(
-			"Could not write script flags. Make sure\nto run as Administrator/superuser.");
-	} else {
-		logprint("Wrote Canon Basic script flags.");
+	switch (flag_write_flag(FLAG_SCRIPT)) {
+	case DRIVE_UNSUPPORTED:
+		logprint(driveNotSupported);
+		return;
+	case DRIVE_NOT_AVAILABLE:
+		logprint(driveNotFound);
+		return;
+	case 0:
+		logprint("Wrote script flags.");
 		flag_close();
 	}
 }
@@ -96,6 +107,14 @@ static void scriptflag(GtkWidget *widget, gpointer data)
 static void deviceinfo(GtkWidget *widget, gpointer data)
 {
 	logclear();
+
+	int busn = 0;
+	int devn = 0;
+	short force = 0;
+	PTPParams params;
+	PTP_USB ptp_usb;
+	struct usb_device *dev;
+	
 	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
 		returnMessage(0);
 		return;
@@ -121,6 +140,13 @@ static void deviceinfo(GtkWidget *widget, gpointer data)
 
 int runcommand(char string[])
 {
+	int busn = 0;
+	int devn = 0;
+	short force = 0;
+	PTPParams params;
+	PTP_USB ptp_usb;
+	struct usb_device *dev;
+
 	g_print("Running %s...\n", string);
 
 	logclear();
@@ -143,14 +169,18 @@ static void eventproc(GtkWidget *widget, gpointer data)
 
 static void enablebootdisk(GtkWidget *widget, gpointer data)
 {
-	if (!runcommand("EnableBootDisk")) {
+	if (runcommand("EnableBootDisk")) {
+		logprint("Couldn't enable boot disk.\n");
+	} else {
 		logprint("Enabled boot disk\n");
 	}
 }
 
 static void disablebootdisk(GtkWidget *widget, gpointer data)
 {
-	if (!runcommand("DisableBootDisk")) {
+	if (runcommand("DisableBootDisk")) {
+		logprint("Couldn't disable boot disk.\n");
+	} else {
 		logprint("Disabled boot disk\n");
 	}
 }

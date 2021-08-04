@@ -229,7 +229,7 @@ int main(int argc, char *argv[])
 
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(window), "ML Install");
-	gtk_window_set_default_size(GTK_WINDOW(window), 400, 600);
+	gtk_window_set_default_size(GTK_WINDOW(window), 375, 500);
 	g_signal_connect(window, "delete-event", G_CALLBACK(delete_event), NULL);
 	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
 

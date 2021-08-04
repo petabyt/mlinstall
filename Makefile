@@ -6,7 +6,7 @@ default: unix-cli clean
 gui-test: unix-gtk unix-clean
 
 unix-clean:
-	@rm -rf ptpcam *.orig *.gch *.o *.out ptpcam mlinstall *.exe *.zip *.res
+	@rm -rf ptpcam *.orig *.gch *.o *.out ptpcam mlinstall *.exe *.zip *.res linux64-cli-mlinstall linux64-gtk-mlinstall
 
 # Format files to kernel style
 style:
@@ -28,6 +28,19 @@ unix-cli:
 # (pip3 install staticx)
 unix-static:
 	@staticx mlinstall mlinstall
+
+release:
+	@make unix-gtk
+	@staticx mlinstall linux64-gtk-mlinstall
+	@make unix-cli
+	@staticx mlinstall linux64-cli-mlinstall
+	@make unix-clean
+
+	@make win-libs
+	@make win-gtk
+	make win-gtk-pack
+	@make win-cli
+	make win-cli-pack
 
 # ------------------------------------------------
 # Targets to cross compile for windows, from Linux
@@ -56,7 +69,7 @@ win-libs:
 	@rm *.zip
 
 win-clean:
-	@rm -rf gtk libusb-win32-bin-1.2.2.0
+	@rm -rf gtk libusb-win32-bin-1.2.2.0 *.zip *.exe *.res mlinstall/
 
 win-gtk:
 	@$(WINCC)-windres win.rc -O coff -o win.res
@@ -71,7 +84,7 @@ win-gtk-pack:
 	@cd src; cp $(LLIBUSB) ../mlinstall/
 	@cp gtk/bin/*.dll mlinstall/
 	@cp mlinstall.exe mlinstall/
-	@zip -r win64-gui-mlinstall.zip mlinstall
+	@zip -r win64-gtk-mlinstall.zip mlinstall
 
 win-cli-pack:
 	@rm -rf mlinstall

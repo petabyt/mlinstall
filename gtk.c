@@ -31,7 +31,6 @@ void logclear()
 	gtk_label_set_text(GTK_LABEL(logw), logbuf);
 }
 
-
 // Log a return message after doing a usb thing
 int returnMessage(unsigned int code)
 {
@@ -131,7 +130,7 @@ static void deviceinfo(GtkWidget *widget, gpointer data)
 	PTPParams params;
 	PTP_USB ptp_usb;
 	struct usb_device *dev;
-	
+
 	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
 		returnMessage(0);
 		return;
@@ -208,14 +207,12 @@ static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 	return FALSE;
 }
 
-#define MENU_ADD_BUTTON(text, function, tip) \
-	button = gtk_button_new_with_label(text); \
-	g_signal_connect(button, "clicked", G_CALLBACK(function), NULL); \
-	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1); \
-	gtk_widget_set_tooltip_text( \
-		button, \
-		tip); \
-	gtk_widget_set_hexpand(button, TRUE); \
+#define MENU_ADD_BUTTON(text, function, tip)                                                       \
+	button = gtk_button_new_with_label(text);                                                  \
+	g_signal_connect(button, "clicked", G_CALLBACK(function), NULL);                           \
+	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);                                 \
+	gtk_widget_set_tooltip_text(button, tip);                                                  \
+	gtk_widget_set_hexpand(button, TRUE);                                                      \
 	gtk_widget_show(button);
 
 int main(int argc, char *argv[])
@@ -255,8 +252,8 @@ int main(int argc, char *argv[])
 	// Create "notebook"
 	notebook = gtk_notebook_new();
 	gtk_notebook_set_tab_pos(GTK_NOTEBOOK(notebook), GTK_POS_TOP);
-    gtk_grid_attach(GTK_GRID(mainGrid), notebook, 0, 1, 1, 1);
-    gtk_widget_show(notebook);
+	gtk_grid_attach(GTK_GRID(mainGrid), notebook, 0, 1, 1, 1);
+	gtk_widget_show(notebook);
 
 	// Add widgets horizontally
 	int order = 0;
@@ -266,36 +263,26 @@ int main(int argc, char *argv[])
 	gtk_widget_show(grid);
 
 	label = gtk_label_new("This will automatically find and write to\n"
-							"a card named \"EOS_DIGITAL\".\n\n"
-							"This code has not been tested much\n"
-							"and may be dangerous. Use EOSCard.\n");
+			      "a card named \"EOS_DIGITAL\".\n\n"
+			      "This code has not been tested much\n"
+			      "and may be dangerous. Use EOSCard.\n");
 	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
 	gtk_grid_attach(GTK_GRID(grid), label, 0, order++, 1, 1);
 	gtk_widget_show(label);
 
 	MENU_ADD_BUTTON(
-		"Write card boot flags",
-		writeflag,
-		"Writes EOS_DIGITAL and BOOTDISK to a\nmounted SD/CF card named EOS_DIGITAL."
-	)
+		"Write card boot flags", writeflag,
+		"Writes EOS_DIGITAL and BOOTDISK to a\nmounted SD/CF card named EOS_DIGITAL.")
 
 	MENU_ADD_BUTTON(
-		"Destroy card boot flags",
-		destroyflag,
-		"Destroys boot flags by replacing their\nfirst character with an underscore."
-	)
+		"Destroy card boot flags", destroyflag,
+		"Destroys boot flags by replacing their\nfirst character with an underscore.")
 
-	MENU_ADD_BUTTON(
-		"Make card scriptable",
-		scriptflag,
-		"Allows SD/CF card to run Canon Basic code."
-	)
+	MENU_ADD_BUTTON("Make card scriptable", scriptflag,
+			"Allows SD/CF card to run Canon Basic code.")
 
-	MENU_ADD_BUTTON(
-		"Make card un-scriptable",
-		unscriptflag,
-		"Destroys script flags, same method as destroy card boot flags."
-	)
+	MENU_ADD_BUTTON("Make card un-scriptable", unscriptflag,
+			"Destroys script flags, same method as destroy card boot flags.")
 
 	label = gtk_label_new("SD/CF Card");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
@@ -305,23 +292,12 @@ int main(int argc, char *argv[])
 	gtk_widget_show(grid);
 	order = 0;
 
-	MENU_ADD_BUTTON(
-		"Get Device Info",
-		deviceinfo,
-		"Show Model, Firmware Version, etc."
-	)
+	MENU_ADD_BUTTON("Get Device Info", deviceinfo, "Show Model, Firmware Version, etc.")
 
-	MENU_ADD_BUTTON(
-		"Enable Boot Disk",
-		enablebootdisk,
-		"Write the bootdisk flag inside of the\ncamera, not on the card."
-	)
+	MENU_ADD_BUTTON("Enable Boot Disk", enablebootdisk,
+			"Write the bootdisk flag inside of the\ncamera, not on the card.")
 
-	MENU_ADD_BUTTON(
-		"Disable Boot Disk",
-		disablebootdisk,
-		"Disable the camera's bootdisk flag."
-	)
+	MENU_ADD_BUTTON("Disable Boot Disk", disablebootdisk, "Disable the camera's bootdisk flag.")
 
 	label = gtk_label_new("USB");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
@@ -335,7 +311,7 @@ int main(int argc, char *argv[])
 	gtk_widget_set_hexpand(label, TRUE);
 	gtk_grid_attach(GTK_GRID(grid), label, 0, order++, 1, 1);
 	gtk_widget_show(label);
-	
+
 	GtkEntryBuffer *buf = gtk_entry_buffer_new("TurnOffDisplay", 14);
 	entry = gtk_entry_new_with_buffer(buf);
 	gtk_grid_attach(GTK_GRID(grid), entry, 0, order++, 1, 1);
@@ -343,11 +319,12 @@ int main(int argc, char *argv[])
 	gtk_widget_show(entry);
 
 	label = gtk_label_new(NULL);
-	gtk_label_set_markup(GTK_LABEL(label),
-						"\nMade by <a href='https://petabyt.dev/'>Daniel C</a>\n"
-						"Source code: <a href='https://github.com/petabyt/mlinstall'>github.com/petabyt/mlinstall</a>\n\n"
-						"Licenced under GNU General Public License v2.0\n"
-						"If you break it, you get to keep both pieces!");
+	gtk_label_set_markup(
+		GTK_LABEL(label),
+		"\nMade by <a href='https://petabyt.dev/'>Daniel C</a>\n"
+		"Source code: <a href='https://github.com/petabyt/mlinstall'>github.com/petabyt/mlinstall</a>\n\n"
+		"Licenced under GNU General Public License v2.0\n"
+		"If you break it, you get to keep both pieces!");
 	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
 	gtk_grid_attach(GTK_GRID(grid), label, 0, order++, 1, 1);
 	gtk_widget_show(label);

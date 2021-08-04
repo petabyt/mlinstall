@@ -20,7 +20,7 @@ struct usb_device *dev;
 
 // Quick, messy, logging mechanism:
 GtkWidget *logw;
-char logbuf[1000] = "Log info will go here.\n";
+char logbuf[1000] = "\nLog info will go here.\n";
 
 void logprint(char string[])
 {
@@ -30,7 +30,7 @@ void logprint(char string[])
 
 void logclear()
 {
-	logbuf[0] = '\0';
+	strcpy(logbuf, "\n");
 	gtk_label_set_text(GTK_LABEL(logw), logbuf);
 }
 
@@ -63,7 +63,7 @@ static void writeflag(GtkWidget *widget, gpointer data)
 {
 	logclear();
 	if (flag_write_flag(FLAG_BOOT)) {
-		logprint("Could not enable flags. Make sure\nto run as Administrator/superuser.");
+		logprint("Could not find card. Make sure\nto run as Administrator/superuser.");
 	} else {
 		logprint("Wrote card flags on EOS_DIGITAL");
 		flag_close();
@@ -161,94 +161,145 @@ static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 	return FALSE;
 }
 
+#define MENU_ADD_BUTTON(text, function, tip) \
+	button = gtk_button_new_with_label(text); \
+	g_signal_connect(button, "clicked", G_CALLBACK(function), NULL); \
+	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1); \
+	gtk_widget_set_tooltip_text( \
+		button, \
+		tip); \
+	gtk_widget_set_hexpand(button, TRUE); \
+	gtk_widget_show(button);
+
 int main(int argc, char *argv[])
 {
+	GtkWidget *window;
 	GtkWidget *button;
+	GtkWidget *notebook;
+	GtkWidget *label;
 	GtkWidget *entry;
+	GtkWidget *grid;
+	GtkWidget *mainGrid;
 
 	gtk_init(&argc, &argv);
 
-	GtkWidget *window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(window), "ML Install");
+	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_title(GTK_WINDOW(window), "Magic Lantern");
 	gtk_window_set_default_size(GTK_WINDOW(window), 350, 500);
 	g_signal_connect(window, "delete-event", G_CALLBACK(delete_event), NULL);
 	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
 
-	// Add widgets horizontally
-	int order = 0;
+	mainGrid = gtk_grid_new();
+	gtk_container_add(GTK_CONTAINER(window), mainGrid);
 
-	GtkWidget *grid = gtk_grid_new();
-	gtk_container_add(GTK_CONTAINER(window), grid);
-
-	GtkWidget *title = gtk_label_new(NULL);
-
-	gtk_label_set_markup(GTK_LABEL(title),
+	// Add title label
+	label = gtk_label_new(NULL);
+	gtk_widget_set_hexpand(label, TRUE);
+	gtk_label_set_markup(GTK_LABEL(label),
 			     "<span size=\"large\">ML USB Installation Tools</span>\n"
+			     "(Early Release)\n"
 			     "<span size=\"small\">THIS IS NOT GARUNTEED TO WORK\n"
 			     "OR NOT KILL YOUR CAMERA\n"
 			     "KEEP BOTH PIECES IF YOU BREAK IT</span>\n");
+	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
+	gtk_grid_attach(GTK_GRID(mainGrid), label, 0, 0, 1, 1);
+	gtk_widget_show(label);
 
-	gtk_label_set_justify(GTK_LABEL(title), GTK_JUSTIFY_CENTER);
-	gtk_grid_attach(GTK_GRID(grid), title, 0, order++, 1, 1);
-	gtk_widget_show(title);
+	// Create "notebook"
+	notebook = gtk_notebook_new();
+	gtk_notebook_set_tab_pos(GTK_NOTEBOOK(notebook), GTK_POS_TOP);
+    gtk_grid_attach(GTK_GRID(mainGrid), notebook, 0, 1, 1, 1);
+    gtk_widget_show(notebook);
 
-	// Mounted filesystem controls
-	button = gtk_button_new_with_label("Write card boot flags");
-	g_signal_connect(button, "clicked", G_CALLBACK(writeflag), NULL);
-	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
-	gtk_widget_set_tooltip_text(
-		button,
-		"Writes EOS_DIGITAL and BOOTDISK to a\nmounted SD/CF card named EOS_DIGITAL.");
-	gtk_widget_show(button);
+	// Add widgets horizontally
+	int order = 0;
 
-	button = gtk_button_new_with_label("Destroy card boot flags");
-	g_signal_connect(button, "clicked", G_CALLBACK(destroyflag), NULL);
-	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
-	gtk_widget_set_tooltip_text(
-		button,
-		"Destroys boot flags by replacing their\nfirst character with an underscore.");
-	gtk_widget_show(button);
+	grid = gtk_grid_new();
+	gtk_container_set_border_width(GTK_CONTAINER(grid), 10);
+	gtk_widget_show(grid);
 
-	button = gtk_button_new_with_label("Make Card scriptable");
-	g_signal_connect(button, "clicked", G_CALLBACK(scriptflag), NULL);
-	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
-	gtk_widget_set_tooltip_text(button, "Allows SD/CF card to run Canon Basic code.");
-	gtk_widget_show(button);
+	MENU_ADD_BUTTON(
+		"Write card boot flags",
+		writeflag,
+		"Writes EOS_DIGITAL and BOOTDISK to a\nmounted SD/CF card named EOS_DIGITAL."
+	)
 
-	// PTP/USB controls
-	button = gtk_button_new_with_label("Get Device Info");
-	g_signal_connect(button, "clicked", G_CALLBACK(deviceinfo), NULL);
-	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
-	gtk_widget_set_tooltip_text(button, "Show Model, FW, etc.");
-	gtk_widget_show(button);
+	MENU_ADD_BUTTON(
+		"Destroy card boot flags",
+		destroyflag,
+		"Destroys boot flags by replacing their\nfirst character with an underscore."
+	)
 
-	button = gtk_button_new_with_label("Enable Boot Disk");
-	g_signal_connect(button, "clicked", G_CALLBACK(enablebootdisk), NULL);
-	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
-	gtk_widget_set_tooltip_text(
-		button, "Write the bootdisk flag inside of the\ncamera, rather than on the card.");
-	gtk_widget_show(button);
+	MENU_ADD_BUTTON(
+		"Make Card scriptable",
+		scriptflag,
+		"Allows SD/CF card to run Canon Basic code."
+	)
 
-	button = gtk_button_new_with_label("Disable Boot Disk");
-	g_signal_connect(button, "clicked", G_CALLBACK(disablebootdisk), NULL);
-	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);
-	gtk_widget_set_tooltip_text(button, "Disable the cameras, bootdisk flag.");
-	gtk_widget_show(button);
+	label = gtk_label_new("SD/CF Card");
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
 
+	grid = gtk_grid_new();
+	gtk_container_set_border_width(GTK_CONTAINER(grid), 10);
+	gtk_widget_show(grid);
+	order = 0;
+
+	MENU_ADD_BUTTON(
+		"Get Device Info",
+		deviceinfo,
+		"Show Model, Firmware Version, etc."
+	)
+
+	MENU_ADD_BUTTON(
+		"Enable Boot Disk",
+		enablebootdisk,
+		"Write the bootdisk flag inside of the\ncamera, not on the card."
+	)
+
+	MENU_ADD_BUTTON(
+		"Disable Boot Disk",
+		disablebootdisk,
+		"Disable the camera's bootdisk flag."
+	)
+
+	label = gtk_label_new("USB");
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
+
+	grid = gtk_grid_new();
+	gtk_container_set_border_width(GTK_CONTAINER(grid), 10);
+	gtk_widget_show(grid);
+	order = 0;
+
+	label = gtk_label_new("Execute a custom event procedure:");
+	gtk_widget_set_hexpand(label, TRUE);
+	gtk_grid_attach(GTK_GRID(grid), label, 0, order++, 1, 1);
+	gtk_widget_show(label);
+	
 	GtkEntryBuffer *buf = gtk_entry_buffer_new("TurnOffDisplay", 14);
 	entry = gtk_entry_new_with_buffer(buf);
 	gtk_grid_attach(GTK_GRID(grid), entry, 0, order++, 1, 1);
 	g_signal_connect(entry, "activate", G_CALLBACK(eventproc), NULL);
-	gtk_widget_set_tooltip_text(entry, "Execute a custom event procedure.");
 	gtk_widget_show(entry);
 
+	label = gtk_label_new(NULL);
+	gtk_label_set_markup(GTK_LABEL(label),
+						"\nMade by Daniel C (@petabyt)\n"
+						"github.com/petabyt/mlinstall\n\n"
+						"Licenced under GNU General Public License v2.0\n"
+						"If you break it, you get to keep both pieces!");
+	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
+	gtk_grid_attach(GTK_GRID(grid), label, 0, order++, 1, 1);
+	gtk_widget_show(label);
+
+	label = gtk_label_new("Advanced");
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
+
 	logw = gtk_label_new(logbuf);
-	gtk_grid_attach(GTK_GRID(grid), logw, 0, order++, 1, 1);
+	gtk_grid_attach(GTK_GRID(mainGrid), logw, 0, 2, 1, 1);
 	gtk_label_set_justify(GTK_LABEL(logw), GTK_JUSTIFY_CENTER);
 	gtk_widget_show(logw);
 
-	gtk_widget_set_hexpand(button, TRUE);
-	gtk_widget_show(grid);
+	gtk_widget_show(mainGrid);
 	gtk_widget_show(window);
 	gtk_main();
 

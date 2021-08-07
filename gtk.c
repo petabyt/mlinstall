@@ -261,6 +261,21 @@ int main(int argc, char *argv[])
 	grid = gtk_grid_new();
 	gtk_container_set_border_width(GTK_CONTAINER(grid), 10);
 	gtk_widget_show(grid);
+	order = 0;
+
+	MENU_ADD_BUTTON("Get Device Info", deviceinfo, "Show Model, Firmware Version, etc.")
+
+	MENU_ADD_BUTTON("Enable Boot Disk", enablebootdisk,
+			"Write the bootdisk flag inside of the\ncamera, not on the card.")
+
+	MENU_ADD_BUTTON("Disable Boot Disk", disablebootdisk, "Disable the camera's bootdisk flag.")
+
+	label = gtk_label_new("USB");
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
+
+		grid = gtk_grid_new();
+	gtk_container_set_border_width(GTK_CONTAINER(grid), 10);
+	gtk_widget_show(grid);
 
 	label = gtk_label_new("This will automatically find and write to\n"
 			      "a card named \"EOS_DIGITAL\".\n\n"
@@ -285,21 +300,6 @@ int main(int argc, char *argv[])
 			"Destroys script flags, same method as destroy card boot flags.")
 
 	label = gtk_label_new("SD/CF Card");
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
-
-	grid = gtk_grid_new();
-	gtk_container_set_border_width(GTK_CONTAINER(grid), 10);
-	gtk_widget_show(grid);
-	order = 0;
-
-	MENU_ADD_BUTTON("Get Device Info", deviceinfo, "Show Model, Firmware Version, etc.")
-
-	MENU_ADD_BUTTON("Enable Boot Disk", enablebootdisk,
-			"Write the bootdisk flag inside of the\ncamera, not on the card.")
-
-	MENU_ADD_BUTTON("Disable Boot Disk", disablebootdisk, "Disable the camera's bootdisk flag.")
-
-	label = gtk_label_new("USB");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
 
 	grid = gtk_grid_new();

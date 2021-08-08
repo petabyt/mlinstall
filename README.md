@@ -3,23 +3,25 @@ A Windows/Linux app to help with installing Magic Lantern.
 Download: https://github.com/petabyt/mlinstall/releases  
 
 The backend is a fork of [ptpcam](https://github.com/reticulatedpines/magiclantern_simplified/tree/dev/contrib/ptpcam).  
-
 A Python based version of this app is available at [python-stable](https://github.com/petabyt/mlinstall/tree/python-stable).  
+
 ![screenshot](assets/screenshot.png)
 
 ## Features
-- [x] - Enable/Disable boot disk
-- [x] - Execute DryOS shell commands (event procedures)
-- [x] - Basic PTP functionality
-- [x] - Write EOS_DEVELOP and BOOTFLAG to card (Windows + Linux)
-- [x] - Destroy card flags
+- Execute DryOS shell commands (event procedures)
+- Enable/Disable boot disk
+- Basic PTP functionality (get camera info)
+- Write EOS_DEVELOP and BOOTFLAG to card (Windows + Linux)
+- Make card Canon Basic Scriptable
+- Destroy card flags (without reformat)
 
 ## TODO:
-- [ ] - LOTS of fuzz testing
-- [ ] - Download correct ML based on model and FW version [?](https://developers.canon-europe.com/developers/s/article/Latest-EOS-SDK-Version-3-x)
-- [ ] - Clean up makefiles
-- [ ] - Get WiFi ptp working
-- [ ] - Try on Mac
+- [ ] - General testing, make user friendly
+- [ ] - Fuzz testing
+- [ ] - Download correct ML based on model and FW version [(?)](https://developers.canon-europe.com/developers/s/article/Latest-EOS-SDK-Version-3-x)
+- [ ] - Clean up Windows compilation script (packs unused DLLs)
+- [ ] - Get WiFi ptp working [(?)](https://github.com/Parrot-Developers/sequoia-ptpy/issues/18)
+- [ ] - Try on Mac (don't own a modern one)
 
 ## Unix Compilation
 ```

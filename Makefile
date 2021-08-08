@@ -72,7 +72,7 @@ win-clean:
 	@rm -rf gtk libusb-win32-bin-1.2.2.0 *.zip *.exe *.res mlinstall/
 
 win-gtk:
-	@$(WINCC)-windres win.rc -O coff -o win.res
+	@$(WINCC)-windres assets/win.rc -O coff -o win.res
 	cd src; $(WINCC)-gcc ../gtk.c ../win.res *.c $(LIB) $(GLIB) $(CFLAGS) -o ../mlinstall.exe
 
 win-cli:

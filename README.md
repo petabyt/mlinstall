@@ -5,7 +5,7 @@ Download: https://github.com/petabyt/mlinstall/releases
 The backend is a fork of [ptpcam](https://github.com/reticulatedpines/magiclantern_simplified/tree/dev/contrib/ptpcam).  
 
 A Python based version of this app is available at [python-stable](https://github.com/petabyt/mlinstall/tree/python-stable).  
-![screenshot](screenshot.png)
+![screenshot](assets/screenshot.png)
 
 ## Features
 - [x] - Enable/Disable boot disk

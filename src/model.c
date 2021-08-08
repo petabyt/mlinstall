@@ -50,7 +50,7 @@ int model_get(char name[])
 			}
 
 			// Use strstr to find whether "models[m].alts[a]" is
-			// inside of "name".
+			// inside of "name". Basically String.includes(...)
 			if ((long)strstr(name, models[m].alts[a])) {
 				return m;
 			}

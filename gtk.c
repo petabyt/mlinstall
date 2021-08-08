@@ -273,14 +273,16 @@ int main(int argc, char *argv[])
 	label = gtk_label_new("USB");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
 
-		grid = gtk_grid_new();
+	grid = gtk_grid_new();
 	gtk_container_set_border_width(GTK_CONTAINER(grid), 10);
 	gtk_widget_show(grid);
 
-	label = gtk_label_new("This will automatically find and write to\n"
-			      "a card named \"EOS_DIGITAL\".\n\n"
-			      "This code has not been tested much\n"
-			      "and may be dangerous. Use EOSCard.\n");
+	label = gtk_label_new(NULL);
+	gtk_label_set_markup(GTK_LABEL(label),
+			      "<span size=\"small\">This code has not been tested much and may\n"
+			      "be dangerous. Use EOSCard if possible.</span>\n"
+				  "This will automatically find and write to\n"
+			      "a card named \"EOS_DIGITAL\".\n");
 	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
 	gtk_grid_attach(GTK_GRID(grid), label, 0, order++, 1, 1);
 	gtk_widget_show(label);

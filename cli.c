@@ -11,7 +11,7 @@
 #include "src/ptpcam.h"
 #include "src/drive.h"
 
-int main()
+int main(int argc, char *argv[])
 {
 	int busn = 0, devn = 0;
 	short force = 0;
@@ -19,6 +19,11 @@ int main()
 	PTPParams params;
 	PTP_USB ptp_usb;
 	struct usb_device *dev;
+
+	if (argc >= 2) {
+		puts("TODO: Real CLI");
+		return 1;
+	}
 
 	puts("ML USB Install Tools (ptpcam backend)");
 	puts("Commands:");

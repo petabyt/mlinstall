@@ -1,12 +1,12 @@
 @echo off
 rem (This is probably unmaintained)
+rem I wouldn't recommend building on Windows.
 
 rem Windows Compilation script
 rem Usage:
 rem make.bat           Compile default CLI app
 rem make.bat gtk       Compile gtk app
 
-rem Windows users:
 rem Download and unzip [libusb-win32](https://sourceforge.net/projects/libusb-win32/files/libusb-win32-releases/1.2.2.0/libusb-win32-bin-1.2.2.0.zip/download)
 rem Install `x86_64-w64-mingw32-gcc`
 

@@ -29,6 +29,7 @@ unix-cli:
 unix-static:
 	@staticx mlinstall mlinstall
 
+# TODO: No recursive make?
 release:
 	@make unix-gtk
 	@staticx mlinstall linux64-gtk-mlinstall
@@ -48,18 +49,38 @@ release:
 # You need to have x86_64-w64-mingw32-gcc.
 
 WINCC = x86_64-w64-mingw32
-LIBUSB = libusb-win32-bin-1.2.2.0
+
+# DLLs required by GTK
+WIN_GTK_DLL := libglib-2.0-0.dll libintl-8.dll \
+libiconv-2.dll libgobject-2.0-0.dll \
+libffi-6.dll libgtk-3-0.dll \
+libgdk-3-0.dll libcairo-gobject-2.dll \
+libcairo-2.dll libfontconfig-1.dll \
+libfreetype-6.dll libpng16-16.dll \
+zlib1.dll libxml2-2.dll liblzma-5.dll \
+libpixman-1-0.dll libgdk_pixbuf-2.0-0.dll \
+libgio-2.0-0.dll libgmodule-2.0-0.dll \
+libpango-1.0-0.dll libpangocairo-1.0-0.dll \
+libpangowin32-1.0-0.dll libatk-1.0-0.dll
+
+# Add include directories
+GTK_FLAG = -mms-bitfields -I../gtk/include/gtk-3.0 -I../gtk/include/cairo -I../gtk/include/pango-1.0 -I../gtk/include/atk-1.0
+GTK_FLAG += -I../gtk/include/cairo -I../gtk/include/pixman-1 -I../gtk/include -I../gtk/include/freetype2 -I../gtk/include/libxml2
+GTK_FLAG += -I../gtk/include/freetype2 -I../gtk/include/libpng16 -I../gtk/include/gdk-pixbuf-2.0 -I../gtk/include/libpng16 -I../gtk/include/glib-2.0
+GTK_FLAG += -I../gtk/lib/glib-2.0/include
+
+# Use all DLLs (doesn't actually link them in)
+GTK_FLAG += ../gtk/bin/*.dll
 
 # Desired libusb dll directory
-LLIBUSB = ../$(LIBUSB)/bin/amd64/libusb0.dll
+LIBUSB = libusb-win32-bin-1.2.2.0
+LIBUSB_DLL = ../$(LIBUSB)/bin/amd64/libusb0.dll
 
 # win32 + LIBUSB libs
-LIB = -lws2_32 -lkernel32 -I$(LIBUSB)/include -I../$(LIBUSB)/include $(LLIBUSB) 
-
-GLIB = -mms-bitfields -I../gtk/include/gtk-3.0 -I../gtk/include/cairo -I../gtk/include/pango-1.0 -I../gtk/include/atk-1.0 -I../gtk/include/cairo -I../gtk/include/pixman-1 -I../gtk/include -I../gtk/include/freetype2 -I../gtk/include/libxml2 -I../gtk/include/freetype2 -I../gtk/include/libpng16 -I../gtk/include/gdk-pixbuf-2.0 -I../gtk/include/libpng16 -I../gtk/include/glib-2.0 -I../gtk/lib/glib-2.0/include -L../gtk/lib -lgdi32 -limm32 -lshell32 -lole32 -Wl,-luuid -lwinmm -lpangocairo-1.0 -lpangowin32-1.0 -lgdi32 -lpango-1.0 -lm -latk-1.0 -lcairo -lgdk_pixbuf-2.0 -lgio-2.0 -lglib-2.0
-GLIB += ../gtk/bin/libgtk-3-0.dll ../gtk/bin/libgobject-2.0-0.dll
+LIBUSB_FLAG = -lws2_32 -lkernel32 -I$(LIBUSB)/include -I../$(LIBUSB)/include $(LIBUSB_DLL) 
 
 # Download Windows libs (libusb, gtk)
+# Alternative source: https://download.geany.org/contrib/gtk/gtk+-bundle_3.8.2-20131001_win32.zip
 win-libs:
 	@mkdir gtk
 	@wget https://web.archive.org/web/20171023023802if_/http://win32builder.gnome.org/gtk+-bundle_3.10.4-20131202_win64.zip
@@ -73,22 +94,22 @@ win-clean:
 
 win-gtk:
 	@$(WINCC)-windres assets/win.rc -O coff -o win.res
-	cd src; $(WINCC)-gcc ../gtk.c ../win.res *.c $(LIB) $(GLIB) $(CFLAGS) -o ../mlinstall.exe
+	cd src; $(WINCC)-gcc ../gtk.c ../win.res *.c $(LIBUSB_FLAG) $(GTK_FLAG) $(CFLAGS) -o ../mlinstall.exe
 
 win-cli:
-	cd src; $(WINCC)-gcc ../cli.c *.c $(LIB) $(CFLAGS) -o ../mlinstall.exe
+	cd src; $(WINCC)-gcc ../cli.c *.c $(LIBUSB_FLAG) $(CFLAGS) -o ../mlinstall.exe
 
 win-gtk-pack:
 	@rm -rf mlinstall
 	@mkdir mlinstall
-	@cd src; cp $(LLIBUSB) ../mlinstall/
-	@cp gtk/bin/*.dll mlinstall/
+	@cd src; cp $(LIBUSB_DLL) ../mlinstall/
+	@cd gtk/bin/; cp -t ../../mlinstall/ $(WIN_GTK_DLL)
 	@cp mlinstall.exe mlinstall/
 	@zip -r win64-gtk-mlinstall.zip mlinstall
 
 win-cli-pack:
 	@rm -rf mlinstall
 	@mkdir mlinstall
-	@cd src; cp $(LLIBUSB) ../mlinstall/
+	@cd src; cp $(LIBUSB_DLL) ../mlinstall/
 	@cp mlinstall.exe mlinstall/
 	@zip -r win64-cli-mlinstall.zip mlinstall

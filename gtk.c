@@ -149,6 +149,7 @@ static void deviceinfo(GtkWidget *widget, gpointer data)
 
 	logprint(buffer);
 
+	// Test model detector
 	printf("model_get() = %d\n", model_get(info.Model));
 
 	close_camera(&ptp_usb, &params, dev);
@@ -262,6 +263,14 @@ int main(int argc, char *argv[])
 	gtk_container_set_border_width(GTK_CONTAINER(grid), 10);
 	gtk_widget_show(grid);
 	order = 0;
+
+	label = gtk_label_new(
+		"This will run event procedures on your\n"
+		"camera via USB/PTP. Make sure to run as\n"
+		"Administrator/Sudo.\n");
+	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
+	gtk_grid_attach(GTK_GRID(grid), label, 0, order++, 1, 1);
+	gtk_widget_show(label);
 
 	MENU_ADD_BUTTON("Get Device Info", deviceinfo, "Show Model, Firmware Version, etc.")
 

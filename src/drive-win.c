@@ -71,7 +71,7 @@ int flag_getdrive()
 
 	return DRIVE_NONE;
 
-found:;
+	found:
 	if (id == 'C' || id == 'c') {
 		puts("Somehow I got the C drive, and I ain't writing to it.");
 		return DRIVE_NONE;
@@ -83,11 +83,11 @@ found:;
 int flag_usable_drive(char buffer[])
 {
 	int drive = flag_getdrive();
-	if (drive > 0) {
+	if (drive < 0) {
 		return drive;
 	}
 
-	strcpy(buffer, "X:\\");
+	strcpy(buffer, "\0:\\");
 	buffer[0] = (char)drive;
 	return 0;
 }
@@ -95,9 +95,9 @@ int flag_usable_drive(char buffer[])
 int flag_openfs(int mode)
 {
 	// Filesystem must be opened like this: \\.\\E
-	char buffer[64] = "\\\\.\\E:";
+	char buffer[64] = "\\\\.\\\0:";
 	int drive = flag_getdrive(buffer);
-	if (drive > 0) {
+	if (drive < 0) {
 		return drive;
 	}
 
@@ -107,7 +107,7 @@ int flag_openfs(int mode)
 		       NULL, OPEN_EXISTING, FILE_FLAG_NO_BUFFERING | FILE_FLAG_RANDOM_ACCESS, NULL);
 
 	if (d == INVALID_HANDLE_VALUE) {
-		puts("Could not open filesystem. Try running as Administrator.");
+		puts("Couldn't open the filesystem. Try running as Administrator.");
 		return -1;
 	}
 

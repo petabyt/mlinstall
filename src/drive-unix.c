@@ -55,6 +55,7 @@ void flag_write(long int offset, char string[])
 	fwrite(string, 1, strlen(string), d);
 
 	// fseek-ing seems to be updating the file
+	// (required in order to apply fwrites)
 	fseek(d, 0, SEEK_SET);
 }
 
@@ -63,18 +64,22 @@ void flag_getdrive(char buffer[])
 	// Get EOS_DIGITAL Drive
 	FILE *c = popen("mount | grep EOS_DIGITAL | awk '{printf $1}'", "r");
 	fgets(buffer, 64, c);
+	// TODO: Error handling
 }
 
-void flag_usable_drive(char buffer[])
+int flag_usable_drive(char buffer[])
 {
 	char filesystem[64];
 	flag_getdrive(filesystem);
 
 	char command[256];
 	sprintf(command, "cat /proc/mounts | grep %s | awk '{printf $2'}", filesystem);
-
+	// TODO: Error handling
+	
 	FILE *c = popen(command, "r");
 	fgets(buffer, 50, c);
+
+	return 0;
 }
 
 int flag_openfs()

@@ -38,7 +38,7 @@ int flag_getfs()
 		return EXFAT;
 	}
 
-	return -1;
+	return DRIVE_BADFS;
 }
 
 void flag_write(long int offset, char string[])
@@ -65,7 +65,7 @@ void flag_getdrive(char buffer[])
 	fgets(buffer, 64, c);
 }
 
-int flag_usable_drive(char buffer[])
+void flag_usable_drive(char buffer[])
 {
 	char filesystem[64];
 	flag_getdrive(filesystem);
@@ -85,7 +85,7 @@ int flag_openfs()
 
 	if (!d) {
 		puts("Could not open filesystem.");
-		return -1;
+		return DRIVE_ERROR;
 	}
 
 	return flag_getfs();

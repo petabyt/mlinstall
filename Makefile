@@ -106,6 +106,13 @@ win-gtk-pack:
 	@cp mlinstall.exe mlinstall/
 	@zip -r win64-gtk-mlinstall.zip mlinstall
 
+win-gtk-test:
+	@rm -rf mlinstall
+	@mkdir mlinstall
+	@cd src; cp $(LIBUSB_DLL) ../mlinstall/
+	@cd gtk/bin/; cp -t ../../mlinstall/ $(WIN_GTK_DLL)
+	@cp mlinstall.exe mlinstall/
+
 win-cli-pack:
 	@rm -rf mlinstall
 	@mkdir mlinstall

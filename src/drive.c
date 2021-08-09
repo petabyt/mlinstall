@@ -8,15 +8,24 @@
 int flag_write_flag(int mode)
 {
 	int drive = flag_openfs();
-	if (drive == -1) {
+	switch (drive) {
+	case DRIVE_BADFS:
+		puts("No usable filesystem on card.");
+		return DRIVE_UNSUPPORTED;
+	case DRIVE_NONE:
+		puts("Couldn't find an EOS_DIGITAL card.");
+		return DRIVE_NOT_AVAILABLE;
+	case DRIVE_ERROR:
+		puts("Error opening drive.");
 		return DRIVE_NOT_AVAILABLE;
 	}
 
 	long int of[3] = { 0, 0, 0 };
 
 	if (drive == EXFAT) {
-		puts("Quitting, no EXFAT support yet. Try EOSCARD.");
+		puts("Quitting, no EXFAT support yet. Use EOSCARD.");
 		return DRIVE_UNSUPPORTED;
+		// TODO: ...
 		of[0] = 0x82;
 		of[1] = 0x7a;
 		of[2] = 0x1f0;

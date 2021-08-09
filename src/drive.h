@@ -17,8 +17,15 @@ enum FlagsMode {
 };
 
 enum FlagsErr {
+	// Generic error returned by flag_write_flag
 	DRIVE_UNSUPPORTED = 1,
 	DRIVE_NOT_AVAILABLE = 2,
+
+	// Error codes for filesystem
+	// for Windows/Unix backend
+	DRIVE_BADFS = -1,
+	DRIVE_NONE = -2,
+	DRIVE_ERROR -3
 };
 
 static char flag_develop[] = "EOS_DEVELOP";

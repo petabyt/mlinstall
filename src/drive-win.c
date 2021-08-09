@@ -33,7 +33,7 @@ int flag_getfs()
 		return EXFAT;
 	}
 
-	return -1;
+	return DRIVE_BADFS;
 }
 
 void flag_write(long offset, char string[])
@@ -43,6 +43,7 @@ void flag_write(long offset, char string[])
 
 	printf("Current Flag: %s\n", bootsector + offset);
 	memcpy(bootsector + offset, string, strlen(string));
+	printf("New Flag:     %s\n", bootsector + offset);
 
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
 	WriteFile(d, bootsector, SIZE, &bytesRead, NULL);
@@ -68,13 +69,12 @@ int flag_getdrive()
 		}
 	}
 
-	puts("Could not find drive.");
-	return -1;
+	return DRIVE_NONE;
 
 found:;
 	if (id == 'C' || id == 'c') {
 		puts("Somehow I got the C drive, and I ain't writing to it.");
-		return -1;
+		return DRIVE_NONE;
 	}
 
 	return (int)id;
@@ -83,8 +83,8 @@ found:;
 int flag_usable_drive(char buffer[])
 {
 	int drive = flag_getdrive();
-	if (drive == -1) {
-		return 1;
+	if (drive > 0) {
+		return drive;
 	}
 
 	strcpy(buffer, "X:\\");
@@ -97,8 +97,8 @@ int flag_openfs(int mode)
 	// Filesystem must be opened like this: \\.\\E
 	char buffer[64] = "\\\\.\\E:";
 	int drive = flag_getdrive(buffer);
-	if (drive == -1) {
-		return 1;
+	if (drive > 0) {
+		return drive;
 	}
 
 	buffer[4] = (char)drive;

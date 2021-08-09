@@ -202,6 +202,17 @@ static void disablebootdisk(GtkWidget *widget, gpointer data)
 	}
 }
 
+static void showdrive(GtkWidget *widget, gpointer data)
+{
+	logclear();
+	char buffer[128];
+	if (flag_usable_drive(buffer)) {
+		logprint(buffer);
+	} else {
+		logprint("Error getting usable drive.\n");
+	}
+}
+
 static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	gtk_main_quit();
@@ -328,6 +339,9 @@ int main(int argc, char *argv[])
 	gtk_grid_attach(GTK_GRID(grid), entry, 0, order++, 1, 1);
 	g_signal_connect(entry, "activate", G_CALLBACK(eventproc), NULL);
 	gtk_widget_show(entry);
+
+	MENU_ADD_BUTTON("Detect EOS_DIGITAL", showdrive,
+						"Try and return a usable filesystem.")
 
 	label = gtk_label_new(NULL);
 	gtk_label_set_markup(

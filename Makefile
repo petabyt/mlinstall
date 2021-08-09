@@ -112,6 +112,8 @@ win-gtk-test:
 	@cd src; cp $(LIBUSB_DLL) ../mlinstall/
 	@cd gtk/bin/; cp -t ../../mlinstall/ $(WIN_GTK_DLL)
 	@cp mlinstall.exe mlinstall/
+	@cat README.md > mlinstall/README.txt
+	@cat MANUAL.md > mlinstall/HELP.txt
 
 win-cli-pack:
 	@rm -rf mlinstall

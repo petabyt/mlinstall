@@ -80,6 +80,7 @@ int flag_getdrive()
 	return (int)id;
 }
 
+// Should never buffer overflow
 int flag_usable_drive(char buffer[])
 {
 	int drive = flag_getdrive();

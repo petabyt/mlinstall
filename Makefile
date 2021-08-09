@@ -35,7 +35,6 @@ release:
 	@staticx mlinstall linux64-gtk-mlinstall
 	@make unix-cli
 	@staticx mlinstall linux64-cli-mlinstall
-	@make unix-clean
 
 	@make win-libs
 	@make win-gtk

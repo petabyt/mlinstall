@@ -10,11 +10,9 @@ This will commands on your camera via PTP/USB.
 
 ## SD/CF Card
 This will write some bytes into the SD/CF card.
-**
-!! Warning !!  
-This code may break your SD card. It's a good idea  
-to back up all data and format the card in camera first.  
-**
+**!! Warning !!  **
+**This code may break your SD card. It's a good idea  **
+**to back up all data and format the card in camera first.  **
 
 ### Write card boot flags
 ### Destroy card boot flags

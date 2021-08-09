@@ -16,6 +16,7 @@ A Python based version of this app is available at [python-stable](https://githu
 - Destroy card flags (without reformat)
 
 ## TODO:
+- [ ] - Rename app (MLapp?)
 - [ ] - General testing, make user friendly
 - [ ] - Fuzz testing
 - [ ] - Download correct ML based on model and FW version [(?)](https://developers.canon-europe.com/developers/s/article/Latest-EOS-SDK-Version-3-x)

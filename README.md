@@ -2,7 +2,7 @@
 A Windows/Linux app to help with installing Magic Lantern.  
 Download: https://github.com/petabyt/mlinstall/releases  
 
-The backend is a fork of [ptpcam](https://github.com/reticulatedpines/magiclantern_simplified/tree/dev/contrib/ptpcam).  
+The backend is a [modified](https://github.com/petabyt/sequoia-ptpy) fork of [ptpcam](https://github.com/reticulatedpines/magiclantern_simplified/tree/dev/contrib/ptpcam).  
 A Python based version of this app is available at [python-stable](https://github.com/petabyt/mlinstall/tree/python-stable).  
 
 ![screenshot](assets/screenshot.png)
@@ -15,15 +15,20 @@ A Python based version of this app is available at [python-stable](https://githu
 - Make card Canon Basic Scriptable
 - Destroy card flags (without reformat)
 
-## TODO:
-- [ ] - Rename app, MLTools? (it may do more than just installation-related things)
-- [ ] - General testing, make user friendly
+## TODO / Help Needed:
+- [ ] - Rename app. MLTools? (it may do more than just installation-related things)
+- [ ] - General bug testing, make user friendly
 - [ ] - Fuzz testing
-- [ ] - Download correct ML based on model and FW version [(?)](https://developers.canon-europe.com/developers/s/article/Latest-EOS-SDK-Version-3-x)
-- [ ] - Get WiFi ptp working [(?)](https://github.com/Parrot-Developers/sequoia-ptpy/issues/18)
+- [ ] - Download correct ML based on model and FW version [(?)](https://developers.canon-europe.com/developers/s/article/Latest-EOS-SDK-Version-3-x)  
+Would have to make sure [model_get](https://github.com/petabyt/mlinstall/blob/master/src/model.c#L43) works correctly,  
+and compile a [list](https://github.com/petabyt/mlinstall/blob/python-stable/canon.py#L52) of Magic Lantern releases.  
+- [ ] - Get WiFi ptp working [(?)](https://github.com/Parrot-Developers/sequoia-ptpy/issues/18)  
+Might be useful if the USB port is [damaged](https://www.cloudynights.com/topic/497224-any-experiences-on-repairing-usb-port-on-canon-dslr/).  
 - [ ] - Try on Mac (don't own a modern one)
 - [ ] - Improve the [manual](MANUAL.md)
 - [ ] - Possibly replace it with a [Magic Lantern Wiki](https://wiki.magiclantern.fm/start) page.
+- [ ] - Allow integer parameters in "Custom Event Procedure" option.  
+Feel free to make pull request or issue.  
 
 ## Unix Compilation
 ```

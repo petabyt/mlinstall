@@ -207,9 +207,9 @@ static void showdrive(GtkWidget *widget, gpointer data)
 	logclear();
 	char buffer[128];
 	if (flag_usable_drive(buffer)) {
-		logprint(buffer);
-	} else {
 		logprint("Error getting usable drive.\n");
+	} else {
+		logprint(buffer);
 	}
 }
 

@@ -104,16 +104,9 @@ win-gtk-pack:
 	@cd src; cp $(LIBUSB_DLL) ../mlinstall/
 	@cd gtk/bin/; cp -t ../../mlinstall/ $(WIN_GTK_DLL)
 	@cp mlinstall.exe mlinstall/
+	@echo "Please report bugs at https://github.com/petabyt/mlinstall" > mlinstall/README.txt
+	@echo "If you have issues, see https://petabyt.github.io/mlinstall/MANUAL" > mlinstall/README.txt
 	@zip -r win64-gtk-mlinstall.zip mlinstall
-
-win-gtk-test:
-	@rm -rf mlinstall
-	@mkdir mlinstall
-	@cd src; cp $(LIBUSB_DLL) ../mlinstall/
-	@cd gtk/bin/; cp -t ../../mlinstall/ $(WIN_GTK_DLL)
-	@cp mlinstall.exe mlinstall/
-	@cat README.md > mlinstall/README.txt
-	@cat MANUAL.md > mlinstall/HELP.txt
 
 win-cli-pack:
 	@rm -rf mlinstall

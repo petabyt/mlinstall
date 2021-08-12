@@ -275,10 +275,9 @@ int main(int argc, char *argv[])
 	gtk_widget_show(grid);
 	order = 0;
 
-	label = gtk_label_new(
-		"This will run event procedures on your\n"
-		"camera via USB/PTP. Make sure to run as\n"
-		"Administrator/Sudo.\n");
+	label = gtk_label_new("This will run event procedures on your\n"
+			      "camera via USB/PTP. Make sure to run as\n"
+			      "Administrator/Sudo.\n");
 	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
 	gtk_grid_attach(GTK_GRID(grid), label, 0, order++, 1, 1);
 	gtk_widget_show(label);
@@ -299,10 +298,10 @@ int main(int argc, char *argv[])
 
 	label = gtk_label_new(NULL);
 	gtk_label_set_markup(GTK_LABEL(label),
-			      "<span size=\"small\">This code has not been tested much and may\n"
-			      "be dangerous. Use EOSCard if possible.</span>\n"
-				  "This will automatically find and write to\n"
-			      "a card named \"EOS_DIGITAL\".\n");
+			     "<span size=\"small\">This code has not been tested much and may\n"
+			     "be dangerous. Use EOSCard if possible.</span>\n"
+			     "This will automatically find and write to\n"
+			     "a card named \"EOS_DIGITAL\".\n");
 	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
 	gtk_grid_attach(GTK_GRID(grid), label, 0, order++, 1, 1);
 	gtk_widget_show(label);
@@ -340,8 +339,7 @@ int main(int argc, char *argv[])
 	g_signal_connect(entry, "activate", G_CALLBACK(eventproc), NULL);
 	gtk_widget_show(entry);
 
-	MENU_ADD_BUTTON("Detect EOS_DIGITAL", showdrive,
-						"Try and return a usable filesystem.")
+	MENU_ADD_BUTTON("Detect EOS_DIGITAL", showdrive, "Try and return a usable filesystem.")
 
 	label = gtk_label_new(NULL);
 	gtk_label_set_markup(

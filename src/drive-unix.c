@@ -75,7 +75,7 @@ int flag_usable_drive(char buffer[])
 	char command[256];
 	sprintf(command, "cat /proc/mounts | grep %s | awk '{printf $2'}", filesystem);
 	// TODO: Error handling
-	
+
 	FILE *c = popen(command, "r");
 	fgets(buffer, 50, c);
 

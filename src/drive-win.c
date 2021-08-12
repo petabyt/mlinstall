@@ -71,7 +71,7 @@ int flag_getdrive()
 
 	return DRIVE_NONE;
 
-	found:
+found:
 	if (id == 'C' || id == 'c') {
 		puts("Somehow I got the C drive, and I ain't writing to it.");
 		return DRIVE_NONE;

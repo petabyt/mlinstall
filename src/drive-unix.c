@@ -59,22 +59,35 @@ void flag_write(long int offset, char string[])
 	fseek(d, 0, SEEK_SET);
 }
 
-void flag_getdrive(char buffer[])
+int flag_getdrive(char buffer[])
 {
 	// Get EOS_DIGITAL Drive
 	FILE *c = popen("mount | grep EOS_DIGITAL | awk '{printf $1}'", "r");
 	fgets(buffer, 64, c);
-	// TODO: Error handling
+
+	// Check if not a drive (just carriage return)
+	if (strncmp(buffer, "/dev/", 5)) {
+		puts("Couldn't find a /dev/ drive.");
+		puts("Make sure you are running in superuser and the drive is named EOS_DIGITAL.");
+		return DRIVE_NONE;
+	}
+
+	return 0;
 }
 
 int flag_usable_drive(char buffer[])
 {
 	char filesystem[64];
-	flag_getdrive(filesystem);
+	if (flag_getdrive(filesystem)) {
+		return DRIVE_NONE;
+	}
 
 	char command[256];
 	sprintf(command, "cat /proc/mounts | grep %s | awk '{printf $2'}", filesystem);
-	// TODO: Error handling
+	if (command[1] == '\0') {
+		puts("Couldn't find the drive mounted.");
+		return DRIVE_NONE;
+	}
 
 	FILE *c = popen(command, "r");
 	fgets(buffer, 50, c);

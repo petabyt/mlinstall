@@ -6,7 +6,7 @@ default: unix-cli clean
 gui-test: unix-gtk unix-clean
 
 unix-clean:
-	@rm -rf ptpcam *.orig *.gch *.o *.out ptpcam mlinstall *.exe *.zip *.res linux64-cli-mlinstall linux64-gtk-mlinstall
+	@rm -rf ptpcam *.orig *.gch *.o *.out ptpcam mlinstall *.exe *.zip *.res linux64-cli-mlinstall linux64-gtk-mlinstall ML_TEMP ML_RELEASE.ZIP
 
 # Format files to kernel style
 style:
@@ -16,7 +16,7 @@ style:
 # Build with GTK, and test
 GTKFLAGS = `pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0`
 unix-gtk:
-	$(CC) gtk.c src/*.c $(LDFLAGS) $(CFLAGS) $(GTKFLAGS) -o mlinstall
+	$(CC) gtk.c src/*.c $(LDFLAGS) $(CFLAGS) $(GTKFLAGS) -DDEV -o mlinstall
 	@./mlinstall
 
 # Build with cli, and test

@@ -1,9 +1,15 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <usb.h>
+
+#include "config.h"
+#include "ptp.h"
+#include "ptpcam.h"
 
 #include "drive.h"
 #include "model.h"
+#include "installer.h"
 
 struct Release {
 	char name[1024];
@@ -13,13 +19,14 @@ struct Release {
 	char forum_url[1024];	
 };
 
-int find(struct Release *release, char name[]) {
+int find(struct Release *release, char name[], char version[]) {
 	char buffer[1024];
 	FILE *f = fopen("ML_TEMP", "r");
 	if (!f) {
 		return 1;
 	}
 
+	int match = 0;
 	int order = 0;
 	while (1) {
 		if (!fgets(buffer, 1024, f)) {
@@ -54,40 +61,87 @@ int find(struct Release *release, char name[]) {
 		order++;
 
 		if (model_get(release->name) == model_get(name)) {
-			return 0;
+			match = 1;
+			if (!strcmp(release->version, version)) {
+				return 0;
+			}
 		}
 	}
 
-	return 1;
+	if (match) {
+		return NO_AVAILABLE_FIRMWARE;
+	}
+
+	return CAMERA_UNSUPPORTED;
 }
 
-int installer_start() {
+int download(char in[], char out[]) {
 	char command[512];
-
-	// Temporary URL
-	char *url = "https://petabyt.dev/mlinstall_repo";
-
+	
 	#ifdef WIN32
 		snprintf(command, 512,
-			"certutil -urlcache -split -f \"%s\" ML_TEMP", url);
+			"certutil -urlcache -split -f \"%s\" %s", in, out);
 	#endif
 
 	#ifdef __unix__
 		snprintf(command, 512,
-			"curl %s > ML_TEMP", url);
+			"curl -4 %s > %s", in, out);
 	#endif
 
-	char ret = system(command);
-	printf("%u\n", ret);
+	return system(command);
+}
+
+int installer_start() {
+	download("https://petabyt.dev/mlinstall_repo", "ML_TEMP");
 
 	struct Release release;
-	if (find(&release, "Canon EOS Rebel T6")) {
+	if (find(&release, "Canon EOS Rebel T6", "1.1.0")) {
 		puts("Find error");
 		return 1;
 	}
 
-	printf("Name: %s\n", release.name);
-	printf("Required firmware: %s\n", release.version);
+	puts("Found a match for model/firmware version. Downloading...");
+
+	download(release.download_url, "ML_RELEASE.ZIP");
+
+	puts("Unpacking file into SD card...");
+
+	char file[128];
+	flag_usable_drive(file);
+
+	char command[512];
+	#ifdef __unix__
+		snprintf(command, 512, "unzip ML_RELEASE.ZIP %s", file);
+	#endif
+
+	system(command);
+
+	puts("Writing card flags...");
+	if (flag_write_flag(FLAG_BOOT)) {
+		puts("Can't write card flags");
+		return 1;
+	}
+
+	flag_close();
+
+	puts("Running 'EnableBootDisk'...");
+
+	int busn = 0;
+	int devn = 0;
+	short force = 0;
+	PTPParams params;
+	PTP_USB ptp_usb;
+	struct usb_device *dev;
+	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
+		puts("Can't open PTP camera!");
+		return 1;
+	}
+
+	ptp_runeventproc(&params, "EnableBootDisk");
+	close_camera(&ptp_usb, &params, dev);
+
+	puts("Enabled boot disk.");
+	puts("Magic Lantern successfully installed.");
 
 	return 0;
 }

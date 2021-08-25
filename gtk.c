@@ -9,6 +9,7 @@
 #include "src/config.h"
 #include "src/ptp.h"
 #include "src/ptpcam.h"
+
 #include "src/drive.h"
 #include "src/model.h"
 #include "src/installer.h"
@@ -362,15 +363,19 @@ int main(int argc, char *argv[])
 	label = gtk_label_new("Advanced");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
 
+	#ifdef DEV
+
 	grid = gtk_grid_new();
 	gtk_container_set_border_width(GTK_CONTAINER(grid), 10);
 	gtk_widget_show(grid);
 	order = 0;
 
-	MENU_ADD_BUTTON("Demo", oneclick, "Demo")
+	MENU_ADD_BUTTON("Don't click me!", oneclick, "No, bad.")
 
 	label = gtk_label_new("Easy Install");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
+
+	#endif
 
 	logw = gtk_label_new(logbuf);
 	gtk_grid_attach(GTK_GRID(mainGrid), logw, 0, 2, 1, 1);

@@ -82,9 +82,9 @@ LIBUSB_FLAG = -lws2_32 -lkernel32 -I$(LIBUSB)/include -I../$(LIBUSB)/include $(L
 # Alternative source: https://download.geany.org/contrib/gtk/gtk+-bundle_3.8.2-20131001_win32.zip
 win-libs:
 	@mkdir gtk
-	@wget https://web.archive.org/web/20171023023802if_/http://win32builder.gnome.org/gtk+-bundle_3.10.4-20131202_win64.zip
+	@wget -4 https://web.archive.org/web/20171023023802if_/http://win32builder.gnome.org/gtk+-bundle_3.10.4-20131202_win64.zip
 	@unzip gtk+-bundle_3.10.4-20131202_win64.zip -d gtk
-	@wget https://cfhcable.dl.sourceforge.net/project/libusb-win32/libusb-win32-releases/1.2.2.0/libusb-win32-bin-1.2.2.0.zip
+	@wget -4 https://cfhcable.dl.sourceforge.net/project/libusb-win32/libusb-win32-releases/1.2.2.0/libusb-win32-bin-1.2.2.0.zip
 	@unzip libusb-win32-bin-1.2.2.0.zip
 	@rm *.zip
 

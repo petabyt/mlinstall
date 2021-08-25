@@ -11,6 +11,7 @@
 #include "src/ptpcam.h"
 #include "src/drive.h"
 #include "src/model.h"
+#include "src/installer.h"
 
 char *driveNotFound = "Could not find card. Make sure\nto run as Administrator/superuser.";
 char *driveNotSupported = "Card not supported.\nSee console message.";
@@ -213,6 +214,12 @@ static void showdrive(GtkWidget *widget, gpointer data)
 	}
 }
 
+static void oneclick(GtkWidget *widget, gpointer data)
+{
+	logclear();
+	installer_start();
+}
+
 static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	gtk_main_quit();
@@ -353,6 +360,16 @@ int main(int argc, char *argv[])
 	gtk_widget_show(label);
 
 	label = gtk_label_new("Advanced");
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
+
+	grid = gtk_grid_new();
+	gtk_container_set_border_width(GTK_CONTAINER(grid), 10);
+	gtk_widget_show(grid);
+	order = 0;
+
+	MENU_ADD_BUTTON("Demo", oneclick, "Demo")
+
+	label = gtk_label_new("Easy Install");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
 
 	logw = gtk_label_new(logbuf);

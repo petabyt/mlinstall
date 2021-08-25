@@ -28,6 +28,7 @@ Might be useful if the USB port is [damaged](https://www.cloudynights.com/topic/
 - [ ] - Improve the [manual](MANUAL.md)
 - [ ] - Possibly replace it with a [Magic Lantern Wiki](https://wiki.magiclantern.fm/start) page.
 - [ ] - Allow integer parameters in "Custom Event Procedure" option.  
+- [ ] - Avoid using system shell commands
 Feel free to make pull request or issue.  
 
 ## Unix Compilation

@@ -85,7 +85,7 @@ int download(char in[], char out[]) {
 
 	#ifdef __unix__
 		snprintf(command, 512,
-			"curl -4 %s > %s", in, out);
+			"curl -L -4 %s --output %s", in, out);
 	#endif
 
 	return system(command);
@@ -102,6 +102,7 @@ int installer_start() {
 
 	puts("Found a match for model/firmware version. Downloading...");
 
+	printf("%s\n", release.download_url);
 	download(release.download_url, "ML_RELEASE.ZIP");
 
 	puts("Unpacking file into SD card...");
@@ -111,7 +112,7 @@ int installer_start() {
 
 	char command[512];
 	#ifdef __unix__
-		snprintf(command, 512, "unzip ML_RELEASE.ZIP %s", file);
+		snprintf(command, 512, "unzip -o ML_RELEASE.ZIP -d %s", file);
 	#endif
 
 	system(command);

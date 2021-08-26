@@ -13,6 +13,7 @@
 #include "src/drive.h"
 #include "src/model.h"
 #include "src/installer.h"
+#include "src/evproc.h"
 
 char *driveNotFound = "Could not find card. Make sure\nto run as Administrator/superuser.";
 char *driveNotSupported = "Card not supported.\nSee console message.";
@@ -57,6 +58,8 @@ int returnMessage(unsigned int code)
 
 	return 0;
 }
+
+
 
 static void writeflag(GtkWidget *widget, gpointer data)
 {
@@ -157,67 +160,16 @@ static void deviceinfo(GtkWidget *widget, gpointer data)
 	close_camera(&ptp_usb, &params, dev);
 }
 
-// TODO: possible move somewhere else
-int runcommand(char string[])
-{
-	int busn = 0;
-	int devn = 0;
-	short force = 0;
-	PTPParams params;
-	PTP_USB ptp_usb;
-	struct usb_device *dev;
-
-	char command[128];
-	char buffer[1024];
-
-	strcpy(buffer, string);
-	char *s = strtok(buffer, " ");
-	strcpy(command, s);
-
-	// Parse base 10 arguments following command name
-	s = strtok(NULL, " ");
-
-	int p = 1;
-	unsigned int iparam[6];
-	while (s != NULL) {
-		iparam[p] = atoi(s);
-		s = strtok(NULL, " ");
-		p++;
-	}
-
-	iparam[0] = p - 1;
-
-	g_print("Running '%s' with %d params...\n", command, p - 1);
-
-	logclear();
-	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
-		returnMessage(0);
-		return 1;
-	}
-
-	// Don't send parameters if there aren't any
-	unsigned int r;
-	if (p - 1 == 0) {
-		r = ptp_runeventproc(&params, string, NULL);
-	} else {
-		r = ptp_runeventproc(&params, string, iparam);
-	}
-	
-	returnMessage(r);
-	close_camera(&ptp_usb, &params, dev);
-	return 0;
-}
-
-// Run a custom event proc
+// Run a custom event proc from input
 static void eventproc(GtkWidget *widget, gpointer data)
 {
 	const gchar *entry = gtk_entry_get_text(GTK_ENTRY(widget));
-	runcommand((char *)entry);
+	evproc_run((char *)entry);
 }
 
 static void enablebootdisk(GtkWidget *widget, gpointer data)
 {
-	if (runcommand("EnableBootDisk")) {
+	if (evproc_run("EnableBootDisk")) {
 		logprint("Couldn't enable boot disk.\n");
 	} else {
 		logprint("Enabled boot disk\n");
@@ -226,7 +178,7 @@ static void enablebootdisk(GtkWidget *widget, gpointer data)
 
 static void disablebootdisk(GtkWidget *widget, gpointer data)
 {
-	if (runcommand("DisableBootDisk")) {
+	if (evproc_run("DisableBootDisk")) {
 		logprint("Couldn't disable boot disk.\n");
 	} else {
 		logprint("Disabled boot disk\n");
@@ -265,7 +217,7 @@ static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 	return FALSE;
 }
 
-#define MENU_ADD_BUTTON(text, function, tip)                                                       \
+#define MENU_ADD_BUTTON(text, function, tip)                                                   \
 	button = gtk_button_new_with_label(text);                                                  \
 	g_signal_connect(button, "clicked", G_CALLBACK(function), NULL);                           \
 	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);                                 \
@@ -284,6 +236,10 @@ int main(int argc, char *argv[])
 	GtkWidget *mainGrid;
 
 	gtk_init(&argc, &argv);
+
+	g_print("Early release of ML Install. Use at your own risk!\n");
+	g_print("https://github.com/petabyt/mlinstall\n");
+	g_print("https://www.magiclantern.fm/forum/index.php?topic=26162\n");
 
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(window), "ML Install");

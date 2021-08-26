@@ -47,7 +47,7 @@ int main(int argc, char *argv[])
 				continue;
 			}
 
-			ptp_runeventproc(&params, input + 4);
+			ptp_runeventproc(&params, input + 4, NULL);
 
 			close_camera(&ptp_usb, &params, dev);
 		} else if (!strcmp(input, "info")) {
@@ -71,7 +71,7 @@ int main(int argc, char *argv[])
 				continue;
 			}
 
-			ptp_runeventproc(&params, "EnableBootDisk");
+			ptp_runeventproc(&params, "EnableBootDisk", NULL);
 			close_camera(&ptp_usb, &params, dev);
 
 			puts("Enabled boot disk.");
@@ -80,7 +80,7 @@ int main(int argc, char *argv[])
 				continue;
 			}
 
-			ptp_runeventproc(&params, "EnableBootDisk");
+			ptp_runeventproc(&params, "EnableBootDisk", NULL);
 			close_camera(&ptp_usb, &params, dev);
 
 			puts("Enabled boot disk.");

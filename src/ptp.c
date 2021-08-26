@@ -2241,7 +2241,7 @@ ptp_error(params,"message from unexpected script id
 	return 1;
 }
 
-uint16_t ptp_runeventproc(PTPParams *params, char string[])
+uint16_t ptp_runeventproc(PTPParams *params, char string[], unsigned int *iparam)
 {
 	uint16_t ret;
 	PTPContainer ptp;
@@ -2255,7 +2255,20 @@ uint16_t ptp_runeventproc(PTPParams *params, char string[])
 	PTP_CNT_INIT(ptp);
 
 	ptp.Code = 0x9052;
-	ptp.Nparam = 0;
+
+	if (iparam == NULL) {
+		ptp.Nparam = 0;
+	} else {
+		ptp.Nparam = iparam[0];
+		ptp.Param1 = iparam[1];
+		ptp.Param2 = iparam[2];
+		ptp.Param3 = iparam[3];
+		ptp.Param4 = iparam[4];
+		ptp.Param5 = iparam[5];
+	}
+
+	printf("Length: %u: %u %u %u %u %u\n", ptp.Nparam, ptp.Param1,
+		ptp.Param2, ptp.Param3, ptp.Param4, ptp.Param5);
 
 	ret = ptp_transaction(params, &ptp, PTP_DP_SENDDATA, sizeof(command), &_command);
 
@@ -2266,15 +2279,17 @@ uint16_t ptp_runeventproc(PTPParams *params, char string[])
 uint16_t ptp_9050(PTPParams *params, char string[])
 {
 	uint16_t ret;
-	PTPContainer ptp;
+	for (int i = 0; i < 3; i++) {
+		PTPContainer ptp;
 
-	// Memset ptp to zero
-	PTP_CNT_INIT(ptp);
+		// Memset ptp to zero
+		PTP_CNT_INIT(ptp);
 
-	ptp.Code = 0x9050;
-	ptp.Nparam = 0;
+		ptp.Code = 0x9050;
+		ptp.Nparam = 0;
 
-	ret = ptp_transaction(params, &ptp, PTP_DP_NODATA, 0, NULL);
+		ret = ptp_transaction(params, &ptp, PTP_DP_NODATA, 0, NULL);
+	}
 
 	return ret;
 }

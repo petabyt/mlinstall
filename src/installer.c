@@ -155,7 +155,7 @@ int installer_start() {
 			return 1;
 		}
 
-		ptp_runeventproc(&params, "EnableBootDisk");
+		ptp_runeventproc(&params, "EnableBootDisk", NULL);
 		close_camera(&ptp_usb, &params, dev);
 	}
 

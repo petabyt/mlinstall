@@ -218,7 +218,16 @@ static void showdrive(GtkWidget *widget, gpointer data)
 static void oneclick(GtkWidget *widget, gpointer data)
 {
 	logclear();
-	installer_start();
+	switch (installer_start()) {
+	case NO_AVAILABLE_FIRMWARE:
+		logprint("Your camera model has a working build,\n"
+			"but not for your firmware version.");
+		break;
+	case CAMERA_UNSUPPORTED:
+		logprint("Your camera model is not supported.\n"
+			"Come back in 5 years and check again.");
+		break;
+	}
 }
 
 static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data)
@@ -370,9 +379,9 @@ int main(int argc, char *argv[])
 	gtk_widget_show(grid);
 	order = 0;
 
-	MENU_ADD_BUTTON("Don't click me!", oneclick, "No, bad.")
+	MENU_ADD_BUTTON("Don't click me!", oneclick, "No, Bad! No biscuit!")
 
-	label = gtk_label_new("Easy Install");
+	label = gtk_label_new("Quick Install");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
 
 	#endif

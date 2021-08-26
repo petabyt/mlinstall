@@ -16,7 +16,7 @@ style:
 # Build with GTK, and test
 GTKFLAGS = `pkg-config --cflags gtk+-3.0` `pkg-config --libs gtk+-3.0`
 unix-gtk:
-	$(CC) gtk.c src/*.c $(LDFLAGS) $(CFLAGS) $(GTKFLAGS) -DDEV -o mlinstall
+	$(CC) gtk.c src/*.c $(LDFLAGS) $(CFLAGS) $(GTKFLAGS) -DDEV_ -o mlinstall
 	@./mlinstall
 
 # Build with cli, and test

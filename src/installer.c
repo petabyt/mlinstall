@@ -11,6 +11,9 @@
 #include "model.h"
 #include "installer.h"
 
+// TODO: avoid system shell commands, use
+// actual libraries
+
 struct Release {
 	char name[1024];
 	char version[1024];
@@ -95,15 +98,23 @@ int installer_start() {
 	download("https://petabyt.dev/mlinstall_repo", "ML_TEMP");
 
 	struct Release release;
-	if (find(&release, "Canon EOS Rebel T6", "1.1.0")) {
-		puts("Find error");
-		return 1;
+	int r = find(&release, "Canon EOS Rebel T6", "1.1.0");
+	if (r) {
+		return r;
 	}
 
-	puts("Found a match for model/firmware version. Downloading...");
+	printf("Found a match for model/firmware version. Downloading\n%s\n",
+		release.download_url);
 
 	printf("%s\n", release.download_url);
 	download(release.download_url, "ML_RELEASE.ZIP");
+
+	char input[5];
+	puts("This will write to your SD card. Continue? (y)");
+	fgets(input, 5, stdin);
+	if (input[0] != 'y') {
+		return 0;
+	}
 
 	puts("Unpacking file into SD card...");
 
@@ -117,6 +128,10 @@ int installer_start() {
 
 	system(command);
 
+	#ifdef WIN32
+		puts("!!!! Unzip ML_RELEASE onto card manually.");
+	#endif
+
 	puts("Writing card flags...");
 	if (flag_write_flag(FLAG_BOOT)) {
 		puts("Can't write card flags");
@@ -127,21 +142,25 @@ int installer_start() {
 
 	puts("Running 'EnableBootDisk'...");
 
-	int busn = 0;
-	int devn = 0;
-	short force = 0;
-	PTPParams params;
-	PTP_USB ptp_usb;
-	struct usb_device *dev;
-	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
-		puts("Can't open PTP camera!");
-		return 1;
+	{
+		int busn = 0;
+		int devn = 0;
+		short force = 0;
+		PTPParams params;
+		PTP_USB ptp_usb;
+		struct usb_device *dev;
+		
+		if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
+			puts("Can't open PTP camera!");
+			return 1;
+		}
+
+		ptp_runeventproc(&params, "EnableBootDisk");
+		close_camera(&ptp_usb, &params, dev);
 	}
 
-	ptp_runeventproc(&params, "EnableBootDisk");
-	close_camera(&ptp_usb, &params, dev);
-
 	puts("Enabled boot disk.");
+
 	puts("Magic Lantern successfully installed.");
 
 	return 0;
@@ -149,6 +168,13 @@ int installer_start() {
 
 int installer_remove() {
 	char command[512];
+
+	char input[5];
+	puts("This will write to your SD card. Continue? (y)");
+	fgets(input, 5, stdin);
+	if (input[0] != 'y') {
+		return 0;
+	}
 
 	char file[128];
 	flag_usable_drive(file);	
@@ -158,6 +184,19 @@ int installer_remove() {
 			"rm -rf %s/autoexec.bin %s/ML", file, file);
 	#endif
 
+	#ifdef WIN32
+		snprintf(command, 512,
+			"del %s/autoexec.bin %s/ML", file, file);
+	#endif
+
 	printf("Will execute '%s'\n", command);
 	system(command);
+
+	puts("Destroying card flags...");
+	if (flag_write_flag(FLAG_DESTROY_BOOT)) {
+		puts("Can't destroy card flags");
+		return 1;
+	}
+
+	flag_close();
 }

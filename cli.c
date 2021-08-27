@@ -1,5 +1,5 @@
 // Command line based application
-// (very simple, bare bones, could be improved)
+// (very simple, bare bones, needs to be improved)
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -21,7 +21,7 @@ int main(int argc, char *argv[])
 	struct usb_device *dev;
 
 	if (argc >= 2) {
-		puts("TODO: Real CLI");
+		puts("TODO: Real CLI application");
 		return 1;
 	}
 

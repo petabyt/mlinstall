@@ -2,13 +2,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <usb.h>
-#include <gtk/gtk.h>
 
 #include "config.h"
 #include "ptp.h"
 #include "ptpcam.h"
-
-int returnMessage(unsigned int code);
 
 int evproc_run(char string[])
 {
@@ -39,10 +36,10 @@ int evproc_run(char string[])
 
 	iparam[0] = p - 1;
 
-	g_print("Running '%s' with %d params...\n", command, p - 1);
+	printf("Running '%s' with %d params...\n", command, p - 1);
 
 	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
-		returnMessage(0);
+		return 0;
 		return 1;
 	}
 
@@ -54,7 +51,6 @@ int evproc_run(char string[])
 		r = ptp_runeventproc(&params, string, iparam);
 	}
 	
-	returnMessage(r);
 	close_camera(&ptp_usb, &params, dev);
-	return 0;
+	return r;
 }

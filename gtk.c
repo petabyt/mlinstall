@@ -164,12 +164,12 @@ static void deviceinfo(GtkWidget *widget, gpointer data)
 static void eventproc(GtkWidget *widget, gpointer data)
 {
 	const gchar *entry = gtk_entry_get_text(GTK_ENTRY(widget));
-	evproc_run((char *)entry);
+	returnMessage(evproc_run((char *)entry));
 }
 
 static void enablebootdisk(GtkWidget *widget, gpointer data)
 {
-	if (evproc_run("EnableBootDisk")) {
+	if (returnMessage(evproc_run("EnableBootDisk"))) {
 		logprint("Couldn't enable boot disk.\n");
 	} else {
 		logprint("Enabled boot disk\n");
@@ -178,7 +178,7 @@ static void enablebootdisk(GtkWidget *widget, gpointer data)
 
 static void disablebootdisk(GtkWidget *widget, gpointer data)
 {
-	if (evproc_run("DisableBootDisk")) {
+	if (returnMessage(evproc_run("DisableBootDisk"))) {
 		logprint("Couldn't disable boot disk.\n");
 	} else {
 		logprint("Disabled boot disk\n");

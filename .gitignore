@@ -5,3 +5,5 @@ ptpcam
 *.o
 libusb*
 libusb*/
+libusb*/*
+gtk/*

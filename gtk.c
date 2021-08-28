@@ -260,7 +260,7 @@ int main(int argc, char *argv[])
 			     "<span size=\"large\">ML USB Installation Tools</span>\n"
 			     "(Early Release)\n"
 			     "<span size=\"small\">THIS IS NOT GARUNTEED TO WORK\n"
-			     "OR NOT KILL YOUR CAMERA\n"
+			     "OR NOT BLOW UP YOUR CAMERA\n"
 			     "KEEP BOTH PIECES IF YOU BREAK IT</span>\n");
 	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
 	gtk_grid_attach(GTK_GRID(mainGrid), label, 0, 0, 1, 1);
@@ -344,7 +344,7 @@ int main(int argc, char *argv[])
 	g_signal_connect(entry, "activate", G_CALLBACK(eventproc), NULL);
 	gtk_widget_show(entry);
 
-	MENU_ADD_BUTTON("Detect EOS_DIGITAL", showdrive, "Try and return a usable filesystem.")
+	MENU_ADD_BUTTON("Detect EOS_DIGITAL", showdrive, "Try and detect the EOS_DIGITAL drive.")
 
 	label = gtk_label_new(NULL);
 	gtk_label_set_markup(
@@ -352,7 +352,7 @@ int main(int argc, char *argv[])
 		"\nMade by <a href='https://petabyt.dev/'>Daniel C</a>\n"
 		"Source code: <a href='https://github.com/petabyt/mlinstall'>github.com/petabyt/mlinstall</a>\n\n"
 		"Licenced under GNU General Public License v2.0\n"
-		"If you break it, you get to keep both pieces!");
+		"If it breaks, you get to keep both pieces!");
 	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
 	gtk_grid_attach(GTK_GRID(grid), label, 0, order++, 1, 1);
 	gtk_widget_show(label);

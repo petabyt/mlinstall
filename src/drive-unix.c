@@ -101,7 +101,7 @@ int flag_openfs()
 	flag_getdrive(buffer);
 	d = fopen(buffer, "rw+");
 
-	if (!d) {
+	if (d == NULL) {
 		puts("Could not open filesystem.");
 		return DRIVE_ERROR;
 	}

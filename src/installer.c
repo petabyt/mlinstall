@@ -25,7 +25,7 @@ struct Release {
 int find(struct Release *release, char name[], char version[]) {
 	char buffer[1024];
 	FILE *f = fopen("ML_TEMP", "r");
-	if (!f) {
+	if (f == NULL) {
 		return 1;
 	}
 
@@ -124,12 +124,18 @@ int installer_start() {
 	char command[512];
 	#ifdef __unix__
 		snprintf(command, 512, "unzip -o ML_RELEASE.ZIP -d %s", file);
+		system(command);
 	#endif
 
-	system(command);
-
 	#ifdef WIN32
-		puts("!!!! Unzip ML_RELEASE onto card manually.");
+		FILE *test = fopen("C:\\Program Files\\7-Zip\\7z.exe", "r");
+		if (test == NULL) {
+			puts("!!!! 7z not found, unzip ML_RELEASE.ZIP onto card manually.");
+		} else {
+			fclose(test);
+			snprintf(command, 512, "C:\\Program Files\\7-Zip\\7z.exe x ML_RELEASE.ZIP -o %s", file);
+			system(command);
+		}
 	#endif
 
 	puts("Writing card flags...");
@@ -156,10 +162,9 @@ int installer_start() {
 		}
 
 		ptp_runeventproc(&params, "EnableBootDisk", NULL);
+		puts("Enabled boot disk.");
 		close_camera(&ptp_usb, &params, dev);
 	}
-
-	puts("Enabled boot disk.");
 
 	puts("Magic Lantern successfully installed.");
 

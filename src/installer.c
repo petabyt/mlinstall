@@ -19,10 +19,11 @@ struct Release {
 	char version[1024];
 	char description[1024];
 	char download_url[1024];
-	char forum_url[1024];	
+	char forum_url[1024];
 };
 
-int find(struct Release *release, char name[], char version[]) {
+int find(struct Release *release, char name[], char version[])
+{
 	char buffer[1024];
 	FILE *f = fopen("ML_TEMP", "r");
 	if (f == NULL) {
@@ -44,21 +45,21 @@ int find(struct Release *release, char name[], char version[]) {
 		}
 
 		switch (order) {
-			case 0:
-				strcpy(release->name, buffer);
-				break;
-			case 1:
-				strcpy(release->version, buffer);
-				break;
-			case 2:
-				strcpy(release->description, buffer);
-				break;
-			case 3:
-				strcpy(release->download_url, buffer);
-				break;
-			case 4:
-				strcpy(release->forum_url, buffer);
-				break;
+		case 0:
+			strcpy(release->name, buffer);
+			break;
+		case 1:
+			strcpy(release->version, buffer);
+			break;
+		case 2:
+			strcpy(release->description, buffer);
+			break;
+		case 3:
+			strcpy(release->download_url, buffer);
+			break;
+		case 4:
+			strcpy(release->forum_url, buffer);
+			break;
 		}
 
 		order++;
@@ -78,23 +79,23 @@ int find(struct Release *release, char name[], char version[]) {
 	return CAMERA_UNSUPPORTED;
 }
 
-int download(char in[], char out[]) {
+int download(char in[], char out[])
+{
 	char command[512];
-	
-	#ifdef WIN32
-		snprintf(command, 512,
-			"certutil -urlcache -split -f \"%s\" %s", in, out);
-	#endif
 
-	#ifdef __unix__
-		snprintf(command, 512,
-			"curl -L -4 %s --output %s", in, out);
-	#endif
+#ifdef WIN32
+	snprintf(command, 512, "certutil -urlcache -split -f \"%s\" %s", in, out);
+#endif
+
+#ifdef __unix__
+	snprintf(command, 512, "curl -L -4 %s --output %s", in, out);
+#endif
 
 	return system(command);
 }
 
-int installer_start() {
+int installer_start()
+{
 	download("https://petabyt.dev/mlinstall_repo", "ML_TEMP");
 
 	struct Release release;
@@ -103,8 +104,7 @@ int installer_start() {
 		return r;
 	}
 
-	printf("Found a match for model/firmware version. Downloading\n%s\n",
-		release.download_url);
+	printf("Found a match for model/firmware version. Downloading\n%s\n", release.download_url);
 
 	printf("%s\n", release.download_url);
 	download(release.download_url, "ML_RELEASE.ZIP");
@@ -122,21 +122,22 @@ int installer_start() {
 	flag_usable_drive(file);
 
 	char command[512];
-	#ifdef __unix__
-		snprintf(command, 512, "unzip -o ML_RELEASE.ZIP -d %s", file);
-		system(command);
-	#endif
+#ifdef __unix__
+	snprintf(command, 512, "unzip -o ML_RELEASE.ZIP -d %s", file);
+	system(command);
+#endif
 
-	#ifdef WIN32
-		FILE *test = fopen("C:\\Program Files\\7-Zip\\7z.exe", "r");
-		if (test == NULL) {
-			puts("!!!! 7z not found, unzip ML_RELEASE.ZIP onto card manually.");
-		} else {
-			fclose(test);
-			snprintf(command, 512, "C:\\Program Files\\7-Zip\\7z.exe x ML_RELEASE.ZIP -o %s", file);
-			system(command);
-		}
-	#endif
+#ifdef WIN32
+	FILE *test = fopen("C:\\Program Files\\7-Zip\\7z.exe", "r");
+	if (test == NULL) {
+		puts("!!!! 7z not found, unzip ML_RELEASE.ZIP onto card manually.");
+	} else {
+		fclose(test);
+		snprintf(command, 512, "C:\\Program Files\\7-Zip\\7z.exe x ML_RELEASE.ZIP -o %s",
+			 file);
+		system(command);
+	}
+#endif
 
 	puts("Writing card flags...");
 	if (flag_write_flag(FLAG_BOOT)) {
@@ -155,7 +156,7 @@ int installer_start() {
 		PTPParams params;
 		PTP_USB ptp_usb;
 		struct usb_device *dev;
-		
+
 		if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
 			puts("Can't open PTP camera!");
 			return 1;
@@ -171,7 +172,8 @@ int installer_start() {
 	return 0;
 }
 
-int installer_remove() {
+int installer_remove()
+{
 	char command[512];
 
 	char input[5];
@@ -182,17 +184,15 @@ int installer_remove() {
 	}
 
 	char file[128];
-	flag_usable_drive(file);	
+	flag_usable_drive(file);
 
-	#ifdef __unix__
-		snprintf(command, 512,
-			"rm -rf %s/autoexec.bin %s/ML", file, file);
-	#endif
+#ifdef __unix__
+	snprintf(command, 512, "rm -rf %s/autoexec.bin %s/ML", file, file);
+#endif
 
-	#ifdef WIN32
-		snprintf(command, 512,
-			"del %s/autoexec.bin %s/ML", file, file);
-	#endif
+#ifdef WIN32
+	snprintf(command, 512, "del %s/autoexec.bin %s/ML", file, file);
+#endif
 
 	printf("Will execute '%s'\n", command);
 	system(command);

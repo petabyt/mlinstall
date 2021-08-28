@@ -50,7 +50,7 @@ int evproc_run(char string[])
 	} else {
 		r = ptp_runeventproc(&params, string, iparam);
 	}
-	
+
 	close_camera(&ptp_usb, &params, dev);
 	return r;
 }

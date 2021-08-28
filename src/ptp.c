@@ -2267,8 +2267,8 @@ uint16_t ptp_runeventproc(PTPParams *params, char string[], unsigned int *iparam
 		ptp.Param5 = iparam[5];
 	}
 
-	printf("Length: %u: %u %u %u %u %u\n", ptp.Nparam, ptp.Param1,
-		ptp.Param2, ptp.Param3, ptp.Param4, ptp.Param5);
+	printf("Length: %u: %u %u %u %u %u\n", ptp.Nparam, ptp.Param1, ptp.Param2, ptp.Param3,
+	       ptp.Param4, ptp.Param5);
 
 	ret = ptp_transaction(params, &ptp, PTP_DP_SENDDATA, sizeof(command), &_command);
 

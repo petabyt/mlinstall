@@ -59,8 +59,6 @@ int returnMessage(unsigned int code)
 	return 0;
 }
 
-
-
 static void writeflag(GtkWidget *widget, gpointer data)
 {
 	logclear();
@@ -205,11 +203,11 @@ static void oneclick(GtkWidget *widget, gpointer data)
 	switch (installer_start()) {
 	case NO_AVAILABLE_FIRMWARE:
 		logprint("Your camera model has a working build,\n"
-			"but not for your firmware version.");
+			 "but not for your firmware version.");
 		break;
 	case CAMERA_UNSUPPORTED:
 		logprint("Your camera model is not supported.\n"
-			"Come back in 5 years and check again.");
+			 "Come back in 5 years and check again.");
 		break;
 	}
 }
@@ -220,7 +218,7 @@ static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 	return FALSE;
 }
 
-#define MENU_ADD_BUTTON(text, function, tip)                                                   \
+#define MENU_ADD_BUTTON(text, function, tip)                                                       \
 	button = gtk_button_new_with_label(text);                                                  \
 	g_signal_connect(button, "clicked", G_CALLBACK(function), NULL);                           \
 	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);                                 \
@@ -360,7 +358,7 @@ int main(int argc, char *argv[])
 	label = gtk_label_new("Advanced");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
 
-	#ifdef DEV
+#ifdef DEV
 
 	grid = gtk_grid_new();
 	gtk_container_set_border_width(GTK_CONTAINER(grid), 10);
@@ -372,7 +370,7 @@ int main(int argc, char *argv[])
 	label = gtk_label_new("Quick Install");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
 
-	#endif
+#endif
 
 	logw = gtk_label_new(logbuf);
 	gtk_grid_attach(GTK_GRID(mainGrid), logw, 0, 2, 1, 1);

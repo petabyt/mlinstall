@@ -7,6 +7,8 @@
 // work on Linux and MacOS (?)
 #ifndef WIN32
 
+// Uses shell commands: mount cat grep awk
+
 #include <stdio.h>
 #include <string.h>
 
@@ -68,7 +70,7 @@ int flag_getdrive(char buffer[])
 	// Check if not a drive (just carriage return)
 	if (strncmp(buffer, "/dev/", 5)) {
 		puts("Couldn't find a /dev/ drive.");
-		puts("Make sure you are running in superuser and the drive is named EOS_DIGITAL.");
+		puts("Make sure you are running as superuser and EOS_DIGITAL is mounted.");
 		return DRIVE_NONE;
 	}
 

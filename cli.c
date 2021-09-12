@@ -25,16 +25,14 @@ int main(int argc, char *argv[])
 		return 1;
 	}
 
-	puts("ML USB Install Tools (ptpcam backend)");
+	puts("ML USB Install Tools CLI");
 	puts("Commands:");
-	puts("    run <COMMAND>        Run a Canon event proc via micro usb");
-	puts("    bootdisk             Run EnableBootDisk and allow autoexec.bin to "
-	     "be run.");
-	puts("    bootdiskoff          Run DisableBootDisk");
-	puts("    flags                Write EOS_DEVELOP and BOOTDISK flag to "
-	     "mounted SD card named \"EOS_DEVELOP\"");
-	puts("    dflags               Destroy the card flags by writing an underscore on the first character.");
-	puts("    info                 Get information on the camera.");
+	puts("    run <COMMAND>  Run a Canon event proc via USB");
+	puts("    bootdisk       Run EnableBootDisk");
+	puts("    bootdiskoff    Run DisableBootDisk");
+	puts("    flags          Write EOS_DEVELOP and BOOTDISK flags to a mounted SD card named \"EOS_DEVELOP\"");
+	puts("    dflags         Destroy the card flags by writing an underscore on the first character.");
+	puts("    info           Get information on the camera.");
 
 	while (1) {
 		putchar(':');

@@ -74,9 +74,6 @@ win-gtk:
 	@$(WINCC)-windres assets/win.rc -O coff -o win.res
 	$(WINCC)-gcc gtk.c win.res src/*.c $(WIN_CFLAGS) $(LIBUSB_DLL) gtk/lib/* -o mlinstall.exe
 
-win-cli:
-	cd src; $(WINCC)-gcc ../cli.c *.c $(WIN_CFLAGS) $(LIBUSB_DLL) -o ../mlinstall.exe
-
 win-gtk-test:
 	@rm -rf mlinstall
 	@mkdir mlinstall
@@ -89,9 +86,16 @@ win-gtk-test:
 win-gtk-pack: win-gtk-test
 	@zip -r win64-gtk-mlinstall.zip mlinstall
 
-win-cli-pack:
+# Compile cli app as 32 bit
+# (so I can run it on Windows XP)
+win-cli:
+	i686-w64-mingw32-gcc cli.c src/*.c $(WIN_CFLAGS) $(LIBUSB)/bin/x86/libusb0_x86.dll -o mlinstall.exe
+
+win-cli-test:
 	@rm -rf mlinstall
 	@mkdir mlinstall
-	@cd src; cp $(LIBUSB_DLL) ../mlinstall/
+	@cp $(LIBUSB)/bin/x86/libusb0_x86.dll mlinstall/libusb0.dll
 	@cp mlinstall.exe mlinstall/
-	@zip -r win64-cli-mlinstall.zip mlinstall
+
+win-cli-pack: win-cli-test
+	@zip -r win32-cli-mlinstall.zip mlinstall

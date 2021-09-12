@@ -73,7 +73,7 @@ int flag_getdrive()
 
 found:
 	if (id == 'C' || id == 'c') {
-		puts("Somehow I got the C drive, and I ain't writing to it.");
+		puts("Somehow got C drive...");
 		return DRIVE_NONE;
 	}
 
@@ -95,7 +95,7 @@ int flag_usable_drive(char buffer[])
 
 int flag_openfs(int mode)
 {
-	// Filesystem must be opened like this: \\.\\E
+	// Windows filesystems must be opened like this: \\.\\E
 	char buffer[64] = "\\\\.\\\0:";
 	int drive = flag_getdrive(buffer);
 	if (drive < 0) {
@@ -108,7 +108,8 @@ int flag_openfs(int mode)
 		       NULL, OPEN_EXISTING, FILE_FLAG_NO_BUFFERING | FILE_FLAG_RANDOM_ACCESS, NULL);
 
 	if (d == INVALID_HANDLE_VALUE) {
-		puts("Couldn't open the filesystem. Try running as Administrator.");
+		puts("Couldn't open the filesystem. Try running as Administrator.\n"
+			"Check file explorer and make sure EOS_DIGITAL is mounted.");
 		return -1;
 	}
 

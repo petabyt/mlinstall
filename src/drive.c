@@ -23,8 +23,9 @@ int flag_write_flag(int mode)
 	long int of[3] = { 0, 0, 0 };
 
 	if (drive == EXFAT) {
-		puts("Quitting, no EXFAT support yet. Use EOSCARD.");
+		puts("Quitting, no EXFAT support yet. Use EOSCARD or reformat as FAT32/FAT16.");
 		return DRIVE_UNSUPPORTED;
+
 		// TODO: ...
 		of[0] = 0x82;
 		of[1] = 0x7a;

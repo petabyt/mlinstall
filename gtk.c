@@ -288,7 +288,7 @@ int main(int argc, char *argv[])
 	MENU_ADD_BUTTON("Get Device Info", deviceinfo, "Show Model, Firmware Version, etc.")
 
 	MENU_ADD_BUTTON("Enable Boot Disk", enablebootdisk,
-			"Write the bootdisk flag inside of the\ncamera, not on the card.")
+			"Write the bootdisk flag in the\ncamera, not on the card.")
 
 	MENU_ADD_BUTTON("Disable Boot Disk", disablebootdisk, "Disable the camera's bootdisk flag.")
 

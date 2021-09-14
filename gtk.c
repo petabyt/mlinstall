@@ -200,7 +200,25 @@ static void showdrive(GtkWidget *widget, gpointer data)
 static void oneclick(GtkWidget *widget, gpointer data)
 {
 	logclear();
-	switch (installer_start()) {
+
+	int busn = 0;
+	int devn = 0;
+	short force = 0;
+	PTPParams params;
+	PTP_USB ptp_usb;
+	struct usb_device *dev;
+
+	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
+		returnMessage(0);
+		return;
+	}
+
+	PTPDeviceInfo info;
+	ptp_getdeviceinfo(&params, &info);
+
+	close_camera(&ptp_usb, &params, dev);
+	
+	switch (installer_start(info.Model, info.DeviceVersion)) {
 	case NO_AVAILABLE_FIRMWARE:
 		logprint("Your camera model has a working build,\n"
 			 "but not for your firmware version.");

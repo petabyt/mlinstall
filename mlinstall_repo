@@ -1,0 +1,15 @@
+# This is the main camera firmware/info repository.
+#
+# The order is as follows:
+# Model name, recognizable by model_get
+# Required firmware version
+# Description
+# Magic Lantern zip URL (contents at top)
+# Magic Lantern Forum discussion
+#
+1300D
+1.1.0
+Early build by Critix
+https://bitbucket.org/ccritix/magic-lantern-git/downloads/magiclantern-Nightly.2021Jun15.1300D110.zip
+https://www.magiclantern.fm/forum/index.php?topic=17969
+----------

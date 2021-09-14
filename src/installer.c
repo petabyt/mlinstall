@@ -14,6 +14,8 @@
 // TODO: avoid system shell commands, use
 // actual libraries
 
+// Windows: certutil, 7z (optional)
+
 struct Release {
 	char name[1024];
 	char version[1024];
@@ -37,6 +39,11 @@ int find(struct Release *release, char name[], char version[])
 			return 0;
 		}
 
+		// Allow repository comments
+		if (buffer[0] == '#') {
+			continue;
+		}
+
 		strtok(buffer, "\n");
 
 		if (!strncmp(buffer, "-----", 5)) {
@@ -46,20 +53,22 @@ int find(struct Release *release, char name[], char version[])
 
 		switch (order) {
 		case 0:
-			strcpy(release->name, buffer);
+			strncpy(release->name, buffer, 1024);
 			break;
 		case 1:
-			strcpy(release->version, buffer);
+			strncpy(release->version, buffer, 1024);
 			break;
 		case 2:
-			strcpy(release->description, buffer);
+			strncpy(release->description, buffer, 1024);
 			break;
 		case 3:
-			strcpy(release->download_url, buffer);
+			strncpy(release->download_url, buffer, 1024);
 			break;
 		case 4:
-			strcpy(release->forum_url, buffer);
+			strncpy(release->forum_url, buffer, 1024);
 			break;
+		default:
+			puts("Found an extra field");
 		}
 
 		order++;
@@ -83,6 +92,7 @@ int download(char in[], char out[])
 {
 	char command[512];
 
+	// Windows 7/10 compatible command
 #ifdef WIN32
 	snprintf(command, 512, "certutil -urlcache -split -f \"%s\" %s", in, out);
 #endif
@@ -94,12 +104,12 @@ int download(char in[], char out[])
 	return system(command);
 }
 
-int installer_start()
+int installer_start(char model[], char version[])
 {
-	download("https://petabyt.dev/mlinstall_repo", "ML_TEMP");
+	download("https://petabyt.github.io/mlinstall/mlinstall_repo", "ML_TEMP");
 
 	struct Release release;
-	int r = find(&release, "Canon EOS Rebel T6", "1.1.0");
+	int r = find(&release, model, version);
 	if (r) {
 		return r;
 	}

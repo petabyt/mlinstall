@@ -21,10 +21,13 @@ Generally the ML developers will provide a firmware file to do this.
 This will write some bytes into the SD/CF card that tells the  
 camera to load and execute an autoexec.bin file.  
 
+The utility will write to the first SD/CF card it finds  
+named "EOS_DIGITAL". This is the default Canon card name.  
+
 See the [Magic Lantern wiki page](https://wiki.magiclantern.fm/install#installing_magic_lantern_on_other_cards) for more info.
 
 **!! Warning !!**  
-**This code may break your SD card. It's a good idea**  
+**This code will write to your SD card! It's a good idea**  
 **to back up all data and format the card in camera first.**  
 
 ### Write card boot flags

@@ -2,8 +2,7 @@ CFLAGS =
 LDFLAGS = -lusb
 STYLE = -style=file -i
 
-default: unix-cli clean
-gui-test: unix-gtk unix-clean
+default: unix-gtk unix-clean
 
 unix-clean:
 	@rm -rf ptpcam *.orig *.gch *.o *.out ptpcam mlinstall *.exe *.zip *.res linux* ML_*

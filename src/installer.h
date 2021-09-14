@@ -6,7 +6,7 @@ enum InstallerError {
 	CAMERA_UNSUPPORTED = 1
 };
 
-int installer_start();
+int installer_start(char model[], char version[]);
 int installer_remove();
 
 #endif

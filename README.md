@@ -1,30 +1,27 @@
 # mlinstall
-A Windows/Linux app to help with installing Magic Lantern.  
+A Windows/Linux app to with installing Magic Lantern.  
 Download: https://github.com/petabyt/mlinstall/releases  
 
 ![screenshot](assets/screenshot.png)
 
 ## Features
 - Execute any DryOS event procedure with parameters
-- Enable/Disable boot disk
-- Basic PTP functionality (get camera info)
+- Enable/Disable boot disk (possibly replacing custom encrypted firmware files)
+- Basic PTP functionality (get firmware/model/serial info)
 - Write EOS_DEVELOP and BOOTFLAG to card (Windows + Linux)
 - Make card Canon Basic Scriptable
 - Destroy card flags (without reformat)
 
 ## TODO / Help Needed:
- - Rename app. MLTools? (it may do more than just installation-related things)
+ - Rename app. Magic Lantern App? (it may do more than just installation-related things)
  - General bug testing, make user friendly
  - Fuzz testing
- - Download correct ML based on model and FW version [(?)](https://developers.canon-europe.com/developers/s/article/Latest-EOS-SDK-Version-3-x)  
-would have to make sure [model_get](https://github.com/petabyt/mlinstall/blob/master/src/model.c#L43) works correctly,  
-and compile a [list](https://github.com/petabyt/mlinstall/blob/python-stable/canon.py#L52) of Magic Lantern releases.  
- - Get WiFi ptp working [(?)](https://github.com/Parrot-Developers/sequoia-ptpy/issues/18)  
-Might be useful if the USB port is [damaged](https://www.cloudynights.com/topic/497224-any-experiences-on-repairing-usb-port-on-canon-dslr/).  
- - Try on Mac (don't own a modern one)
- - Improve the [manual](MANUAL.md)
+ - Get WiFi ptp working [(?)](https://github.com/Parrot-Developers/sequoia-ptpy/issues/18)
+Might be useful if the USB port is [damaged](https://www.cloudynights.com/topic/497224-any-experiences-on-repairing-usb-port-on-canon-dslr/).
+ - Try on Mac (I have an [iMac G4](https://en.wikipedia.org/wiki/IMac_G4), is that too old?)
+ - Improve the [user manual](MANUAL.md)
  - Possibly replace it with a [Magic Lantern Wiki](https://wiki.magiclantern.fm/start) page.
- - Avoid using system shell commands    
+ - Avoid using system shell commands
 Feel free to make pull request or issue.  
 
 ## Linux Compilation

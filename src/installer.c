@@ -10,6 +10,7 @@
 #include "drive.h"
 #include "model.h"
 #include "installer.h"
+#include "platform.h"
 
 // TODO: avoid system shell commands, use
 // actual libraries
@@ -24,7 +25,7 @@ struct Release {
 	char forum_url[1024];
 };
 
-int find(struct Release *release, char name[], char version[])
+static int find(struct Release *release, char name[], char version[])
 {
 	char buffer[1024];
 	FILE *f = fopen("ML_TEMP", "r");
@@ -44,6 +45,7 @@ int find(struct Release *release, char name[], char version[])
 			continue;
 		}
 
+		// Strip newline from fgets
 		strtok(buffer, "\n");
 
 		if (!strncmp(buffer, "-----", 5)) {
@@ -88,25 +90,9 @@ int find(struct Release *release, char name[], char version[])
 	return CAMERA_UNSUPPORTED;
 }
 
-int download(char in[], char out[])
-{
-	char command[512];
-
-	// Windows 7/10 compatible command
-#ifdef WIN32
-	snprintf(command, 512, "certutil -urlcache -split -f \"%s\" %s", in, out);
-#endif
-
-#ifdef __unix__
-	snprintf(command, 512, "curl -L -4 %s --output %s", in, out);
-#endif
-
-	return system(command);
-}
-
 int installer_start(char model[], char version[])
 {
-	download("https://petabyt.github.io/mlinstall/mlinstall_repo", "ML_TEMP");
+	download("https://petabyt.github.io/mlinstall/repo/install", "ML_TEMP");
 
 	struct Release release;
 	int r = find(&release, model, version);

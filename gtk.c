@@ -247,13 +247,35 @@ static void activate9052(GtkWidget *widget, gpointer data)
 	ptp_activate9052(&params);
 }
 
+static void appstore(GtkWidget *widget, gpointer data)
+{
+	GtkWidget *grid = gtk_widget_get_parent(widget);
+	gtk_widget_destroy(widget);
+
+	for (int order = 0; order < 20; order++) {
+		GtkWidget *app = gtk_grid_new();
+		gtk_grid_attach(GTK_GRID(grid), app, 0, order++, 1, 1);
+		gtk_widget_show(app);
+
+		GtkWidget *label = gtk_label_new("This is an application");
+		gtk_widget_set_hexpand(label, TRUE);
+		gtk_grid_attach(GTK_GRID(app), label, 0, 0, 1, 1);
+		gtk_widget_show(label);
+	
+		GtkWidget *button = gtk_button_new_with_label("Install");
+		gtk_widget_set_halign(button, GTK_ALIGN_END);
+		gtk_grid_attach(GTK_GRID(app), button, 1, 1, 1, 1);
+		gtk_widget_show(button);
+	}
+}
+
 static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	gtk_main_quit();
 	return FALSE;
 }
 
-#define MENU_ADD_BUTTON(text, function, tip)                                                       \
+#define MENU_ADD_BUTTON(text, function, tip)                                                   \
 	button = gtk_button_new_with_label(text);                                                  \
 	g_signal_connect(button, "clicked", G_CALLBACK(function), NULL);                           \
 	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);                                 \
@@ -358,7 +380,7 @@ int main(int argc, char *argv[])
 	MENU_ADD_BUTTON("Make card un-scriptable", unscriptflag,
 			"Destroys script flags, same method as destroy card boot flags.")
 
-	label = gtk_label_new("SD/CF Card");
+	label = gtk_label_new("Card");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
 
 	grid = gtk_grid_new();
@@ -408,6 +430,21 @@ int main(int argc, char *argv[])
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
 
 #endif
+
+	GtkWidget *scrollWindow = gtk_scrolled_window_new(NULL, NULL);
+	//gtk_widget_set_size_request(scrollWindow, -1, 200);
+	gtk_widget_show(scrollWindow);
+
+	grid = gtk_grid_new();
+	gtk_container_set_border_width(GTK_CONTAINER(grid), 10);
+	gtk_container_add(GTK_CONTAINER(scrollWindow), grid);
+	gtk_widget_show(grid);
+	order = 0;
+
+	MENU_ADD_BUTTON("Pull App store repository", appstore, "Update repo")
+
+	label = gtk_label_new("Module Store");
+	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), scrollWindow, label);
 
 	logw = gtk_label_new(logbuf);
 	gtk_grid_attach(GTK_GRID(mainGrid), logw, 0, 2, 1, 1);

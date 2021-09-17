@@ -230,6 +230,23 @@ static void oneclick(GtkWidget *widget, gpointer data)
 	}
 }
 
+static void activate9052(GtkWidget *widget, gpointer data)
+{
+	int busn = 0;
+	int devn = 0;
+	short force = 0;
+	PTPParams params;
+	PTP_USB ptp_usb;
+	struct usb_device *dev;
+
+	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
+		returnMessage(0);
+		return;
+	}
+
+	ptp_activate9052(&params);
+}
+
 static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 {
 	gtk_main_quit();
@@ -361,6 +378,8 @@ int main(int argc, char *argv[])
 	gtk_widget_show(entry);
 
 	MENU_ADD_BUTTON("Detect EOS_DIGITAL", showdrive, "Try and detect the EOS_DIGITAL drive.")
+
+	MENU_ADD_BUTTON("Activate evproc execution", activate9052, "Run command 0x9050 to try and activate commands such as 0x9052")
 
 	label = gtk_label_new(NULL);
 	gtk_label_set_markup(

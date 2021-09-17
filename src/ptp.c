@@ -2276,7 +2276,7 @@ uint16_t ptp_runeventproc(PTPParams *params, char string[], unsigned int *iparam
 }
 
 // https://www.magiclantern.fm/forum/index.php?topic=26162.msg236146#msg236146
-uint16_t ptp_9050(PTPParams *params, char string[])
+uint16_t ptp_activate9052(PTPParams *params)
 {
 	uint16_t ret;
 	for (int i = 0; i < 3; i++) {

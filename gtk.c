@@ -298,7 +298,7 @@ static void appstore(GtkWidget *widget, gpointer data)
 
 	char usableDrive[1024];
 	if (flag_usable_drive(usableDrive)) {
-		logprint("No usable drive.");
+		logprint("Could not find EOS_DIGITAL.");
 		return;
 	}
 
@@ -318,8 +318,8 @@ static void appstore(GtkWidget *widget, gpointer data)
 
 		GtkWidget *label = gtk_label_new(text);
 		gtk_widget_set_hexpand(label, TRUE);
-		gtk_widget_set_halign(label, GTK_ALIGN_START);
 		gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+		gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
 		gtk_grid_attach(GTK_GRID(app), label, 0, 0, 1, 1);
 		gtk_widget_show(label);
 
@@ -338,7 +338,6 @@ static void appstore(GtkWidget *widget, gpointer data)
 		}
 
 		gtk_widget_set_halign(button, GTK_ALIGN_END);
-		//gtk_widget_set_hexpand(button, TRUE);
 		gtk_grid_attach(GTK_GRID(app), button, 1, 1, 1, 1);
 		gtk_widget_show(button);
 
@@ -402,6 +401,10 @@ int main(int argc, char *argv[])
 	mainGrid = gtk_grid_new();
 	gtk_container_add(GTK_CONTAINER(window), mainGrid);
 
+	logw = gtk_label_new(logbuf);
+	gtk_label_set_justify(GTK_LABEL(logw), GTK_JUSTIFY_CENTER);
+	gtk_widget_show(logw);
+
 	// Add title label
 	label = gtk_label_new(NULL);
 	gtk_widget_set_hexpand(label, TRUE);
@@ -456,7 +459,6 @@ int main(int argc, char *argv[])
 			     "be dangerous. Use EOSCard if possible.</span>\n"
 			     "This will automatically find and write to\n"
 			     "a card named \"EOS_DIGITAL\".\n");
-	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
 	gtk_grid_attach(GTK_GRID(grid), label, 0, order++, 1, 1);
 	gtk_widget_show(label);
 
@@ -540,10 +542,7 @@ int main(int argc, char *argv[])
 	label = gtk_label_new("Module Store");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), scrollWindow, label);
 
-	logw = gtk_label_new(logbuf);
 	gtk_grid_attach(GTK_GRID(mainGrid), logw, 0, 2, 1, 1);
-	gtk_label_set_justify(GTK_LABEL(logw), GTK_JUSTIFY_CENTER);
-	gtk_widget_show(logw);
 
 	gtk_widget_show(mainGrid);
 	gtk_widget_show(window);

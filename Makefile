@@ -1,8 +1,10 @@
-CFLAGS = 
+CFLAGS = -O0
 LDFLAGS = -lusb
 STYLE = -style=file -i
 
 default: unix-gtk unix-clean
+
+clean: win-clean unix-clean
 
 unix-clean:
 	@rm -rf ptpcam *.orig *.gch *.o *.out ptpcam mlinstall *.exe *.zip *.res linux* ML_*
@@ -51,7 +53,7 @@ LIBUSB = libusb
 LIBUSB_DLL = $(LIBUSB)/bin/amd64/libusb0.dll
 
 # win32 + LIBUSB libs
-WIN_CFLAGS = -lws2_32 -lkernel32 -I$(LIBUSB)/include -Igtk/include
+WIN_CFLAGS = -lws2_32 -lkernel32 -lurlmon -I$(LIBUSB)/include -Igtk/include
 
 # Download Windows DLLs (libusb, gtk)
 # Alternative source: https://download.geany.org/contrib/gtk/gtk+-bundle_3.8.2-20131001_win32.zip

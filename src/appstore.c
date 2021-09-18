@@ -66,5 +66,5 @@ int appstore_next(struct AppstoreFields *fields) {
 
 int appstore_close() {
 	fclose(appstore_f);
-	platform_delete("ML_TEMP");
+	remove("ML_TEMP");
 }

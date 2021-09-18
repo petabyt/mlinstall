@@ -283,7 +283,7 @@ static void removemodule(GtkWidget *widget, gpointer data) {
 	char toRemove[2048];
 	snprintf(toRemove, 2048, "%s/ML/modules/%s", usableDrive, name);
 
-	platform_delete(toRemove);
+	remove(toRemove);
 	
 	logprint("Module removed.");
 

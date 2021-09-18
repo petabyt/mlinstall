@@ -88,7 +88,7 @@ int flag_usable_drive(char buffer[])
 		return drive;
 	}
 
-	strcpy(buffer, "\0:\\");
+	strcpy(buffer, " :");
 	buffer[0] = (char)drive;
 	return 0;
 }

@@ -100,7 +100,7 @@ int installer_start(char model[], char version[])
 		return r;
 	}
 
-	platform_delete("ML_TEMP");
+	remove("ML_TEMP");
 
 	printf("Found a match for model/firmware version. Downloading\n%s\n", release.download_url);
 

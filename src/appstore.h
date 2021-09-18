@@ -17,5 +17,6 @@ struct AppstoreFields {
 
 int appstore_init();
 int appstore_next(struct AppstoreFields *fields);
+int appstore_close();
 
 #endif

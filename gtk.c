@@ -14,6 +14,8 @@
 #include "src/model.h"
 #include "src/installer.h"
 #include "src/evproc.h"
+#include "src/appstore.h"
+#include "src/platform.h"
 
 char *driveNotFound = "Could not find card. Make sure\nto run as Administrator/superuser.";
 char *driveNotSupported = "Card not supported.\nSee console message.";
@@ -247,26 +249,118 @@ static void activate9052(GtkWidget *widget, gpointer data)
 	ptp_activate9052(&params);
 }
 
+static void removemodule(GtkWidget *widget, gpointer data);
+
+static void downloadmodule(GtkWidget *widget, gpointer data) {
+	logclear();
+
+	char *name = g_object_get_data(G_OBJECT(widget), "name");
+	char *download = g_object_get_data(G_OBJECT(widget), "download");
+
+	char usableDrive[1024];
+	flag_usable_drive(usableDrive);
+
+	char toDownload[2048];
+	snprintf(toDownload, 2048, "%s/ML/modules/%s", usableDrive, name);
+
+	if (platform_download(download, toDownload)) {
+		logprint("Error downloading module.");
+	} else {
+		logprint("Module downloaded to card.");
+		gtk_button_set_label(GTK_BUTTON(widget), "Remove");
+		g_signal_connect(widget, "clicked", G_CALLBACK(removemodule), NULL);
+	}
+}
+
+static void removemodule(GtkWidget *widget, gpointer data) {
+	logclear();
+	
+	char *name = g_object_get_data(G_OBJECT(widget), "name");
+		
+	char usableDrive[1024];
+	flag_usable_drive(usableDrive);
+
+	char toRemove[2048];
+	snprintf(toRemove, 2048, "%s/ML/modules/%s", usableDrive, name);
+
+	platform_delete(toRemove);
+	
+	logprint("Module removed.");
+
+	gtk_button_set_label(GTK_BUTTON(widget), "Install");
+	g_signal_connect(widget, "clicked", G_CALLBACK(downloadmodule), NULL);
+}
+
 static void appstore(GtkWidget *widget, gpointer data)
 {
 	GtkWidget *grid = gtk_widget_get_parent(widget);
 	gtk_widget_destroy(widget);
 
-	for (int order = 0; order < 20; order++) {
+	char usableDrive[1024];
+	if (flag_usable_drive(usableDrive)) {
+		logprint("No usable drive.");
+		return;
+	}
+
+	struct AppstoreFields fields;
+	appstore_init();
+
+	int order = 0;
+	int status = appstore_next(&fields);
+	while (1) {
 		GtkWidget *app = gtk_grid_new();
 		gtk_grid_attach(GTK_GRID(grid), app, 0, order++, 1, 1);
 		gtk_widget_show(app);
 
-		GtkWidget *label = gtk_label_new("This is an application");
+		char text[1024 * 3];
+		snprintf(text, sizeof(text), "%s\n%s", fields.name, fields.description);
+
+		GtkWidget *label = gtk_label_new(text);
+
+		gtk_label_set_max_width_chars(GTK_LABEL(label), 100);
 		gtk_widget_set_hexpand(label, TRUE);
+		gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
+
 		gtk_grid_attach(GTK_GRID(app), label, 0, 0, 1, 1);
 		gtk_widget_show(label);
-	
-		GtkWidget *button = gtk_button_new_with_label("Install");
+
+		char moduleTest[4096];
+		snprintf(moduleTest, 4096, "%s/ML/modules/%s", usableDrive, fields.name);
+
+		GtkWidget *button;
+		FILE *f = fopen(moduleTest, "r");
+		if (f == NULL) {
+			button = gtk_button_new_with_label("Install");
+			g_signal_connect(button, "clicked", G_CALLBACK(downloadmodule), NULL);
+		} else {
+			button = gtk_button_new_with_label("Remove");
+			g_signal_connect(button, "clicked", G_CALLBACK(removemodule), NULL);
+			fclose(f);
+		}
+
 		gtk_widget_set_halign(button, GTK_ALIGN_END);
-		gtk_grid_attach(GTK_GRID(app), button, 1, 1, 1, 1);
+		gtk_grid_attach(GTK_GRID(app), button, 1, 0, 1, 1);
 		gtk_widget_show(button);
+
+		char *name = malloc(strlen(fields.name));
+		strcpy(name, fields.name);
+
+		char *download = malloc(strlen(fields.download));
+		strcpy(download, fields.download);
+
+		g_object_set_data(G_OBJECT(button), "name", name);
+		g_object_set_data(G_OBJECT(button), "download", download);
+
+		order++;
+
+		if (status) {
+			break;
+		}
+
+		status = appstore_next(&fields);
 	}
+
+	appstore_close();
 }
 
 static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data)
@@ -441,7 +535,7 @@ int main(int argc, char *argv[])
 	gtk_widget_show(grid);
 	order = 0;
 
-	MENU_ADD_BUTTON("Pull App store repository", appstore, "Update repo")
+	MENU_ADD_BUTTON("View Repository", appstore, "Update repo")
 
 	label = gtk_label_new("Module Store");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), scrollWindow, label);

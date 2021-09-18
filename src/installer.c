@@ -92,7 +92,7 @@ static int find(struct Release *release, char name[], char version[])
 
 int installer_start(char model[], char version[])
 {
-	download("https://petabyt.github.io/mlinstall/repo/install", "ML_TEMP");
+	platform_download("https://petabyt.github.io/mlinstall/repo/install", "ML_TEMP");
 
 	struct Release release;
 	int r = find(&release, model, version);
@@ -100,10 +100,12 @@ int installer_start(char model[], char version[])
 		return r;
 	}
 
+	platform_delete("ML_TEMP");
+
 	printf("Found a match for model/firmware version. Downloading\n%s\n", release.download_url);
 
 	printf("%s\n", release.download_url);
-	download(release.download_url, "ML_RELEASE.ZIP");
+	platform_download(release.download_url, "ML_RELEASE.ZIP");
 
 	char input[5];
 	puts("This will write to your SD card. Continue? (y)");

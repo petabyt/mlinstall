@@ -9,10 +9,10 @@ FILE *appstore_f = NULL;
 
 int appstore_init()
 {
-	download("https://petabyt.github.io/mlinstall/repo/store", "ML_TEMP");
+	platform_download("https://petabyt.github.io/mlinstall/repo/store", "ML_TEMP");
 	if (appstore_f == NULL) {
-		FILE *f = fopen("ML_TEMP", "r");
-		if (f == NULL) {
+		appstore_f = fopen("ML_TEMP", "r");
+		if (appstore_f == NULL) {
 			return 1;
 		}
 	}
@@ -23,7 +23,7 @@ int appstore_next(struct AppstoreFields *fields) {
 	int order = 0;
 	while (1) {
 		if (!fgets(buffer, MAX_FIELD, appstore_f)) {
-			return APPSTORE_EOF;
+			return 1;
 		}
 
 		// Allow repository comments
@@ -61,4 +61,11 @@ int appstore_next(struct AppstoreFields *fields) {
 
 		order++;
 	}
+
+	return 0;
+}
+
+int appstore_close() {
+	fclose(appstore_f);
+	platform_delete("ML_TEMP");
 }

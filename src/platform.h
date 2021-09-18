@@ -1,6 +1,7 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
-int download(char in[], char out[]);
+int platform_download(char in[], char out[]);
+int platform_delete(char file[]);
 
 #endif

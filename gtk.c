@@ -310,17 +310,16 @@ static void appstore(GtkWidget *widget, gpointer data)
 	while (1) {
 		GtkWidget *app = gtk_grid_new();
 		gtk_grid_attach(GTK_GRID(grid), app, 0, order++, 1, 1);
+		gtk_widget_set_vexpand(grid, TRUE);
 		gtk_widget_show(app);
 
 		char text[1024 * 3];
-		snprintf(text, sizeof(text), "%s\n%s", fields.name, fields.description);
+		snprintf(text, sizeof(text), "\n%s\n%s", fields.name, fields.description);
 
 		GtkWidget *label = gtk_label_new(text);
-
-		gtk_label_set_max_width_chars(GTK_LABEL(label), 100);
 		gtk_widget_set_hexpand(label, TRUE);
+		gtk_widget_set_halign(label, GTK_ALIGN_START);
 		gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
-
 		gtk_grid_attach(GTK_GRID(app), label, 0, 0, 1, 1);
 		gtk_widget_show(label);
 
@@ -339,7 +338,8 @@ static void appstore(GtkWidget *widget, gpointer data)
 		}
 
 		gtk_widget_set_halign(button, GTK_ALIGN_END);
-		gtk_grid_attach(GTK_GRID(app), button, 1, 0, 1, 1);
+		//gtk_widget_set_hexpand(button, TRUE);
+		gtk_grid_attach(GTK_GRID(app), button, 1, 1, 1, 1);
 		gtk_widget_show(button);
 
 		char *name = malloc(strlen(fields.name));

@@ -4,3 +4,27 @@ https://github.com/petabyt/mltetris/releases/download/0.1.0/mltetris.mo
 A basic game of tetris for Magic Lantern.
 Daniel C
 -----
+img_name.mo
+https://www.magiclantern.fm/forum/index.php?topic=21111
+https://builds.magiclantern.fm/jenkins/job/img_name/16/artifact/modules/img_name/img_name.mo
+Image name preferences, replace "IMG_"
+Magic Lantern
+-----
+tiltcalc.mo
+http://www.magiclantern.fm/forum/index.php?topic=17874
+https://builds.magiclantern.fm/jenkins/job/tiltcalc/2/artifact/modules/tiltcalc/tiltcalc.mo
+Computes the tilt given your focal length and distance to the hinge point.
+Magic Lantern
+-----
+burst.mo
+http://www.magiclantern.fm/forum/index.php?topic=17895
+https://builds.magiclantern.fm/jenkins/job/burst/1/artifact/modules/burst/burst.mo
+Preview during a burst sequence; limit number of pictures during burst. 
+Magic Lantern
+-----
+astro.mo
+https://www.magiclantern.fm/forum/index.php?topic=18515.0
+https://download848.mediafire.com/wga1ug4gkwqg/aa3xq33ec01fa1g/astro.mo
+Basic Astrophotography Tools
+@xaint
+-----

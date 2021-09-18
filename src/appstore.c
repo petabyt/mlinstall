@@ -35,8 +35,7 @@ int appstore_next(struct AppstoreFields *fields) {
 		strtok(buffer, "\n");
 
 		if (!strncmp(buffer, "-----", 5)) {
-			order = 0;
-			continue;
+			return 0;
 		}
 
 		switch (order) {

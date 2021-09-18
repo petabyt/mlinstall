@@ -34,7 +34,7 @@ int flag_getfs()
 	}
 
 	memset(buffer, '\0', sizeof(buffer));
-	fseek(d, 82, SEEK_SET);
+	fseek(d, 3, SEEK_SET);
 	fread(buffer, 1, 8, d);
 	if (!strcmp(buffer, "EXFAT   ")) {
 		return EXFAT;
@@ -105,6 +105,7 @@ int flag_openfs()
 
 	if (d == NULL) {
 		puts("Could not open filesystem.");
+		puts("Make sure you are running as superuser.");
 		return DRIVE_ERROR;
 	}
 

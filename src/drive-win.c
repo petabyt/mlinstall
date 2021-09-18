@@ -29,7 +29,7 @@ int flag_getfs()
 		return FAT32;
 	}
 
-	if (!strncmp(bootsector + 82, "EXFAT   ", 8)) {
+	if (!strncmp(bootsector + 3, "EXFAT   ", 8)) {
 		return EXFAT;
 	}
 

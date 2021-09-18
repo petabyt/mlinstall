@@ -1,3 +1,6 @@
+# This Makefile contains targets for Windows 7/10
+# And POSIX systems.
+
 CFLAGS = -O0
 LDFLAGS = -lusb
 STYLE = -style=file -i

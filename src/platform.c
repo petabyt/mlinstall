@@ -7,12 +7,15 @@
 #ifdef WIN32
 	#include <urlmon.h>
 #endif
-
+#include <unistd.h>
 int platform_download(char in[], char out[])
 {
 	// https://docs.microsoft.com/en-us/previous-versions/windows/internet-explorer/ie-developer/platform-apis/ms775123(v=vs.85)
 #ifdef WIN32
-	return URLDownloadToFileA(NULL, in, out, 0, NULL);
+	printf("%s to %s\n", in, out);
+	int code = URLDownloadToFileA(NULL, in, out, 0, NULL);
+	printf("%d\n", code);
+	return 0;
 #endif
 
 #ifdef __unix__

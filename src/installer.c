@@ -92,7 +92,7 @@ static int find(struct Release *release, char name[], char version[])
 
 int installer_start(char model[], char version[])
 {
-	platform_download("https://petabyt.github.io/mlinstall/repo/install", "ML_TEMP");
+	platform_download("https://raw.githubusercontent.com/petabyt/mlinstall/master/repo/install", "ML_TEMP");
 
 	struct Release release;
 	int r = find(&release, model, version);

@@ -9,7 +9,7 @@ FILE *appstore_f = NULL;
 
 int appstore_init()
 {
-	platform_download("https://petabyt.github.io/mlinstall/repo/store", "ML_TEMP");
+	platform_download("https://raw.githubusercontent.com/petabyt/mlinstall/master/repo/store", "ML_TEMP");
 	if (appstore_f == NULL) {
 		appstore_f = fopen("ML_TEMP", "r");
 		if (appstore_f == NULL) {

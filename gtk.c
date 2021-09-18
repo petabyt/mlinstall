@@ -260,8 +260,15 @@ static void downloadmodule(GtkWidget *widget, gpointer data) {
 	char usableDrive[1024];
 	flag_usable_drive(usableDrive);
 
+	// We'll support Windows line endings just in case,
+	// Since URLDownloadFileA is going to be called
 	char toDownload[2048];
-	snprintf(toDownload, 2048, "%s/ML/modules/%s", usableDrive, name);
+	#ifdef WIN32
+		snprintf(toDownload, 2048, "%s\\ML\\modules\\%s", usableDrive, name);
+	#endif
+	#ifdef __unix__
+		snprintf(toDownload, 2048, "%s/ML/modules/%s", usableDrive, name);
+	#endif
 
 	if (platform_download(download, toDownload)) {
 		logprint("Error downloading module.");
@@ -341,10 +348,11 @@ static void appstore(GtkWidget *widget, gpointer data)
 		gtk_grid_attach(GTK_GRID(app), button, 1, 1, 1, 1);
 		gtk_widget_show(button);
 
-		char *name = malloc(strlen(fields.name));
+		// TODO: Free memory :/
+		char *name = malloc(strlen(fields.name) + 1);
 		strcpy(name, fields.name);
 
-		char *download = malloc(strlen(fields.download));
+		char *download = malloc(strlen(fields.download) + 1);
 		strcpy(download, fields.download);
 
 		g_object_set_data(G_OBJECT(button), "name", name);

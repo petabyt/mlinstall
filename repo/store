@@ -1,5 +1,16 @@
+# TODO: Api compatibility issues
+# TODO: Support Lua scripts
 mltetris.mo
 https://github.com/petabyt/mltetris
 https://github.com/petabyt/mltetris/releases/download/0.1.0/mltetris.mo
-A basic game of tetris for Magic Lantern.
+(v7) A basic game of tetris for Magic Lantern.
 Daniel C
+-----
+mlt.mo
+https://github.com/petabyt/mlt
+https://github.com/petabyt/mlt/releases/download/0.1-spanish/mlt.mo
+(v7) Translates menus into Spanish.
+Daniel C
+-----
+astro.mo
+https://www.magiclantern.fm/forum/index.php?topic=18515.0

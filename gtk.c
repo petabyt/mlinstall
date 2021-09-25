@@ -422,10 +422,7 @@ int main(int argc, char *argv[])
 	gtk_widget_set_hexpand(label, TRUE);
 	gtk_label_set_markup(GTK_LABEL(label),
 			     "<span size=\"large\">MLInstall</span>\n"
-			     "(Early Release)\n"
-			     "<span size=\"small\">THIS IS NOT GARUNTEED TO WORK\n"
-			     "OR NOT BLOW UP YOUR CAMERA\n"
-			     "KEEP BOTH PIECES IF YOU BREAK IT</span>\n");
+			     "(Early Release)\n");
 	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
 	gtk_grid_attach(GTK_GRID(mainGrid), label, 0, 0, 1, 1);
 	gtk_widget_show(label);
@@ -444,7 +441,7 @@ int main(int argc, char *argv[])
 	gtk_widget_show(grid);
 	order = 0;
 
-	label = gtk_label_new("This will run event procedures on your\n"
+	label = gtk_label_new("This will run commands on your\n"
 			      "camera via USB/PTP. Make sure to run as\n"
 			      "Administrator/Sudo.\n");
 	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
@@ -509,7 +506,7 @@ int main(int argc, char *argv[])
 
 	MENU_ADD_BUTTON("Detect EOS_DIGITAL", showdrive, "Try and detect the EOS_DIGITAL drive.")
 
-	MENU_ADD_BUTTON("Activate evproc execution", activate9052, "Run command 0x9050 to try and activate commands such as 0x9052")
+	MENU_ADD_BUTTON("Activate evproc execution", activate9052, "Run command 0x9050 three times to try and activate commands such as 0x9052")
 
 	label = gtk_label_new(NULL);
 	gtk_label_set_markup(
@@ -548,7 +545,7 @@ int main(int argc, char *argv[])
 	gtk_widget_show(grid);
 	order = 0;
 
-	MENU_ADD_BUTTON("View Repository", appstore, "Update repo")
+	MENU_ADD_BUTTON("Pull Repository", appstore, "Update repo")
 
 	label = gtk_label_new("Module Store");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), scrollWindow, label);

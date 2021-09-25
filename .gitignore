@@ -7,3 +7,4 @@ libusb*
 libusb*/
 libusb*/*
 gtk/*
+*.res

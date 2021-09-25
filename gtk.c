@@ -1,3 +1,4 @@
+// This is the GTK based app for Windows / Linux
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -155,7 +156,7 @@ static void deviceinfo(GtkWidget *widget, gpointer data)
 	logprint(buffer);
 
 	// Test model detector
-	printf("model_get() = %d\n", model_get(info.Model));
+	printf("Model ID is %d\n", model_get(info.Model));
 
 	close_camera(&ptp_usb, &params, dev);
 }
@@ -234,6 +235,8 @@ static void oneclick(GtkWidget *widget, gpointer data)
 
 static void activate9052(GtkWidget *widget, gpointer data)
 {
+	logclear();
+
 	int busn = 0;
 	int devn = 0;
 	short force = 0;
@@ -300,12 +303,13 @@ static void removemodule(GtkWidget *widget, gpointer data) {
 
 static void appstore(GtkWidget *widget, gpointer data)
 {
+	logclear();
 	GtkWidget *grid = gtk_widget_get_parent(widget);
 	gtk_widget_destroy(widget);
 
 	char usableDrive[1024];
 	if (flag_usable_drive(usableDrive)) {
-		logprint("Could not find EOS_DIGITAL.");
+		logprint(driveNotFound);
 		return;
 	}
 
@@ -396,12 +400,12 @@ int main(int argc, char *argv[])
 
 	gtk_init(&argc, &argv);
 
-	g_print("Early release of ML Install. Use at your own risk!\n");
+	g_print("Early release of MLInstall. Use at your own risk!\n");
 	g_print("https://github.com/petabyt/mlinstall\n");
 	g_print("https://www.magiclantern.fm/forum/index.php?topic=26162\n");
 
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(window), "ML Install");
+	gtk_window_set_title(GTK_WINDOW(window), "MLInstall");
 	gtk_window_set_default_size(GTK_WINDOW(window), 375, 500);
 	g_signal_connect(window, "delete-event", G_CALLBACK(delete_event), NULL);
 	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
@@ -417,7 +421,7 @@ int main(int argc, char *argv[])
 	label = gtk_label_new(NULL);
 	gtk_widget_set_hexpand(label, TRUE);
 	gtk_label_set_markup(GTK_LABEL(label),
-			     "<span size=\"large\">ML USB Installation Tools</span>\n"
+			     "<span size=\"large\">MLInstall</span>\n"
 			     "(Early Release)\n"
 			     "<span size=\"small\">THIS IS NOT GARUNTEED TO WORK\n"
 			     "OR NOT BLOW UP YOUR CAMERA\n"
@@ -536,7 +540,6 @@ int main(int argc, char *argv[])
 #endif
 
 	GtkWidget *scrollWindow = gtk_scrolled_window_new(NULL, NULL);
-	//gtk_widget_set_size_request(scrollWindow, -1, 200);
 	gtk_widget_show(scrollWindow);
 
 	grid = gtk_grid_new();

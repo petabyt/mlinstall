@@ -27,20 +27,20 @@ int evproc_run(char string[])
 	s = strtok(NULL, " ");
 
 	int p = 1;
-	unsigned int iparam[6];
+	unsigned int iparam[6] = {0};
 	while (s != NULL) {
 		iparam[p] = atoi(s);
 		s = strtok(NULL, " ");
 		p++;
 	}
 
+	// Set first element to length
 	iparam[0] = p - 1;
 
 	printf("Running '%s' with %d params...\n", command, p - 1);
 
 	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
 		return 0;
-		return 1;
 	}
 
 	// Don't send parameters if there aren't any

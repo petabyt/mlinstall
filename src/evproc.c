@@ -16,6 +16,7 @@ int evproc_run(char string[])
 	PTP_USB ptp_usb;
 	struct usb_device *dev;
 
+#ifdef TRY_PARAM
 	char command[128];
 	char buffer[1024];
 
@@ -50,6 +51,11 @@ int evproc_run(char string[])
 	} else {
 		r = ptp_runeventproc(&params, string, iparam);
 	}
+#endif
+
+#ifndef TRY_PARAM
+	unsigned int r = ptp_runeventproc(&params, string, NULL);
+#endif
 
 	close_camera(&ptp_usb, &params, dev);
 	return r;

@@ -15,7 +15,8 @@
 // TODO: avoid system shell commands, use
 // actual libraries
 
-// Windows: certutil, 7z (optional)
+// Linux: unzip
+// Windows: 7z (optional)
 
 struct Release {
 	char name[1024];
@@ -102,7 +103,7 @@ int installer_start(char model[], char version[])
 
 	remove("ML_TEMP");
 
-	printf("Found a match for model/firmware version. Downloading\n%s\n", release.download_url);
+	printf("Found a match for your model/firmware version. Downloading\n%s\n", release.download_url);
 
 	printf("%s\n", release.download_url);
 	platform_download(release.download_url, "ML_RELEASE.ZIP");
@@ -122,7 +123,9 @@ int installer_start(char model[], char version[])
 	char command[512];
 #ifdef __unix__
 	snprintf(command, 512, "unzip -o ML_RELEASE.ZIP -d %s", file);
-	system(command);
+	if (system(command)) {
+		puts("!!!! Could not unzip ML_RELEASE.ZIP for some reason. Unzip manually onto card.");
+	}
 #endif
 
 #ifdef WIN32

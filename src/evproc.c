@@ -54,6 +54,10 @@ int evproc_run(char string[])
 #endif
 
 #ifndef TRY_PARAM
+	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
+		return 0;
+	}
+
 	unsigned int r = ptp_runeventproc(&params, string, NULL);
 #endif
 

@@ -1,5 +1,5 @@
 # mlinstall
-A Windows/Linux app to with installing Magic Lantern.  
+A Windows/Linux app to help with installing Magic Lantern.  
 Download: https://github.com/petabyt/mlinstall/releases  
 
 ![screenshot](assets/screenshot.png)

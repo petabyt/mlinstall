@@ -56,7 +56,7 @@ int appstore_next(struct AppstoreFields *fields) {
 			strncpy(fields->author, buffer, MAX_FIELD);
 			break;
 		default:
-			puts("Found an extra field");
+			puts("appstore_next: Found an extra field");
 		}
 
 		order++;
@@ -70,20 +70,43 @@ int appstore_close() {
 	remove("ML_TEMP");
 }
 
-
 int appstore_download(char name[], char download[]) {
 	char usableDrive[1024];
 	flag_usable_drive(usableDrive);
 
-	// We'll support Windows line endings just in case,
-	// Since URLDownloadFileA is going to be called
+	char *extension = name;
+	while (*extension != '.') {
+		extension++;
+		if (*extension == '\0') {
+			puts("File name does not have extension!");
+			return 1;
+		}
+	}
+
 	char toDownload[2048];
-	#ifdef WIN32
-		snprintf(toDownload, 2048, "%s\\ML\\modules\\%s", usableDrive, name);
-	#endif
-	#ifdef __unix__
-		snprintf(toDownload, 2048, "%s/ML/modules/%s", usableDrive, name);
-	#endif
+
+	if (!strcmp(extension, "mo")) {
+		// We'll support Windows line endings just in case,
+		// Since URLDownloadFileA is going to be called
+		#ifdef WIN32
+			snprintf(toDownload, 2048, "%s\\ML\\modules\\%s", usableDrive, name);
+		#endif
+		#ifdef __unix__
+			snprintf(toDownload, 2048, "%s/ML/modules/%s", usableDrive, name);
+		#endif
+	} else if (!strcmp(extension, "lua")) {
+		// We'll support Windows line endings just in case,
+		// Since URLDownloadFileA is going to be called
+		#ifdef WIN32
+			snprintf(toDownload, 2048, "%s\\ML\\scripts\\%s", usableDrive, name);
+		#endif
+		#ifdef __unix__
+			snprintf(toDownload, 2048, "%s/ML/scripts/%s", usableDrive, name);
+		#endif
+	} else {
+		printf("Unsupported file extension %s\n", extension);
+		return 1;
+	}
 
 	return platform_download(download, toDownload);
 }
@@ -93,7 +116,24 @@ int appstore_remove(char name[]) {
 	flag_usable_drive(usableDrive);
 
 	char toRemove[2048];
-	snprintf(toRemove, 2048, "%s/ML/modules/%s", usableDrive, name);
+
+	char *extension = name;
+	while (*extension != '.') {
+		extension++;
+		if (*extension == '\0') {
+			puts("File name does not have extension!");
+			return 1;
+		}
+	}
+
+	if (!strcmp(extension, "mo")) {
+		snprintf(toRemove, 2048, "%s/ML/scripts/%s", usableDrive, name);
+	} else if (!strcmp(extension, "lua")) {
+		snprintf(toRemove, 2048, "%s/ML/scripts/%s", usableDrive, name);
+	} else {
+		printf("Unsupported file extension %s\n", extension);
+		return 1;
+	}
 
 	remove(toRemove);
 	

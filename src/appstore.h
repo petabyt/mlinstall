@@ -19,4 +19,7 @@ int appstore_init();
 int appstore_next(struct AppstoreFields *fields);
 int appstore_close();
 
+int appstore_remove(char name[]);
+int appstore_download(char name[], char download[]);
+
 #endif

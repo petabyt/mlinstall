@@ -260,45 +260,27 @@ static void downloadmodule(GtkWidget *widget, gpointer data) {
 	char *name = g_object_get_data(G_OBJECT(widget), "name");
 	char *download = g_object_get_data(G_OBJECT(widget), "download");
 
-	char usableDrive[1024];
-	flag_usable_drive(usableDrive);
-
-	// We'll support Windows line endings just in case,
-	// Since URLDownloadFileA is going to be called
-	char toDownload[2048];
-	#ifdef WIN32
-		snprintf(toDownload, 2048, "%s\\ML\\modules\\%s", usableDrive, name);
-	#endif
-	#ifdef __unix__
-		snprintf(toDownload, 2048, "%s/ML/modules/%s", usableDrive, name);
-	#endif
-
-	if (platform_download(download, toDownload)) {
+	if (appstore_download(name, download)) {
 		logprint("Error downloading module.");
 	} else {
 		logprint("Module downloaded to card.");
 		gtk_button_set_label(GTK_BUTTON(widget), "Remove");
 		g_signal_connect(widget, "clicked", G_CALLBACK(removemodule), NULL);
 	}
+
 }
 
 static void removemodule(GtkWidget *widget, gpointer data) {
 	logclear();
 	
 	char *name = g_object_get_data(G_OBJECT(widget), "name");
-		
-	char usableDrive[1024];
-	flag_usable_drive(usableDrive);
 
-	char toRemove[2048];
-	snprintf(toRemove, 2048, "%s/ML/modules/%s", usableDrive, name);
-
-	remove(toRemove);
+	if (!appstore_remove(name)) {
+		logprint("Module removed.");
 	
-	logprint("Module removed.");
-
-	gtk_button_set_label(GTK_BUTTON(widget), "Install");
-	g_signal_connect(widget, "clicked", G_CALLBACK(downloadmodule), NULL);
+		gtk_button_set_label(GTK_BUTTON(widget), "Install");
+		g_signal_connect(widget, "clicked", G_CALLBACK(downloadmodule), NULL);
+	}
 }
 
 static void appstore(GtkWidget *widget, gpointer data)

@@ -4,6 +4,7 @@
 
 #include "platform.h"
 #include "appstore.h"
+#include "drive.h"
 
 FILE *appstore_f = NULL;
 
@@ -67,4 +68,34 @@ int appstore_next(struct AppstoreFields *fields) {
 int appstore_close() {
 	fclose(appstore_f);
 	remove("ML_TEMP");
+}
+
+
+int appstore_download(char name[], char download[]) {
+	char usableDrive[1024];
+	flag_usable_drive(usableDrive);
+
+	// We'll support Windows line endings just in case,
+	// Since URLDownloadFileA is going to be called
+	char toDownload[2048];
+	#ifdef WIN32
+		snprintf(toDownload, 2048, "%s\\ML\\modules\\%s", usableDrive, name);
+	#endif
+	#ifdef __unix__
+		snprintf(toDownload, 2048, "%s/ML/modules/%s", usableDrive, name);
+	#endif
+
+	return platform_download(download, toDownload);
+}
+
+int appstore_remove(char name[]) {
+	char usableDrive[1024];
+	flag_usable_drive(usableDrive);
+
+	char toRemove[2048];
+	snprintf(toRemove, 2048, "%s/ML/modules/%s", usableDrive, name);
+
+	remove(toRemove);
+	
+	return 0;
 }

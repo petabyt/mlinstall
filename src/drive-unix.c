@@ -72,6 +72,9 @@ int flag_getdrive(char buffer[])
 		puts("Couldn't find a /dev/ drive.");
 		puts("Make sure you are running as superuser and EOS_DIGITAL is mounted.");
 		return DRIVE_NONE;
+	} else if (!strncmp(buffer, "/dev/sda", 8)) {
+		puts("Somehow I got /dev/sda. I'm not writing to it...");
+		return DRIVE_NONE;
 	}
 
 	return 0;

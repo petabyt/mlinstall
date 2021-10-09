@@ -62,6 +62,11 @@ int flag_getdrive()
 
 	// Look for EOS_DIGITAL drive
 	while (fgets(command, 128, f) != NULL) {
+		if (strlen(command) <= 10) {
+			puts("WMIC parse error.");
+			return DRIVE_ERROR;
+		}
+
 		if (!strncmp(command + 10, "EOS_DIGITAL", 11)) {
 			printf("Found EOS_DIGITAL at drive %c\n", command[0]);
 			id = command[0];

@@ -370,6 +370,8 @@ static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 	gtk_widget_set_hexpand(button, TRUE);                                                      \
 	gtk_widget_show(button);
 
+GdkAppLaunchContext *context;
+
 int main(int argc, char *argv[])
 {
 	GtkWidget *window;
@@ -527,9 +529,9 @@ int main(int argc, char *argv[])
 	gtk_widget_show(grid);
 	order = 0;
 
-	MENU_ADD_BUTTON("Pull Repository", appstore, "Update repo")
+	MENU_ADD_BUTTON("Pull Database", appstore, "Load the list of downloadable modules")
 
-	label = gtk_label_new("Module Store");
+	label = gtk_label_new("App Store");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), scrollWindow, label);
 
 	gtk_grid_attach(GTK_GRID(mainGrid), logw, 0, 2, 1, 1);

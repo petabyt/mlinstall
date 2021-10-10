@@ -58,6 +58,9 @@ LIBUSB_DLL = $(LIBUSB)/bin/amd64/libusb0.dll
 # win32 + LIBUSB libs
 WIN_CFLAGS = -lws2_32 -lkernel32 -lurlmon -I$(LIBUSB)/include -Igtk/include
 
+# strip debug symbols, smaller executable
+WIN_CFLAGS += -s
+
 # Download Windows DLLs (libusb, gtk)
 # Alternative source: https://download.geany.org/contrib/gtk/gtk+-bundle_3.8.2-20131001_win32.zip
 # or https://web.archive.org/web/20171023023802if_/http://win32builder.gnome.org/gtk+-bundle_3.10.4-20131202_win64.zip

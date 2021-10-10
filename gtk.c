@@ -370,8 +370,6 @@ static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 	gtk_widget_set_hexpand(button, TRUE);                                                      \
 	gtk_widget_show(button);
 
-GdkAppLaunchContext *context;
-
 int main(int argc, char *argv[])
 {
 	GtkWidget *window;

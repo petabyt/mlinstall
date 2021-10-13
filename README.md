@@ -5,25 +5,22 @@ Download: https://github.com/petabyt/mlinstall/releases
 ![screenshot](assets/screenshot.png)
 
 ## Features
-- Execute any DryOS event procedure with parameters
-- Enable/Disable boot disk (possibly replacing custom encrypted firmware files)
+- Execute any DryOS event procedure
+- Enable/Disable boot disk (hopefully replacing custom encrypted firmware files)
 - Basic PTP functionality (get firmware/model/serial info)
 - Write EOS_DEVELOP and BOOTFLAG to card (Windows + Linux)
 - Make card Canon Basic Scriptable
 - Destroy card flags (without reformat)
+- App Store: Downloads and installs modules on SD card
+- Magic Lantern 1 click install (experimental, not in release)
 
-## TODO / Help Needed:
- - Rename app. Magic Lantern App? (it may do more than just installation-related things)
- - General bug testing, make user friendly
+## TODO / HELP NEEDED:
  - Fuzz testing
- - Get WiFi ptp working [(?)](https://github.com/Parrot-Developers/sequoia-ptpy/issues/18)
-Might be useful if the USB port is [damaged](https://www.cloudynights.com/topic/497224-any-experiences-on-repairing-usb-port-on-canon-dslr/).  
-Update: See https://diode.zone/w/cGnnBDjSmjFiYFVVn7rzR2
- - Try on Mac (I have an [iMac G4](https://en.wikipedia.org/wiki/IMac_G4), is that too old?)
+ - Mac OS port, (don't have a modern one)
  - Improve the [user manual](MANUAL.md)
- - Possibly replace it with a [Magic Lantern Wiki](https://wiki.magiclantern.fm/start) page.
- - Avoid using system shell commands
-Feel free to make pull request or issue.  
+ - Rename to "Magic Lantern App"?
+
+All pull requests/issues are welcome.  
 
 ## Linux Compilation
 Required packages:  

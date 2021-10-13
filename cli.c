@@ -11,6 +11,17 @@
 #include "src/ptpcam.h"
 #include "src/drive.h"
 
+void help() {
+	puts("ML USB Install Tools CLI");
+	puts("Usage: mlinstall <command> <argument>");
+	puts("    run <COMMAND>  Run a Canon event proc via USB");
+	puts("    enable         Run EnableBootDisk");
+	puts("    disable        Run DisableBootDisk");
+	puts("    cardboot       Write EOS_DEVELOP and BOOTDISK flags to a mounted SD card named \"EOS_DEVELOP\"");
+	puts("    noboot         Destroy the card flags by writing an underscore on the first character.");
+	puts("    info           Get information on the camera.");	
+}
+
 int main(int argc, char *argv[])
 {
 	int busn = 0, devn = 0;
@@ -20,79 +31,65 @@ int main(int argc, char *argv[])
 	PTP_USB ptp_usb;
 	struct usb_device *dev;
 
-	if (argc >= 2) {
-		puts("TODO: Real CLI application");
-		return 1;
+	if (argc < 2) {
+		help();
+		return 0;
 	}
 
-	puts("ML USB Install Tools CLI");
-	puts("Commands:");
-	puts("    run <COMMAND>  Run a Canon event proc via USB");
-	puts("    bootdisk       Run EnableBootDisk");
-	puts("    bootdiskoff    Run DisableBootDisk");
-	puts("    flags          Write EOS_DEVELOP and BOOTDISK flags to a mounted SD card named \"EOS_DEVELOP\"");
-	puts("    dflags         Destroy the card flags by writing an underscore on the first character.");
-	puts("    info           Get information on the camera.");
-
-	while (1) {
-		putchar(':');
-		char input[64];
-		fgets(input, 64, stdin);
-		strtok(input, "\n");
-
-		if (!strncmp(input, "run ", 4)) {
-			if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
-				continue;
-			}
-
-			ptp_runeventproc(&params, input + 4, NULL);
-
-			close_camera(&ptp_usb, &params, dev);
-		} else if (!strcmp(input, "info")) {
-			if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
-				continue;
-			}
-
-			PTPDeviceInfo info;
-			ptp_getdeviceinfo(&params, &info);
-
-			printf("Manufacturer: %s\n"
-			       "Model: %s\n"
-			       "DeviceVersion: %s\n"
-			       "SerialNumber: %s\n",
-			       info.Manufacturer, info.Model, info.DeviceVersion,
-			       info.SerialNumber);
-
-			close_camera(&ptp_usb, &params, dev);
-		} else if (!strcmp(input, "bootdisk")) {
-			if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
-				continue;
-			}
-
-			ptp_runeventproc(&params, "EnableBootDisk", NULL);
-			close_camera(&ptp_usb, &params, dev);
-
-			puts("Enabled boot disk.");
-		} else if (!strcmp(input, "bootdiskoff")) {
-			if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
-				continue;
-			}
-
-			ptp_runeventproc(&params, "EnableBootDisk", NULL);
-			close_camera(&ptp_usb, &params, dev);
-
-			puts("Enabled boot disk.");
-		} else if (!strncmp(input, "flags", 6)) {
-			flag_write_flag(FLAG_BOOT);
-			flag_close();
-		} else if (!strncmp(input, "dflags", 6)) {
-			flag_write_flag(FLAG_DESTROY_BOOT);
-			flag_close();
-		} else if (input[0] == 'x' || input[0] == 'q') {
-			return 0;
-		} else {
-			puts("Invalid command.");
+	if (!strcmp(argv[1], "run")) {
+		if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
+			puts("Connection error!");
+			return -1;
 		}
+
+		ptp_runeventproc(&params, argv[2], NULL);
+
+		close_camera(&ptp_usb, &params, dev);
+	} else if (!strcmp(argv[1], "info")) {
+	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
+			puts("Connection error!");
+			return -1;
+		}
+
+		PTPDeviceInfo info;
+		ptp_getdeviceinfo(&params, &info);
+
+		printf("Manufacturer: %s\n"
+		       "Model: %s\n"
+		       "DeviceVersion: %s\n"
+		       "SerialNumber: %s\n",
+		       info.Manufacturer, info.Model, info.DeviceVersion,
+		       info.SerialNumber);
+
+		close_camera(&ptp_usb, &params, dev);
+	} else if (!strcmp(argv[1], "enable")) {
+		if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
+			puts("Connection error!");
+			return -1;
+		}
+
+		ptp_runeventproc(&params, "EnableBootDisk", NULL);
+		close_camera(&ptp_usb, &params, dev);
+
+		puts("Enabled boot disk.");
+	} else if (!strcmp(argv[1], "disable")) {
+		if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
+			puts("Connection error!");
+			return -1;
+		}
+
+		ptp_runeventproc(&params, "DisableBootDisk", NULL);
+		close_camera(&ptp_usb, &params, dev);
+
+		puts("Disabled boot disk.");
+	} else if (!strcmp(argv[1], "cardboot")) {
+		flag_write_flag(FLAG_BOOT);
+		flag_close();
+	} else if (!strcmp(argv[1], "noboot")) {
+		flag_write_flag(FLAG_DESTROY_BOOT);
+		flag_close();
+	} else {
+		puts("Invalid command");
 	}
 
 	return 0;

@@ -100,9 +100,9 @@ int flag_usable_drive(char buffer[])
 
 int flag_openfs(int mode)
 {
-	// Windows filesystems must be opened like this: \\.\\E
-	char buffer[64] = "\\\\.\\\0:";
-	int drive = flag_getdrive(buffer);
+	// Windows filesystems must be opened like this: \\.\E:
+	char buffer[64] = "\\\\.\\0:";
+	int drive = flag_getdrive();
 	if (drive < 0) {
 		return drive;
 	}

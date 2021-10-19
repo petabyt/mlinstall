@@ -1,6 +1,4 @@
 // Windows fileapi based code
-
-// Don't include me unless we're windows!
 #ifdef WIN32
 
 #include <stdio.h>
@@ -52,37 +50,38 @@ void flag_write(long offset, char string[])
 int flag_getdrive()
 {
 	char id;
-	char command[128];
+	char dstr[] = "X:\\";
 
-	// List info usb type mounted filesystems
-	FILE *f = popen("wmic logicaldisk where drivetype=2 get deviceid, volumename", "r");
+	DWORD drives = GetLogicalDrives();
+	for (int i = 0; i < 32; i++) {
+		// Check if bit is 1
+		if ((drives >> i) & 1) {
+			dstr[0] = i + 'A';
 
-	// Skip first line (title)
-	fgets(command, 128, f);
+			char volname[100];
+			GetVolumeInformationA(
+				dstr,
+				volname,
+				sizeof(volname),
+				NULL,
+				NULL,
+				NULL,
+				NULL,
+				0
+			);
 
-	// Look for EOS_DIGITAL drive
-	while (fgets(command, 128, f) != NULL) {
-		if (strlen(command) <= 10) {
-			puts("WMIC parse error.");
-			return DRIVE_ERROR;
-		}
+			if (!strncmp(volname, "EOS_DIGITAL", 11)) {
+				if (i + 'A' == 'C') {
+					puts("PANIC, somehow got C drive...");
+					return DRIVE_NONE;
+				}
 
-		if (!strncmp(command + 10, "EOS_DIGITAL", 11)) {
-			printf("Found EOS_DIGITAL at drive %c\n", command[0]);
-			id = command[0];
-			goto found;
+				return (int)(i + 'A');
+			}
 		}
 	}
 
 	return DRIVE_NONE;
-
-found:
-	if (id == 'C' || id == 'c') {
-		puts("Somehow got C drive...");
-		return DRIVE_NONE;
-	}
-
-	return (int)id;
 }
 
 // Should never buffer overflow

@@ -85,7 +85,7 @@ int appstore_download(char name[], char download[]) {
 
 	char toDownload[2048];
 
-	if (!strcmp(extension, "mo")) {
+	if (!strcmp(extension, ".mo")) {
 		// We'll support Windows line endings just in case,
 		// Since URLDownloadFileA is going to be called
 		#ifdef WIN32
@@ -94,7 +94,7 @@ int appstore_download(char name[], char download[]) {
 		#ifdef __unix__
 			snprintf(toDownload, 2048, "%s/ML/modules/%s", usableDrive, name);
 		#endif
-	} else if (!strcmp(extension, "lua")) {
+	} else if (!strcmp(extension, ".lua")) {
 		// We'll support Windows line endings just in case,
 		// Since URLDownloadFileA is going to be called
 		#ifdef WIN32
@@ -126,9 +126,9 @@ int appstore_remove(char name[]) {
 		}
 	}
 
-	if (!strcmp(extension, "mo")) {
+	if (!strcmp(extension, ".mo")) {
 		snprintf(toRemove, 2048, "%s/ML/scripts/%s", usableDrive, name);
-	} else if (!strcmp(extension, "lua")) {
+	} else if (!strcmp(extension, ".lua")) {
 		snprintf(toRemove, 2048, "%s/ML/scripts/%s", usableDrive, name);
 	} else {
 		printf("Unsupported file extension %s\n", extension);

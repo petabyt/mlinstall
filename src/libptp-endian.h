@@ -5,7 +5,8 @@
 #define __BYTEORDER_H
 
 #ifdef WIN32
-#include <winsock2.h>
+// This is apperantly redundant
+//#include <winsock2.h>
 #else
 /* ntohl and relatives live here */
 #include <arpa/inet.h>

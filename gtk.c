@@ -317,7 +317,8 @@ static void appstore(GtkWidget *widget, gpointer data)
 		gtk_widget_show(label);
 
 		char moduleTest[4096];
-		snprintf(moduleTest, 4096, "%s/ML/modules/%s", usableDrive, fields.name);
+
+		appstore_getname(moduleTest, fields.name);
 
 		GtkWidget *button;
 		FILE *f = fopen(moduleTest, "r");

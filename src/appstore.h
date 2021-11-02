@@ -1,3 +1,4 @@
+
 #ifndef APPSTORE_H
 #define APPSTORE_H
 
@@ -21,5 +22,6 @@ int appstore_close();
 
 int appstore_remove(char name[]);
 int appstore_download(char name[], char download[]);
+int appstore_getname(char *buffer, char filename[]);
 
 #endif

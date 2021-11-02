@@ -8,6 +8,31 @@
 
 FILE *appstore_f = NULL;
 
+int appstore_getname(char *buffer, char filename[]) {
+	char usableDrive[1024];
+	flag_usable_drive(usableDrive);
+
+	char *extension = filename;
+	while (*extension != '.') {
+		extension++;
+		if (*extension == '\0') {
+			puts("File name does not have extension!");
+			return 1;
+		}
+	}
+
+	if (!strcmp(extension, ".mo")) {
+		snprintf(buffer, 2048, "%s/ML/modules/%s", usableDrive, filename);
+	} else if (!strcmp(extension, ".lua")) {
+		snprintf(buffer, 2048, "%s/ML/scripts/%s", usableDrive, filename);
+	} else {
+		printf("Unsupported file extension %s\n", extension);
+		return 2;
+	}
+
+	return 0;
+}
+
 int appstore_init()
 {
 	platform_download("https://raw.githubusercontent.com/petabyt/mlinstall/master/repo/store", "ML_TEMP");
@@ -74,39 +99,8 @@ int appstore_download(char name[], char download[]) {
 	char usableDrive[1024];
 	flag_usable_drive(usableDrive);
 
-	char *extension = name;
-	while (*extension != '.') {
-		extension++;
-		if (*extension == '\0') {
-			puts("File name does not have extension!");
-			return 1;
-		}
-	}
-
-	char toDownload[2048];
-
-	if (!strcmp(extension, ".mo")) {
-		// We'll support Windows line endings just in case,
-		// Since URLDownloadFileA is going to be called
-		#ifdef WIN32
-			snprintf(toDownload, 2048, "%s\\ML\\modules\\%s", usableDrive, name);
-		#endif
-		#ifdef __unix__
-			snprintf(toDownload, 2048, "%s/ML/modules/%s", usableDrive, name);
-		#endif
-	} else if (!strcmp(extension, ".lua")) {
-		// We'll support Windows line endings just in case,
-		// Since URLDownloadFileA is going to be called
-		#ifdef WIN32
-			snprintf(toDownload, 2048, "%s\\ML\\scripts\\%s", usableDrive, name);
-		#endif
-		#ifdef __unix__
-			snprintf(toDownload, 2048, "%s/ML/scripts/%s", usableDrive, name);
-		#endif
-	} else {
-		printf("Unsupported file extension %s\n", extension);
-		return 1;
-	}
+	char toDownload[1024];
+	appstore_getname(toDownload, name);
 
 	return platform_download(download, toDownload);
 }
@@ -117,23 +111,7 @@ int appstore_remove(char name[]) {
 
 	char toRemove[2048];
 
-	char *extension = name;
-	while (*extension != '.') {
-		extension++;
-		if (*extension == '\0') {
-			puts("File name does not have extension!");
-			return 1;
-		}
-	}
-
-	if (!strcmp(extension, ".mo")) {
-		snprintf(toRemove, 2048, "%s/ML/scripts/%s", usableDrive, name);
-	} else if (!strcmp(extension, ".lua")) {
-		snprintf(toRemove, 2048, "%s/ML/scripts/%s", usableDrive, name);
-	} else {
-		printf("Unsupported file extension %s\n", extension);
-		return 1;
-	}
+	appstore_getname(toRemove, name);
 
 	remove(toRemove);
 	

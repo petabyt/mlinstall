@@ -1,4 +1,5 @@
 // This is the GTK based app for Windows / Linux
+// TODO: decide on function/variable name style
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -55,7 +56,7 @@ int returnMessage(unsigned int code)
 		logprint("Return Code OK.\n");
 		return 0;
 	case 0x201d:
-		logprint("Return Code INVALID.\n");
+		logprint("Return Code INVALID_PARAMETER.\n");
 		return 1;
 	}
 
@@ -233,6 +234,8 @@ static void oneclick(GtkWidget *widget, gpointer data)
 	}
 }
 
+// As per Ant123's findings
+// https://www.magiclantern.fm/forum/index.php?topic=26162.msg236146#msg236146
 static void activate9052(GtkWidget *widget, gpointer data)
 {
 	logclear();
@@ -252,8 +255,6 @@ static void activate9052(GtkWidget *widget, gpointer data)
 	ptp_activate9052(&params);
 }
 
-static void removemodule(GtkWidget *widget, gpointer data);
-
 static void downloadmodule(GtkWidget *widget, gpointer data) {
 	logclear();
 
@@ -264,10 +265,7 @@ static void downloadmodule(GtkWidget *widget, gpointer data) {
 		logprint("Error downloading module.");
 	} else {
 		logprint("Module downloaded to card.");
-		gtk_button_set_label(GTK_BUTTON(widget), "Remove");
-		g_signal_connect(widget, "clicked", G_CALLBACK(removemodule), NULL);
 	}
-
 }
 
 static void removemodule(GtkWidget *widget, gpointer data) {
@@ -277,9 +275,17 @@ static void removemodule(GtkWidget *widget, gpointer data) {
 
 	if (!appstore_remove(name)) {
 		logprint("Module removed.");
-	
+	}
+}
+
+static void modulebtn_callback(GtkWidget *widget, gpointer data) {
+	const char *name = gtk_button_get_label(GTK_BUTTON(widget));
+	if (!strcmp(name, "Remove")) {
+		removemodule(widget, data);
 		gtk_button_set_label(GTK_BUTTON(widget), "Install");
-		g_signal_connect(widget, "clicked", G_CALLBACK(downloadmodule), NULL);
+	} else if (!strcmp(name, "Install")) {
+		downloadmodule(widget, data);
+		gtk_button_set_label(GTK_BUTTON(widget), "Remove");
 	}
 }
 
@@ -324,12 +330,12 @@ static void appstore(GtkWidget *widget, gpointer data)
 		FILE *f = fopen(moduleTest, "r");
 		if (f == NULL) {
 			button = gtk_button_new_with_label("Install");
-			g_signal_connect(button, "clicked", G_CALLBACK(downloadmodule), NULL);
 		} else {
 			button = gtk_button_new_with_label("Remove");
-			g_signal_connect(button, "clicked", G_CALLBACK(removemodule), NULL);
 			fclose(f);
 		}
+
+		g_signal_connect(button, "clicked", G_CALLBACK(modulebtn_callback), NULL);
 
 		gtk_widget_set_halign(button, GTK_ALIGN_END);
 		gtk_grid_attach(GTK_GRID(app), button, 1, 1, 1, 1);

@@ -5,7 +5,7 @@
 // functions
 
 #ifdef WIN32
-	#include <urlmon.h>
+#include <urlmon.h>
 #endif
 #include <unistd.h>
 int platform_download(char in[], char out[])

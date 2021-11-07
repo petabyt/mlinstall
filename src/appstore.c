@@ -8,7 +8,8 @@
 
 FILE *appstore_f = NULL;
 
-int appstore_getname(char *buffer, char filename[]) {
+int appstore_getname(char *buffer, char filename[])
+{
 	char usableDrive[1024];
 	flag_usable_drive(usableDrive);
 
@@ -35,7 +36,8 @@ int appstore_getname(char *buffer, char filename[]) {
 
 int appstore_init()
 {
-	platform_download("https://raw.githubusercontent.com/petabyt/mlinstall/master/repo/store", "ML_TEMP");
+	platform_download("https://raw.githubusercontent.com/petabyt/mlinstall/master/repo/store",
+			  "ML_TEMP");
 	if (appstore_f == NULL) {
 		appstore_f = fopen("ML_TEMP", "r");
 		if (appstore_f == NULL) {
@@ -44,7 +46,8 @@ int appstore_init()
 	}
 }
 
-int appstore_next(struct AppstoreFields *fields) {
+int appstore_next(struct AppstoreFields *fields)
+{
 	char buffer[MAX_FIELD];
 	int order = 0;
 	while (1) {
@@ -90,12 +93,14 @@ int appstore_next(struct AppstoreFields *fields) {
 	return 0;
 }
 
-int appstore_close() {
+int appstore_close()
+{
 	fclose(appstore_f);
 	remove("ML_TEMP");
 }
 
-int appstore_download(char name[], char download[]) {
+int appstore_download(char name[], char download[])
+{
 	char usableDrive[1024];
 	flag_usable_drive(usableDrive);
 
@@ -105,7 +110,8 @@ int appstore_download(char name[], char download[]) {
 	return platform_download(download, toDownload);
 }
 
-int appstore_remove(char name[]) {
+int appstore_remove(char name[])
+{
 	char usableDrive[1024];
 	flag_usable_drive(usableDrive);
 
@@ -114,6 +120,6 @@ int appstore_remove(char name[]) {
 	appstore_getname(toRemove, name);
 
 	remove(toRemove);
-	
+
 	return 0;
 }

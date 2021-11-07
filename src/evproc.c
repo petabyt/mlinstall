@@ -28,7 +28,7 @@ int evproc_run(char string[])
 	s = strtok(NULL, " ");
 
 	int p = 1;
-	unsigned int iparam[6] = {0};
+	unsigned int iparam[6] = { 0 };
 	while (s != NULL) {
 		iparam[p] = atoi(s);
 		s = strtok(NULL, " ");

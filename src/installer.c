@@ -93,7 +93,8 @@ static int find(struct Release *release, char name[], char version[])
 
 int installer_start(char model[], char version[])
 {
-	platform_download("https://raw.githubusercontent.com/petabyt/mlinstall/master/repo/install", "ML_TEMP");
+	platform_download("https://raw.githubusercontent.com/petabyt/mlinstall/master/repo/install",
+			  "ML_TEMP");
 
 	struct Release release;
 	int r = find(&release, model, version);
@@ -103,7 +104,8 @@ int installer_start(char model[], char version[])
 
 	remove("ML_TEMP");
 
-	printf("Found a match for your model/firmware version. Downloading\n%s\n", release.download_url);
+	printf("Found a match for your model/firmware version. Downloading\n%s\n",
+	       release.download_url);
 
 	printf("%s\n", release.download_url);
 	platform_download(release.download_url, "ML_RELEASE.ZIP");

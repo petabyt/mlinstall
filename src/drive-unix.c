@@ -67,10 +67,10 @@ int flag_getdrive(char buffer[])
 	FILE *c = popen("mount | grep EOS_DIGITAL | awk '{printf $1}'", "r");
 	fgets(buffer, 64, c);
 
-	// Check if not a drive (just carriage return)
+	// Check if not a dev drive
 	if (strncmp(buffer, "/dev/", 5)) {
 		puts("Couldn't find a /dev/ drive.");
-		puts("Make sure you are running as superuser and EOS_DIGITAL is mounted.");
+		puts("Make sure your EOS_DIGITAL card is mounted.");
 		return DRIVE_NONE;
 	} else if (!strncmp(buffer, "/dev/sda", 8)) {
 		puts("Somehow I got /dev/sda. I'm not writing to it...");
@@ -107,8 +107,6 @@ int flag_openfs()
 	d = fopen(buffer, "rw+");
 
 	if (d == NULL) {
-		puts("Could not open filesystem.");
-		puts("Make sure you are running as superuser.");
 		return DRIVE_ERROR;
 	}
 

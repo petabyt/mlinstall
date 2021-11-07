@@ -11,7 +11,8 @@
 #include "src/ptpcam.h"
 #include "src/drive.h"
 
-void help() {
+void help()
+{
 	puts("ML USB Install Tools CLI");
 	puts("Usage: mlinstall <command> <argument>");
 	puts("    run <COMMAND>  Run a Canon event proc via USB");
@@ -19,7 +20,7 @@ void help() {
 	puts("    disable        Run DisableBootDisk");
 	puts("    cardboot       Write EOS_DEVELOP and BOOTDISK flags to a mounted SD card named \"EOS_DEVELOP\"");
 	puts("    noboot         Destroy the card flags by writing an underscore on the first character.");
-	puts("    info           Get information on the camera.");	
+	puts("    info           Get information on the camera.");
 }
 
 int main(int argc, char *argv[])
@@ -46,7 +47,7 @@ int main(int argc, char *argv[])
 
 		close_camera(&ptp_usb, &params, dev);
 	} else if (!strcmp(argv[1], "info")) {
-	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
+		if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
 			puts("Connection error!");
 			return -1;
 		}
@@ -58,8 +59,7 @@ int main(int argc, char *argv[])
 		       "Model: %s\n"
 		       "DeviceVersion: %s\n"
 		       "SerialNumber: %s\n",
-		       info.Manufacturer, info.Model, info.DeviceVersion,
-		       info.SerialNumber);
+		       info.Manufacturer, info.Model, info.DeviceVersion, info.SerialNumber);
 
 		close_camera(&ptp_usb, &params, dev);
 	} else if (!strcmp(argv[1], "enable")) {

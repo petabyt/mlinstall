@@ -19,7 +19,7 @@
 #include "src/appstore.h"
 #include "src/platform.h"
 
-char *driveNotFound = "Could not find card. Make sure\nto run as Administrator/superuser.";
+char *driveNotFound = "Could not find card. Make sure\nto run as Administrator/sudo.";
 char *driveNotSupported = "Card not supported.\nSee console message.";
 
 // Quick, messy, logging mechanism:
@@ -221,7 +221,7 @@ static void oneclick(GtkWidget *widget, gpointer data)
 	ptp_getdeviceinfo(&params, &info);
 
 	close_camera(&ptp_usb, &params, dev);
-	
+
 	switch (installer_start(info.Model, info.DeviceVersion)) {
 	case NO_AVAILABLE_FIRMWARE:
 		logprint("Your camera model has a working build,\n"
@@ -255,7 +255,8 @@ static void activate9052(GtkWidget *widget, gpointer data)
 	ptp_activate9052(&params);
 }
 
-static void downloadmodule(GtkWidget *widget, gpointer data) {
+static void downloadmodule(GtkWidget *widget, gpointer data)
+{
 	logclear();
 
 	char *name = g_object_get_data(G_OBJECT(widget), "name");
@@ -268,9 +269,10 @@ static void downloadmodule(GtkWidget *widget, gpointer data) {
 	}
 }
 
-static void removemodule(GtkWidget *widget, gpointer data) {
+static void removemodule(GtkWidget *widget, gpointer data)
+{
 	logclear();
-	
+
 	char *name = g_object_get_data(G_OBJECT(widget), "name");
 
 	if (!appstore_remove(name)) {
@@ -278,7 +280,8 @@ static void removemodule(GtkWidget *widget, gpointer data) {
 	}
 }
 
-static void modulebtn_callback(GtkWidget *widget, gpointer data) {
+static void modulebtn_callback(GtkWidget *widget, gpointer data)
+{
 	const char *name = gtk_button_get_label(GTK_BUTTON(widget));
 	if (!strcmp(name, "Remove")) {
 		removemodule(widget, data);
@@ -369,7 +372,7 @@ static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 	return FALSE;
 }
 
-#define MENU_ADD_BUTTON(text, function, tip)                                                   \
+#define MENU_ADD_BUTTON(text, function, tip)                                                       \
 	button = gtk_button_new_with_label(text);                                                  \
 	g_signal_connect(button, "clicked", G_CALLBACK(function), NULL);                           \
 	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);                                 \
@@ -409,9 +412,8 @@ int main(int argc, char *argv[])
 	// Add title label
 	label = gtk_label_new(NULL);
 	gtk_widget_set_hexpand(label, TRUE);
-	gtk_label_set_markup(GTK_LABEL(label),
-			     "<span size=\"large\">MLInstall</span>\n"
-			     "(Early Release)\n");
+	gtk_label_set_markup(GTK_LABEL(label), "<span size=\"large\">MLInstall</span>\n"
+					       "(Early Release)\n");
 	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
 	gtk_grid_attach(GTK_GRID(mainGrid), label, 0, 0, 1, 1);
 	gtk_widget_show(label);
@@ -495,7 +497,9 @@ int main(int argc, char *argv[])
 
 	MENU_ADD_BUTTON("Detect EOS_DIGITAL", showdrive, "Try and detect the EOS_DIGITAL drive.")
 
-	MENU_ADD_BUTTON("Activate evproc execution", activate9052, "Run command 0x9050 three times to try and activate commands such as 0x9052")
+	MENU_ADD_BUTTON(
+		"Activate evproc execution", activate9052,
+		"Run command 0x9050 three times to try and activate commands such as 0x9052")
 
 	label = gtk_label_new(NULL);
 	gtk_label_set_markup(

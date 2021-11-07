@@ -59,16 +59,8 @@ int flag_getdrive()
 			dstr[0] = i + 'A';
 
 			char volname[100];
-			GetVolumeInformationA(
-				dstr,
-				volname,
-				sizeof(volname),
-				NULL,
-				NULL,
-				NULL,
-				NULL,
-				0
-			);
+			GetVolumeInformationA(dstr, volname, sizeof(volname), NULL, NULL, NULL,
+					      NULL, 0);
 
 			if (!strncmp(volname, "EOS_DIGITAL", 11)) {
 				if (i + 'A' == 'C') {
@@ -113,7 +105,7 @@ int flag_openfs(int mode)
 
 	if (d == INVALID_HANDLE_VALUE) {
 		puts("Couldn't open the filesystem. Try running as Administrator.\n"
-			"Check file explorer and make sure EOS_DIGITAL is mounted.");
+		     "Check file explorer and make sure EOS_DIGITAL is mounted.");
 		return -1;
 	}
 

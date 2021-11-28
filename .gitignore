@@ -1,0 +1,10 @@
+mlinstall
+*.out
+ptpcam
+*.exe
+*.o
+libusb*
+libusb*/
+libusb*/*
+gtk/*
+*.res

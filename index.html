@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>mlinstall</title>
+	<meta charset="utf-8">
+</head>
+<body>
+	<h1>mlinstall - USB Magic Lantern Installer</h1>
+	<p id="total">JS didn't execute :(</p>
+	<div id="downloads"></div>
+</body>
+<script>
+var requester = new XMLHttpRequest;
+requester.open("GET", "https://api.github.com/repos/petabyt/mlinstall/releases", true);
+
+requester.onreadystatechange = function() {
+	if (requester.readyState == 4 && requester.status == 200) {
+		data = JSON.parse(requester.responseText);
+		var total = 0;
+		for (var i = 0; i < data.length; i++) {
+			document.getElementById("downloads").innerHTML +=
+				"<p><h3><a href='" + data[i].html_url + "'>" + data[i].name + "</a></h3>";
+
+			var download = 0;
+			for (var x = 0; x < data[i].assets.length; x++) {
+				download += data[i].assets[x].download_count;
+			}
+
+			total += download;
+
+			document.getElementById("downloads").innerHTML +=
+				"Download count: " + download + "</p>";
+		}
+
+		document.getElementById("total").innerHTML = "Total downloads: " + total;
+	}
+};
+
+requester.send();
+</script>
+</html>

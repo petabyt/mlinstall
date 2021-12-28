@@ -5,20 +5,17 @@ Download: https://github.com/petabyt/mlinstall/releases
 ![screenshot](assets/screenshot.png)
 
 ## Features
-- Execute any DryOS event procedure
 - Enable/Disable boot disk (hopefully replacing custom encrypted firmware files)
 - Basic PTP functionality (get firmware/model/serial info)
 - Write EOS_DEVELOP and BOOTFLAG to card (Windows + Linux)
 - Make card Canon Basic Scriptable
 - Destroy card flags (without reformat)
 - App Store: Downloads and installs modules on SD card
-- Magic Lantern 1 click install (experimental, not in release)
 
 ## TODO / HELP NEEDED:
  - Fuzz testing
  - Mac OS port, (don't have a modern one)
  - Improve the [user manual](MANUAL.md)
- - Rename to "Magic Lantern App"?
 
 All pull requests/issues are welcome.  
 

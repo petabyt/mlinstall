@@ -397,7 +397,7 @@ int main(int argc, char *argv[])
 	g_print("https://www.magiclantern.fm/forum/index.php?topic=26162\n");
 
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(window), "MLInstall");
+	gtk_window_set_title(GTK_WINDOW(window), "ML Install Tool");
 	gtk_window_set_default_size(GTK_WINDOW(window), 375, 500);
 	g_signal_connect(window, "delete-event", G_CALLBACK(delete_event), NULL);
 	gtk_container_set_border_width(GTK_CONTAINER(window), 10);

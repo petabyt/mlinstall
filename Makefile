@@ -1,60 +1,41 @@
-# This Makefile contains targets for Windows 7/10
-# And POSIX systems.
+# Makefile for Windows XP/7/10, Linux, maybe MacOS
+# Compile from Linux only
 
-CFLAGS = -O0
-LDFLAGS = -lusb
+# Platform specific files will not be
+# compiled because of "#ifdef WIN32" guards
+FILES=$(patsubst %.c,%.o,$(wildcard src/*.c))
 
-default: unix-gtk
+# GCC must be specified since Linux CC
+# And mingw are different (doesn't have the "-gcc")
+GCC=$(CC)
 
-clean: win-clean unix-clean
+all: unix-gtk
 
-unix-clean:
-	@rm -rf ptpcam *.orig *.gch *.o *.out ptpcam mlinstall *.exe *.zip *.res linux* ML_*
+# flags for unix-gtk
+unix-gtk: CFLAGS=-lusb \
+    $(shell pkg-config --cflags gtk+-3.0) \
+    $(shell pkg-config --libs gtk+-3.0)
 
-# Format files to kernel style
-STYLE = -style=file -i
-style:
-	@cd src; clang-format $(STYLE) *.c
-	@clang-format $(STYLE) *.c
+unix-cli: CFLAGS=-lusb
 
-GTKFLAGS=$(shell pkg-config --cflags gtk+-3.0) $(shell pkg-config --libs gtk+-3.0)
-unix-gtk:
-	$(CC) gtk.c src/*.c $(LDFLAGS) $(CFLAGS) $(GTKFLAGS) -DDEV_ -o mlinstall
+# Clean things that could cause incompatible between arch
+clean-out:
+	$(RM) -r src/*.o mlinstall unix-gtk unix-cli win-gtk win-cli *.o *.out *.exe *.res
 
-linux64-gtk-mlinstall: unix-gtk
-	staticx mlinstall linux64-gtk-mlinstall
+clean: clean-out
+	$(RM) -r *.zip *.AppImage unix-gtk unix-cli win64-gtk-mlinstall win32-cli-mlinstall gtk libusb
 
-unix-cli:
-	$(CC) cli.c src/*.c $(CFLAGS) $(LDFLAGS) -o mlinstall
+unix-gtk: $(FILES) gtk.o
+	$(CC) gtk.o $(FILES) $(CFLAGS) -o unix-gtk
 
-linux64-cli-mlinstall: unix-cli
-	staticx mlinstall linux64-gtk-mlinstall
+unix-cli: $(FILES) cli.o
+	$(CC) cli.o $(FILES) $(CFLAGS) -o unix-cli
 
-release: linux64-gtk-mlinstall \
-	linux64-cli-mlinstall \
-	win-libs win-gtk win-gtk-pack \
-	win-cli win-cli-pack
-
-# ------------------------------------------------
-# Rules to cross compile for windows, from Linux
-# ------------------------------------------------
-# You need to have x86_64-w64-mingw32-gcc.
-
-WINCC = x86_64-w64-mingw32
-
-# Desired libusb dll directory
-LIBUSB = libusb
-LIBUSB_DLL = $(LIBUSB)/bin/amd64/libusb0.dll
-
-# win32 + LIBUSB libs
-WIN_CFLAGS = -lws2_32 -lkernel32 -lurlmon -I$(LIBUSB)/include -Igtk/include
-
-# strip debug symbols, smaller executable
-WIN_CFLAGS += -s
+# ----------------
+#  Windows stuff:
+# ----------------
 
 # Download Windows DLLs (libusb, gtk)
-# Alternative source: https://download.geany.org/contrib/gtk/gtk+-bundle_3.8.2-20131001_win32.zip
-# or https://web.archive.org/web/20171023023802if_/http://win32builder.gnome.org/gtk+-bundle_3.10.4-20131202_win64.zip
 gtk:
 	mkdir gtk
 	wget -4 https://github.com/petabyt/windows-gtk/raw/master/win64-gtk-2021.zip
@@ -67,37 +48,53 @@ libusb:
 	mv libusb-win32-bin-1.2.2.0 libusb
 	rm *.zip
 
-win-libs: gtk libusb
+# Contains app info, asset stuff
+win.res: assets/win.rc
+	$(CC)-windres assets/win.rc -O coff -o win.res
 
-win-clean:
-	rm -rf gtk libusb-win32-bin-1.2.2.0 *.zip *.exe *.res mlinstall/ libusb lib
+# Main windows targets, will compile a complete directory,
+# copy in DLLs, README. Useful for testing in virtualbox and stuff
 
-mlinstall:
-	rm -rf mlinstall
-	mkdir mlinstall
+win64-gtk-mlinstall: CC=x86_64-w64-mingw32
+win64-gtk-mlinstall: GCC=$(CC)-gcc
+win64-gtk-mlinstall: CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Ilibusb/include -Igtk/include
 
-win-gtk: win-libs
-	$(WINCC)-windres assets/win.rc -O coff -o win.res
-	$(WINCC)-gcc gtk.c win.res src/*.c $(WIN_CFLAGS) $(LIBUSB_DLL) gtk/lib/* -o mlinstall.exe
+win-gtk: win64-gtk-mlinstall
+win64-gtk-mlinstall: win.res gtk libusb gtk.o $(FILES)
+	mkdir win64-gtk-mlinstall
+	$(GCC) win.res gtk.o $(FILES) gtk/lib/* libusb/bin/amd64/libusb0.dll \
+	    $(CFLAGS) -o win64-gtk-mlinstall/mlinstall.exe
+	cp libusb/bin/amd64/libusb0.dll win64-gtk-mlinstall/
+	cd gtk/lib/; cp * ../../win64-gtk-mlinstall/
+	cp assets/README.txt win64-gtk-mlinstall/
 
-# Copy over files but don't pack, for virtualbox testing
-win-gtk-test: mlinstall
-	cp $(LIBUSB_DLL) mlinstall/
-	cd gtk/lib/; cp * ../../mlinstall/
-	cp mlinstall.exe mlinstall/
-	cp assets/README.txt mlinstall/
+win32-cli-mlinstall: CC=i686-w64-mingw32
+win32-cli-mlinstall: GCC=$(CC)-gcc
+win32-cli-mlinstall: CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Ilibusb/include
 
-win-gtk-pack: win-gtk-test
-	@zip -r win64-gtk-mlinstall.zip mlinstall
+win-cli: win32-cli-mlinstall
+win32-cli-mlinstall: win.res libusb cli.o $(FILES)
+	mkdir win32-cli-mlinstall
+	$(GCC) win.res cli.o $(FILES) libusb/bin/x86/libusb0.dll $(CFLAGS) -o win32-cli-mlinstall/mlinstall.exe
+	cp $(LIBUSB)/bin/x86/libusb0_x86.dll win32-cli-mlinstall/libusb0.dll
+	cp assets/README.txt win32-cli-mlinstall/
 
-# Compile cli app as 32 bit
-# (so I can run it on Windows XP)
-win-cli: win-libs
-	i686-w64-mingw32-gcc cli.c src/*.c $(WIN_CFLAGS) $(LIBUSB)/bin/x86/libusb0_x86.dll -o mlinstall.exe
+# This at end so that it isn't immediately evaluated
+# Note that GCC is used instead of CC since for windows
+# It's set to only x86_64-w64-mingw32
+%.o: %.c
+	$(GCC) -c $< $(CFLAGS) -o $@
 
-win-cli-test: mlinstall
-	cp $(LIBUSB)/bin/x86/libusb0_x86.dll mlinstall/libusb0.dll
-	cp mlinstall.exe mlinstall/
+# Final release stuff:
 
-win32-cli-mlinstall.zip: win-cli-test
-	zip -r win32-cli-mlinstall.zip mlinstall
+win32-cli-mlinstall.zip: win64-gtk-mlinstall
+	zip -r win32-cli-mlinstall.zip win64-gtk-mlinstall
+
+win64-gtk-mlinstall.zip: win64-gtk-mlinstall
+	zip -r win64-gtk-mlinstall.zip win64-gtk-mlinstall
+
+linux64-gtk-mlinstall.AppImage: unix-gtk
+	staticx unix-gtk linux64-gtk-mlinstall.AppImage
+
+linux64-cli-mlinstall.AppImage: unix-cli
+	staticx unix-cli linux64-gtk-mlinstall.AppImage

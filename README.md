@@ -22,7 +22,7 @@ All pull requests/issues are welcome.
 ## Linux Compilation
 Required packages:  
 - libusb-dev
-- gcc or tcc
+- gcc
 - libgtk-3-dev
 ```
 make unix-gtk
@@ -41,10 +41,7 @@ the DLLs for the compiler and zip file.
 MinGW is required (`apt install gcc-mingw-w64-x86-64`)  
 
 ```
-# Compile and pack gui zip
-make win-libs
 make win-gtk
-make win-gtk-pack
 ```
 
 Licensed under `GNU General Public License v2.0`.  

@@ -15,7 +15,6 @@ Download: https://github.com/petabyt/mlinstall/releases
 ## TODO / HELP NEEDED:
  - Fuzz testing
  - Mac OS port, (don't have a modern one)
- - Improve the [user manual](MANUAL.md)
 
 All pull requests/issues are welcome.  
 

@@ -11,8 +11,6 @@ all: unix-gtk
 unix-gtk: LDFLAGS=-lusb $(shell pkg-config --libs gtk+-3.0)
 unix-gtk: CFLAGS=$(shell pkg-config --cflags gtk+-3.0)
 
-unix-cli: LDFLAGS=-lusb
-
 # Clean things that could cause incompatibilities between arch
 clean-out:
 	$(RM) -r src/*.o mlinstall unix-gtk unix-cli win-gtk win-cli *.o *.out *.exe *.res
@@ -23,9 +21,6 @@ clean: clean-out
 
 unix-gtk: $(FILES) gtk.o
 	$(CC) gtk.o $(FILES) $(CFLAGS) $(LDFLAGS) -o unix-gtk
-
-unix-cli: $(FILES) cli.o
-	$(CC) cli.o $(FILES) $(CFLAGS) $(LDFLAGS) -o unix-cli
 
 # ----------------
 #  Windows stuff:
@@ -83,15 +78,8 @@ win32-gtk-mlinstall: win.res gtk libusb gtk.o $(FILES)
 %.o: %.c
 	$(CC) -c $< $(CFLAGS) -o $@
 
-# Final release stuff:
-win32-cli-mlinstall.zip: win64-gtk-mlinstall
-	zip -r win32-cli-mlinstall.zip win64-gtk-mlinstall
-
 win64-gtk-mlinstall.zip: win64-gtk-mlinstall
 	zip -r win64-gtk-mlinstall.zip win64-gtk-mlinstall
 
 linux64-gtk-mlinstall.AppImage: unix-gtk
 	staticx unix-gtk linux64-gtk-mlinstall.AppImage
-
-linux64-cli-mlinstall.AppImage: unix-cli
-	staticx unix-cli linux64-gtk-mlinstall.AppImage

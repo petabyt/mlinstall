@@ -118,37 +118,6 @@ struct Tokens parseCommand(char string[]) {
 // Returns "1" on parse error.
 int evproc_run(char string[])
 {
-#if 0
-	printf("Command AST for '%s':\n", string);
-	for (int i = 0; i < toks.length; i++) {
-		switch (toks.t[i].type) {
-		case TOK_TEXT:
-			printf("Found text token: %s\n", toks.t[i].string);
-			break;
-		case TOK_STR:
-			printf("Found string token: \"%s\"\n", toks.t[i].string);
-			break;
-		case TOK_INT:
-			printf("Found integer token: %d\n", toks.t[i].integer);
-			break;			
-		}
-	}
-#endif
-
-	int busn = 0;
-	int devn = 0;
-	short force = 0;
-	PTPParams params;
-	PTP_USB ptp_usb;
-	struct usb_device *dev;
-
-	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
-		return 0;
-	}
-
-	// Command is disabled on some cams	
-	ptp_activate_command(&params);
-
 	struct EvProcFooter footer;
 	footer.params = 0;
 	footer.longpars = 0;
@@ -171,6 +140,7 @@ int evproc_run(char string[])
 		curr += len + 1;
 	} else {
 		puts("Error, first parameter must be plain text.");
+		return 1;
 	}
 
 	// Pack parameters into data
@@ -212,6 +182,20 @@ int evproc_run(char string[])
 	// Add in the evproc footer
 	memcpy(data + curr, &footer, sizeof(struct EvProcFooter));
 	curr += sizeof(struct EvProcFooter);
+
+	int busn = 0;
+	int devn = 0;
+	short force = 0;
+	PTPParams params;
+	PTP_USB ptp_usb;
+	struct usb_device *dev;
+
+	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
+		return 0;
+	}
+
+	// Command is disabled on some cams	
+	ptp_activate_command(&params);
 
 	unsigned int r = ptp_run_command(&params, data, curr, 0, 0);
 

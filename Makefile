@@ -10,8 +10,9 @@ all: unix-gtk
 # flags for unix-gtk
 unix-gtk: LDFLAGS=-lusb $(shell pkg-config --libs gtk+-3.0)
 unix-gtk: CFLAGS=$(shell pkg-config --cflags gtk+-3.0)
+unix-gtk: CFLAGS+=-D DEV
 
-# Clean things that could cause incompatibilities between arch
+# Clean incompatible stuff, use between comiling 
 clean-out:
 	$(RM) -r src/*.o mlinstall unix-gtk unix-cli win-gtk win-cli *.o *.out *.exe *.res
 
@@ -22,9 +23,9 @@ clean: clean-out
 unix-gtk: $(FILES) gtk.o
 	$(CC) gtk.o $(FILES) $(CFLAGS) $(LDFLAGS) -o unix-gtk
 
-# ----------------
+#
 #  Windows stuff:
-# ----------------
+#
 
 # Download GTK libs, GTK_ZIP is sent from parent target
 # See https://github.com/petabyt/windows-gtk for more info on this
@@ -62,6 +63,7 @@ win64-gtk-mlinstall: win.res gtk libusb gtk.o $(FILES)
 	cp assets/README.txt win64-gtk-mlinstall/
 
 # 32 bit Windows XP, ReactOS
+win32-gtk: win32-gtk-mlinstall
 win32-gtk-mlinstall: MINGW=i686-w64-mingw32
 win32-gtk-mlinstall: CC=$(MINGW)-gcc
 win32-gtk-mlinstall: CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Ilibusb/include -Igtk/include

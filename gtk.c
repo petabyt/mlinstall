@@ -234,27 +234,6 @@ static void oneclick(GtkWidget *widget, gpointer data)
 	}
 }
 
-// As per Ant123's findings
-// https://www.magiclantern.fm/forum/index.php?topic=26162.msg236146#msg236146
-static void activate9052(GtkWidget *widget, gpointer data)
-{
-	logclear();
-
-	int busn = 0;
-	int devn = 0;
-	short force = 0;
-	PTPParams params;
-	PTP_USB ptp_usb;
-	struct usb_device *dev;
-
-	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
-		returnMessage(0);
-		return;
-	}
-
-	ptp_activate9052(&params);
-}
-
 static void downloadmodule(GtkWidget *widget, gpointer data)
 {
 	logclear();
@@ -496,10 +475,6 @@ int main(int argc, char *argv[])
 	gtk_widget_show(entry);
 
 	MENU_ADD_BUTTON("Detect EOS_DIGITAL", showdrive, "Try and detect the EOS_DIGITAL drive.")
-
-	MENU_ADD_BUTTON(
-		"Activate evproc execution", activate9052,
-		"Run command 0x9050 three times to try and activate commands such as 0x9052")
 
 	label = gtk_label_new(NULL);
 	gtk_label_set_markup(

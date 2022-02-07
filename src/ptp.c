@@ -2241,42 +2241,27 @@ ptp_error(params,"message from unexpected script id
 	return 1;
 }
 
-uint16_t ptp_runeventproc(PTPParams *params, char string[], unsigned int *iparam)
+uint16_t ptp_run_command(PTPParams *params, char data[], int length)
 {
 	uint16_t ret;
 	PTPContainer ptp;
-
-	// Generous zero padding to prevent crashes
-	char command[100] = { 0 };
-	strncpy(command, string, sizeof(command));
-	char *_command = command;
 
 	// Memset ptp to zero
 	PTP_CNT_INIT(ptp);
 
 	ptp.Code = 0x9052;
+	ptp.Nparam = 0;
 
-	if (iparam == NULL) {
-		ptp.Nparam = 0;
-	} else {
-		ptp.Nparam = iparam[0];
-		ptp.Param1 = iparam[1];
-		ptp.Param2 = iparam[2];
-		ptp.Param3 = iparam[3];
-		ptp.Param4 = iparam[4];
-		ptp.Param5 = iparam[5];
-	}
+	//ptp.Param1 = 0; // async
+	//ptp.Param2 = 1; // retdata
 
-	printf("Length: %u: %u %u %u %u %u\n", ptp.Nparam, ptp.Param1, ptp.Param2, ptp.Param3,
-	       ptp.Param4, ptp.Param5);
-
-	ret = ptp_transaction(params, &ptp, PTP_DP_SENDDATA, sizeof(command), &_command);
+	ret = ptp_transaction(params, &ptp, PTP_DP_SENDDATA, length, &data);
 
 	return ret;
 }
 
 // https://www.magiclantern.fm/forum/index.php?topic=26162.msg236146#msg236146
-uint16_t ptp_activate9052(PTPParams *params)
+uint16_t ptp_activate_command(PTPParams *params)
 {
 	uint16_t ret;
 	for (int i = 0; i < 3; i++) {

@@ -16,50 +16,22 @@ int evproc_run(char string[])
 	PTP_USB ptp_usb;
 	struct usb_device *dev;
 
-#ifdef TRY_PARAM
-	char command[128];
-	char buffer[1024];
-
-	strcpy(buffer, string);
-	char *s = strtok(buffer, " ");
-	strcpy(command, s);
-
-	// Parse base 10 arguments following command name
-	s = strtok(NULL, " ");
-
-	int p = 1;
-	unsigned int iparam[6] = { 0 };
-	while (s != NULL) {
-		iparam[p] = atoi(s);
-		s = strtok(NULL, " ");
-		p++;
-	}
-
-	// Set first element to length
-	iparam[0] = p - 1;
-
-	printf("Running '%s' with %d params...\n", command, p - 1);
-
 	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
 		return 0;
 	}
 
-	// Don't send parameters if there aren't any
-	unsigned int r;
-	if (p - 1 == 0) {
-		r = ptp_runeventproc(&params, string, NULL);
-	} else {
-		r = ptp_runeventproc(&params, string, iparam);
-	}
-#endif
+	// Command is disabled on some cams	
+	ptp_activate_command(&params);
+	
+	int stringLen = strlen(string);
+	
+	char data[1024];
+	memcpy(data, string, stringLen);
 
-#ifndef TRY_PARAM
-	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
-		return 0;
-	}
+	// Copy in blank padding
+	memset(data + stringLen, 0, 30);
 
-	unsigned int r = ptp_runeventproc(&params, string, NULL);
-#endif
+	unsigned int r = ptp_run_command(&params, data, stringLen + 30);
 
 	close_camera(&ptp_usb, &params, dev);
 	return r;

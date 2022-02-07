@@ -2,7 +2,7 @@
 A Windows/Linux app to help with installing Magic Lantern.  
 Download: https://github.com/petabyt/mlinstall/releases  
 
-![screenshot](assets/screenshot.png)
+![screenshot](https://eggnog.theres.life/f/27-4i8br89x4xfu20tdqrylznyu6stl09.png)
 
 ## Features
 - Enable/Disable boot disk (hopefully replacing custom encrypted firmware files)
@@ -40,7 +40,7 @@ the DLLs for the compiler and zip file.
 MinGW is required (`apt install gcc-mingw-w64-x86-64`)  
 
 ```
-make win-gtk
+make win64-gtk-mlinstall.zip
 ```
 
 Licensed under `GNU General Public License v2.0`.  

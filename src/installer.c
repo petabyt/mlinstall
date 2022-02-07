@@ -3,10 +3,7 @@
 #include <string.h>
 #include <usb.h>
 
-#include "config.h"
-#include "ptp.h"
-#include "ptpcam.h"
-
+#include "evproc.h"
 #include "drive.h"
 #include "model.h"
 #include "installer.h"
@@ -152,23 +149,7 @@ int installer_start(char model[], char version[])
 
 	puts("Running 'EnableBootDisk'...");
 
-	{
-		int busn = 0;
-		int devn = 0;
-		short force = 0;
-		PTPParams params;
-		PTP_USB ptp_usb;
-		struct usb_device *dev;
-
-		if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
-			puts("Can't open PTP camera!");
-			return 1;
-		}
-
-		ptp_runeventproc(&params, "EnableBootDisk", NULL);
-		puts("Enabled boot disk.");
-		close_camera(&ptp_usb, &params, dev);
-	}
+	evproc_run("EnableBootDisk");
 
 	puts("Magic Lantern successfully installed.");
 

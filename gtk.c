@@ -58,6 +58,9 @@ int returnMessage(unsigned int code)
 	case 0x201d:
 		logprint("Return Code INVALID_PARAMETER.\n");
 		return 1;
+	case 1:
+		logprint("Parser error. See console.");
+		return 1;
 	}
 
 	return 0;

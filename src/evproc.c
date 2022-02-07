@@ -102,6 +102,8 @@ struct Tokens parseCommand(char string[]) {
 			}
 			c++;
 		} else {
+			printf("Skipping unknown character '%c'\n", string[c]);
+			c++;
 			continue;
 		}
 

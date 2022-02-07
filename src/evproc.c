@@ -8,17 +8,32 @@
 #include "ptp.h"
 #include "ptpcam.h"
 
+// TODO:
+//  Parse hex into int
+//  Parse filenames
+//  Seperate parser and packer
+
+// Structs are sent in little endian
 struct EvProcFooter {
 	uint32_t params; // Number of parameters
 	uint32_t longpars; // Number of long parameters (string, file)
 };
 
 struct EvProcInt {
-	uint32_t p1;
+	uint32_t type;
 	uint32_t number;
-	uint32_t p2;
 	uint32_t p3;
 	uint32_t p4;
+	uint32_t size;
+};
+
+struct EvProcStr {
+	uint32_t type;
+	uint32_t number;
+	uint32_t p3;
+	uint32_t p4;
+	uint32_t size;
+	// Followed by NULL terminated string
 };
 
 enum Types {
@@ -53,9 +68,6 @@ int digit(char c) {
 // Parse a formatted command into struct Tokens
 // Should parse:
 //  ThisCommand   123 "A String"
-// TODO:
-//  Parse hex into int
-//  Parse filenames
 struct Tokens parseCommand(char string[]) {
 	struct Tokens toks;
 	int t = 0;
@@ -161,17 +173,37 @@ int evproc_run(char string[])
 		puts("Error, first parameter must be plain text.");
 	}
 
+	// Pack parameters into data
 	for (int t = 1; t < toks.length; t++) {
 		switch (toks.t[t].type) {
 		case TOK_INT:
 			{
 				struct EvProcInt integer;
+				memset(&integer, 0, sizeof(struct EvProcInt));
 				integer.number = toks.t[t].integer;
 
 				memcpy(data + curr, &integer, sizeof(struct EvProcInt));
 				curr += sizeof(struct EvProcInt);
 
 				footer.params++;
+			}
+			break;
+		case TOK_STR:
+			{
+				struct EvProcStr string;
+				memset(&string, 0, sizeof(struct EvProcStr));
+
+				string.type = 4;
+				string.size = strlen(toks.t[t].string);
+
+				memcpy(data + curr, &string, sizeof(struct EvProcStr));
+				curr += sizeof(struct EvProcStr);
+
+				memcpy(data + curr, toks.t[t].string, string.size + 1);
+				curr += string.size + 1;
+
+				footer.params++;
+				footer.longpars++;
 			}
 			break;
 		}
@@ -181,7 +213,7 @@ int evproc_run(char string[])
 	memcpy(data + curr, &footer, sizeof(struct EvProcFooter));
 	curr += sizeof(struct EvProcFooter);
 
-	unsigned int r = ptp_run_command(&params, data, curr);
+	unsigned int r = ptp_run_command(&params, data, curr, 0, 0);
 
 	close_camera(&ptp_usb, &params, dev);
 	return r;

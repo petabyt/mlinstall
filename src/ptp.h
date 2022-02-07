@@ -1021,7 +1021,7 @@ typedef struct {
     char data[];
 } ptp_chdk_script_msg;
 
-uint16_t ptp_run_command(PTPParams *params, char data[], int length);
+uint16_t ptp_run_command(PTPParams *params, char data[], int length, int async, int retdata);
 uint16_t ptp_activate_command(PTPParams *params);
 
 #endif /* __PTP_H__ */

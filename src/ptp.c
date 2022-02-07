@@ -2241,7 +2241,7 @@ ptp_error(params,"message from unexpected script id
 	return 1;
 }
 
-uint16_t ptp_run_command(PTPParams *params, char data[], int length)
+uint16_t ptp_run_command(PTPParams *params, char data[], int length, int async, int retdata)
 {
 	uint16_t ret;
 	PTPContainer ptp;
@@ -2252,8 +2252,8 @@ uint16_t ptp_run_command(PTPParams *params, char data[], int length)
 	ptp.Code = 0x9052;
 	ptp.Nparam = 0;
 
-	//ptp.Param1 = 0; // async
-	//ptp.Param2 = 1; // retdata
+	ptp.Param1 = 0; // async
+	ptp.Param2 = 1; // retdata
 
 	ret = ptp_transaction(params, &ptp, PTP_DP_SENDDATA, length, &data);
 

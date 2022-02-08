@@ -12,6 +12,7 @@
 //  Parse hex into int
 //  Parse filenames
 //  Seperate parser and packer
+//  don't hardcode parser lengths
 
 // Structs are sent in little endian
 struct EvProcFooter {
@@ -45,7 +46,6 @@ enum Types {
 #define MAX_STR 128
 #define MAX_TOK 10
 
-// TODO: don't hardcode lengths
 struct Tokens {
 	struct T {
 		int type;
@@ -65,9 +65,14 @@ int digit(char c) {
 	return (c >= '0' && c <= '9');
 }
 
+int hex(char c) {
+	return digit(c) || (c >= 'A' && c <= 'F')
+		|| (c >= 'a' && c <= 'f');
+}
+
 // Parse a formatted command into struct Tokens
 // Should parse:
-//  ThisCommand   123 "A String"
+//  ThisCommand   123 "A String" 0xabc
 struct Tokens parseCommand(char string[]) {
 	struct Tokens toks;
 	int t = 0;
@@ -84,6 +89,29 @@ struct Tokens parseCommand(char string[]) {
 			while (alpha(string[c])) {
 				toks.t[t].string[s] = string[c];
 				c++; s++;
+
+				if (s > MAX_STR) {break;}
+			}
+		} else if (string[c] == '0' && string[c + 1] == 'x') {
+			toks.t[t].integer = 0;
+			toks.t[t].type = TOK_INT;
+			c += 2;
+			while (hex(string[c])) {
+				toks.t[t].integer *= 16;
+				if (string[c] >= '0' && string[c] <= '9') {
+					toks.t[t].integer += string[c] - '0';
+				}
+
+				if (string[c] >= 'A' && string[c] <= 'F') {
+					toks.t[t].integer += string[c] - 'A' + 10;
+				}
+
+				if (string[c] >= 'a' && string[c] <= 'f') {
+					toks.t[t].integer += string[c] - 'a' + 10;
+				}
+
+				
+				c++;
 			}
 		} else if (digit(string[c])) {
 			toks.t[t].integer = 0;
@@ -99,6 +127,8 @@ struct Tokens parseCommand(char string[]) {
 			while (string[c] != '"') {
 				toks.t[t].string[s] = string[c];
 				c++; s++;
+
+				if (s > MAX_STR) {break;}
 			}
 			c++;
 		} else {
@@ -108,7 +138,13 @@ struct Tokens parseCommand(char string[]) {
 		}
 
 		toks.t[t].string[s] = '\0';
-		t++;
+
+		if (t >= MAX_TOK) {
+			printf("Hit max parameter count, killing parser.\n");
+			break;
+		} else {
+			t++;
+		}
 	}
 
 	toks.length = t;
@@ -120,11 +156,31 @@ struct Tokens parseCommand(char string[]) {
 // Returns "1" on parse error.
 int evproc_run(char string[])
 {
+
 	struct EvProcFooter footer;
 	footer.params = 0;
 	footer.longpars = 0;
 
 	struct Tokens toks = parseCommand(string);
+
+	// Simple bit of code the testing the parser
+#if 0
+	printf("Command AST for '%s':\n", string);
+	for (int i = 0; i < toks.length; i++) {
+		switch (toks.t[i].type) {
+		case TOK_TEXT:
+			printf("Found text token: %s\n", toks.t[i].string);
+			break;
+		case TOK_STR:
+			printf("Found string token: \"%s\"\n", toks.t[i].string);
+			break;
+		case TOK_INT:
+			printf("Found integer token: %d\n", toks.t[i].integer);
+			break;			
+		}
+	}
+	return 0;
+#endif
 
 	char data[1024];
 	int curr = 0;

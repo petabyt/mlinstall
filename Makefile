@@ -14,11 +14,11 @@ unix-gtk: CFLAGS+=-D _DEV
 
 # Clean incompatible stuff, use between comiling 
 clean-out:
-	$(RM) -r src/*.o mlinstall unix-gtk unix-cli win-gtk win-cli *.o *.out *.exe *.res
+	$(RM) -r src/*.o mlinstall unix-gtk unix-cli win-gtk win-cli *.o *.out *.exe *.res gtk libusb
 
 # Clean everything
 clean: clean-out
-	$(RM) -r *.zip *.AppImage unix-gtk unix-cli win64* win32* gtk libusb
+	$(RM) -r *.zip *.AppImage unix-gtk unix-cli win64* win32*
 
 unix-gtk: $(FILES) gtk.o
 	$(CC) gtk.o $(FILES) $(CFLAGS) $(LDFLAGS) -o unix-gtk
@@ -41,7 +41,6 @@ libusb:
 	wget -4 https://cfhcable.dl.sourceforge.net/project/libusb-win32/libusb-win32-releases/1.2.2.0/libusb-win32-bin-1.2.2.0.zip
 	unzip libusb-win32-bin-1.2.2.0.zip
 	mv libusb-win32-bin-1.2.2.0 libusb
-	rm *.zip
 
 # Contains app info, asset stuff
 win.res: assets/win.rc
@@ -80,8 +79,19 @@ win32-gtk-mlinstall: win.res gtk libusb gtk.o $(FILES)
 %.o: %.c
 	$(CC) -c $< $(CFLAGS) -o $@
 
+# Release targets:
 win64-gtk-mlinstall.zip: win64-gtk-mlinstall
 	zip -r win64-gtk-mlinstall.zip win64-gtk-mlinstall
 
+win32-gtk-mlinstall.zip: win32-gtk-mlinstall
+	zip -r win32-gtk-mlinstall.zip win32-gtk-mlinstall
+
 linux64-gtk-mlinstall.AppImage: unix-gtk
 	staticx unix-gtk linux64-gtk-mlinstall.AppImage
+
+release:
+	$(MAKE) linux64-gtk-mlinstall.AppImage clean-out
+	$(MAKE) win64-gtk-mlinstall.zip clean-out
+	$(MAKE) win32-gtk-mlinstall.zip clean-out
+
+.PHONY: clean clean-out release win32-gtk win64-gtk all

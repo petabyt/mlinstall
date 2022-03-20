@@ -51,26 +51,26 @@
 #define BE16TOH(x) (x) = be16toh(x)
 
 /* On little endian machines, these macros are null */
-#define htole16(x)      (x)
-#define htole32(x)      (x)
-#define htole64(x)      (x)
-#define le16toh(x)      (x)
-#define le32toh(x)      (x)
-#define le64toh(x)      (x)
+#define htole16(x) (x)
+#define htole32(x) (x)
+#define htole64(x) (x)
+#define le16toh(x) (x)
+#define le32toh(x) (x)
+#define le64toh(x) (x)
 
-#define HTOLE16(x)      (void) (x)
-#define HTOLE32(x)      (void) (x)
-#define HTOLE64(x)      (void) (x)
-#define LE16TOH(x)      (void) (x)
-#define LE32TOH(x)      (void) (x)
-#define LE64TOH(x)      (void) (x)
+#define HTOLE16(x) (void)(x)
+#define HTOLE32(x) (void)(x)
+#define HTOLE64(x) (void)(x)
+#define LE16TOH(x) (void)(x)
+#define LE32TOH(x) (void)(x)
+#define LE64TOH(x) (void)(x)
 
 /* Uncomment if system endian.h does not provide them */
 //#define htobe64(x)      swap64(x)
 //#define be64toh(x)      swap64(x)
 
-#define HTOBE64(x)      (x) = htobe64(x)
-#define BE64TOH(x)      (x) = be64toh(x)
+#define HTOBE64(x) (x) = htobe64(x)
+#define BE64TOH(x) (x) = be64toh(x)
 
 #endif
 
@@ -85,18 +85,18 @@
 
 /* The i386 and compatibles can handle unaligned memory access, */
 /* so use the optimized macros above to do this job */
-#define be16atoh(x)     be16toh(*(uint16_t*)(x))
-#define be32atoh(x)     be32toh(*(uint32_t*)(x))
-#define be64atoh(x)     be64toh(*(uint64_t*)(x))
-#define le16atoh(x)     le16toh(*(uint16_t*)(x))
-#define le32atoh(x)     le32toh(*(uint32_t*)(x))
-#define le64atoh(x)     le64toh(*(uint64_t*)(x))
+#define be16atoh(x) be16toh(*(uint16_t *)(x))
+#define be32atoh(x) be32toh(*(uint32_t *)(x))
+#define be64atoh(x) be64toh(*(uint64_t *)(x))
+#define le16atoh(x) le16toh(*(uint16_t *)(x))
+#define le32atoh(x) le32toh(*(uint32_t *)(x))
+#define le64atoh(x) le64toh(*(uint64_t *)(x))
 
-#define htobe16a(a,x)   *(uint16_t*)(a) = htobe16(x)
-#define htobe32a(a,x)   *(uint32_t*)(a) = htobe32(x)
-#define htobe64a(a,x)   *(uint64_t*)(a) = htobe64(x)
-#define htole16a(a,x)   *(uint16_t*)(a) = htole16(x)
-#define htole32a(a,x)   *(uint32_t*)(a) = htole32(x)
-#define htole64a(a,x)   *(uint64_t*)(a) = htole64(x)
+#define htobe16a(a, x) *(uint16_t *)(a) = htobe16(x)
+#define htobe32a(a, x) *(uint32_t *)(a) = htobe32(x)
+#define htobe64a(a, x) *(uint64_t *)(a) = htobe64(x)
+#define htole16a(a, x) *(uint16_t *)(a) = htole16(x)
+#define htole32a(a, x) *(uint32_t *)(a) = htole32(x)
+#define htole64a(a, x) *(uint64_t *)(a) = htole64(x)
 
 #endif /*__BYTEORDER_H*/

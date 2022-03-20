@@ -96,4 +96,3 @@
 #define PTP_OC_CANON_CHDK 0x9999
 #define PTP_OC_CANON_MagicLantern 0xa1e8
 #endif
-

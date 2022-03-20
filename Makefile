@@ -23,6 +23,9 @@ clean: clean-out
 unix-gtk: $(FILES) gtk.o
 	$(CC) gtk.o $(FILES) $(CFLAGS) $(LDFLAGS) -o unix-gtk
 
+style:
+	clang-format -style=file -i src/*.c src/*.h gtk.c
+
 #
 #  Windows stuff:
 #
@@ -94,4 +97,4 @@ release:
 	$(MAKE) win64-gtk-mlinstall.zip clean-out
 	$(MAKE) win32-gtk-mlinstall.zip clean-out
 
-.PHONY: clean clean-out release win32-gtk win64-gtk all
+.PHONY: clean clean-out release win32-gtk win64-gtk all style

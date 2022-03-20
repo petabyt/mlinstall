@@ -51,34 +51,35 @@ struct Tokens {
 		int type;
 		char string[MAX_STR];
 		int integer;
-	}t[MAX_TOK];
+	} t[MAX_TOK];
 	int length;
 };
 
-int alpha(char c) {
-	return (c >= 'a' && c <= 'z')
-		|| (c >= 'A' && c <= 'Z')
-		|| c == '_';
+int alpha(char c)
+{
+	return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';
 }
 
-int digit(char c) {
+int digit(char c)
+{
 	return (c >= '0' && c <= '9');
 }
 
-int hex(char c) {
-	return digit(c) || (c >= 'A' && c <= 'F')
-		|| (c >= 'a' && c <= 'f');
+int hex(char c)
+{
+	return digit(c) || (c >= 'A' && c <= 'F') || (c >= 'a' && c <= 'f');
 }
 
 // Parse a formatted command into struct Tokens
 // Should parse:
 //  ThisCommand   123 "A String" 0xabc
-struct Tokens parseCommand(char string[]) {
+struct Tokens parseCommand(char string[])
+{
 	struct Tokens toks;
 	int t = 0;
 
 	int c = 0;
-	while(string[c] != '\0') {
+	while (string[c] != '\0') {
 		while (string[c] == ' ' || string[c] == '\t') {
 			c++;
 		}
@@ -88,9 +89,12 @@ struct Tokens parseCommand(char string[]) {
 			toks.t[t].type = TOK_TEXT;
 			while (alpha(string[c])) {
 				toks.t[t].string[s] = string[c];
-				c++; s++;
+				c++;
+				s++;
 
-				if (s > MAX_STR) {break;}
+				if (s > MAX_STR) {
+					break;
+				}
 			}
 		} else if (string[c] == '0' && string[c + 1] == 'x') {
 			toks.t[t].integer = 0;
@@ -110,7 +114,6 @@ struct Tokens parseCommand(char string[]) {
 					toks.t[t].integer += string[c] - 'a' + 10;
 				}
 
-				
 				c++;
 			}
 		} else if (digit(string[c])) {
@@ -126,9 +129,12 @@ struct Tokens parseCommand(char string[]) {
 			c++;
 			while (string[c] != '"') {
 				toks.t[t].string[s] = string[c];
-				c++; s++;
+				c++;
+				s++;
 
-				if (s > MAX_STR) {break;}
+				if (s > MAX_STR) {
+					break;
+				}
 			}
 			c++;
 		} else {
@@ -148,7 +154,7 @@ struct Tokens parseCommand(char string[]) {
 	}
 
 	toks.length = t;
-	
+
 	return toks;
 }
 
@@ -156,7 +162,6 @@ struct Tokens parseCommand(char string[]) {
 // Returns "1" on parse error.
 int evproc_run(char string[])
 {
-
 	struct EvProcFooter footer;
 	footer.params = 0;
 	footer.longpars = 0;
@@ -204,36 +209,32 @@ int evproc_run(char string[])
 	// Pack parameters into data
 	for (int t = 1; t < toks.length; t++) {
 		switch (toks.t[t].type) {
-		case TOK_INT:
-			{
-				struct EvProcInt integer;
-				memset(&integer, 0, sizeof(struct EvProcInt));
-				integer.number = toks.t[t].integer;
+		case TOK_INT: {
+			struct EvProcInt integer;
+			memset(&integer, 0, sizeof(struct EvProcInt));
+			integer.number = toks.t[t].integer;
 
-				memcpy(data + curr, &integer, sizeof(struct EvProcInt));
-				curr += sizeof(struct EvProcInt);
+			memcpy(data + curr, &integer, sizeof(struct EvProcInt));
+			curr += sizeof(struct EvProcInt);
 
-				footer.params++;
-			}
-			break;
-		case TOK_STR:
-			{
-				struct EvProcStr string;
-				memset(&string, 0, sizeof(struct EvProcStr));
+			footer.params++;
+		} break;
+		case TOK_STR: {
+			struct EvProcStr string;
+			memset(&string, 0, sizeof(struct EvProcStr));
 
-				string.type = 4;
-				string.size = strlen(toks.t[t].string);
+			string.type = 4;
+			string.size = strlen(toks.t[t].string);
 
-				memcpy(data + curr, &string, sizeof(struct EvProcStr));
-				curr += sizeof(struct EvProcStr);
+			memcpy(data + curr, &string, sizeof(struct EvProcStr));
+			curr += sizeof(struct EvProcStr);
 
-				memcpy(data + curr, toks.t[t].string, string.size + 1);
-				curr += string.size + 1;
+			memcpy(data + curr, toks.t[t].string, string.size + 1);
+			curr += string.size + 1;
 
-				footer.params++;
-				footer.longpars++;
-			}
-			break;
+			footer.params++;
+			footer.longpars++;
+		} break;
 		}
 	}
 
@@ -252,7 +253,7 @@ int evproc_run(char string[])
 		return 0;
 	}
 
-	// Command is disabled on some cams	
+	// Command is disabled on some cams
 	ptp_activate_command(&params);
 
 	unsigned int r = ptp_run_command(&params, data, curr, 0, 0);

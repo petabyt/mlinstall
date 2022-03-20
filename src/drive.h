@@ -1,11 +1,7 @@
 #ifndef DRIVE_H
 #define DRIVE_H
 
-enum FsType {
-	FAT16 = 0,
-	FAT32 = 1,
-	EXFAT = 2
-};
+enum FsType { FAT16 = 0, FAT32 = 1, EXFAT = 2 };
 
 enum FlagsMode {
 	FLAG_ALL,

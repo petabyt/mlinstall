@@ -67,7 +67,7 @@
 
 /* Linux OS */
 #ifndef WIN32
-#define LINUX_OS 
+#define LINUX_OS
 #endif
 
 /* Name of package */

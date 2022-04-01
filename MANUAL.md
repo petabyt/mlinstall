@@ -1,5 +1,6 @@
 # MLInstall Manual
-...
+
+Trying to install ML for first time? See [First time install](#HOW-TO-INSTALL-MAGIC-LANTERN-WITH-MLINSTALL).
 
 ## USB
 This will commands on your camera via PTP/USB.
@@ -43,6 +44,47 @@ Writes the SCRIPT flag, allowing the camera to run [Canon BASIC](https://wiki.ma
 
 ### Make card un-scriptable
 Same procedure as Destroy card boot flags.  
+
+## First time Magic Lantern install with MLINSTALL
+Written by Daniel C and Sebastián Jaiovi
+
+Welcome to this fast-tutorial. Get sure:
+1. You "upgraded" the camera firmware to compatible version with the nightly build
+2. Formatted the card, preferably in the camera
+3. Be conscious of ML philosophy: if you break it, you keep the two pieces.
+
+mlinstall will help you install any nightly build zip that doesn't have the boot file. *Example: I'm a Canon T6 user* 
+
+### Steps
+1: Connect the camera to a Windows 7/10 or Linux computer with a USB cable. 
+2: Download mlinstall (https://github.com/petabyt/mlinstall). Click on “Get Device Info” to see if it can detect the device.
+![image4](https://user-images.githubusercontent.com/72230570/161169243-195e2c77-5785-4af2-ab0f-376cb2486093.png)
+
+
+For windows users, it won't work natitavely. You need to:
+- Download and run Zadig.
+- With your camera driver selected, change "WinUSB" with the tiny arrows to "libusb-win32"
+- Install WCID Driver and re-plug it. Restart mlinstall.
+- In order to revert this change, simply repeat the steps and choose “WinUSB” instead of “libusb-win32”. *Some Windows software may fail to work if this change is not reverted.*
+
+Then:
+3. Once you have verified that USB communication is working, click “Enable Boot Disk”. *In order to revert the camera to factory settings, click “Disable Boot Disk”.*
+![image2](https://user-images.githubusercontent.com/72230570/161169536-f24ce6bc-52ab-447b-875c-a5300238a56e.png)
+
+5. Unplug the SD card from the camera.
+6. Insert the SD card into your computer.
+7. Ensure that your SD card is named “EOS_DIGITAL”. mlinstall searches for any storage device named “EOS_DIGITAL” and writes to the first one it finds.
+![image5](https://user-images.githubusercontent.com/72230570/161169636-22559b01-e6a4-4a02-9c1f-5f3a709a03a5.png)
+
+9. In mlinstall, navigate to the “Card” tab and click “Write card boot flags”. This will write the data to the SD card. *In Linux, eject the card before removing it. mlinstall currently doesn’t support exfat, so you might want to use EOSCard.*
+
+8. Insert the SD card into your camera and turn it on.
+
+Few tips:
+- ML could be intimedating at first. Your first and most important menu in ML is the trashcan button when you're in live view. 
+- In submenu Modules (the four squares) you can activates the modules you want.
+- Some modules are messy and could overheat your camera. Be careful with recording RAW or too much active modules at the same time.
+
 
 ## FAQ
 

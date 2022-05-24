@@ -51,4 +51,6 @@ You will most likely have to replace WinUSB with libusb if
 you are running Windows. In order to do this, download [Zadig](https://zadig.akeo.ie/)  
 and replace WinUSB with libusb-win32.  
 
-![animation](assets/zadig.gif)
+![animation](https://github.com/petabyt/mlinstall/blob/master/assets/zadig.gif)
+
+In order to revert this change, simply repeat the steps and choose “WinUSB” instead of “libusb-win32”. Some Windows software may fail to work if this change is not reverted. 

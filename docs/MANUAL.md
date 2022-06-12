@@ -15,6 +15,17 @@ is written into the SD card. See [Write card boot flags](#user-content-write-car
 Disables the boot disk, so that the camera won't look for  
 autoexec.bin. You might also want to [Destroy card boot flags](#user-content-destroy-card-boot-flags).  
 
+### Custom Event Procedures
+Mlinstall has a built-in event procedure command parser. Event procedures (also known as EvProcs)  
+are special commands that can be sent to the camera via USB. These commands can be used to change  
+certain settings or perform certain tests.  
+Mlinstall parses strings (between double quotes) and numbers (base 10 and hex). Here's a few quick  
+examples:
+```
+FooBar "Hello, World"
+foo_bar 123 0x123
+```
+
 Generally the ML developers will provide a firmware file to do this.  
 
 ## SD/CF Card
@@ -51,6 +62,6 @@ You will most likely have to replace WinUSB with libusb if
 you are running Windows. In order to do this, download [Zadig](https://zadig.akeo.ie/)  
 and replace WinUSB with libusb-win32.  
 
-![animation](https://github.com/petabyt/mlinstall/blob/master/assets/zadig.gif)
+![6 Megabyte GIF](https://github.com/petabyt/mlinstall/blob/master/assets/zadig.gif)
 
 In order to revert this change, simply repeat the steps and choose “WinUSB” instead of “libusb-win32”. Some Windows software may fail to work if this change is not reverted. 

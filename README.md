@@ -14,16 +14,16 @@ Download: https://github.com/petabyt/mlinstall/releases
 
 ## TODO / HELP NEEDED:
  - Fuzz testing
- - Mac OS port, (don't have a modern one)
+ - Mac OS port, (don't have a modern Mac)
 
 All pull requests/issues are welcome.  
 
 ## Linux Compilation
-Required packages:  
-- libusb-dev
-- gcc
-- libgtk-3-dev
 ```
+# Install required packages:
+libusb-dev gcc libgtk-3-dev
+
+# Compile Linux GTK app
 make unix-gtk
 ```
 

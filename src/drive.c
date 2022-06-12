@@ -24,7 +24,7 @@ int flag_write_flag(int mode)
 
 	if (drive == EXFAT) {
 		#ifdef WIN32
-		puts("Quitting, no EXFAT support yet. Use EOSCARD or reformat as FAT32/FAT16.");
+		puts("Quitting, no Windows EXFAT support yet. Use EOSCARD or reformat as FAT32/FAT16.");
 		return DRIVE_UNSUPPORTED;
 		#endif
 

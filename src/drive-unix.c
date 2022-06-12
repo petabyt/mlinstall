@@ -8,6 +8,8 @@
 #ifndef WIN32
 
 // Uses shell commands: mount cat grep awk
+// It's technically not bad practice, some GNU coreutils
+// do the same thing I think.
 
 #include <stdio.h>
 #include <string.h>
@@ -65,7 +67,8 @@ void flag_write(long int offset, char string[])
 		fwrite(string, 1, strlen(string), d);
 	}
 
-	// fseek-ing seems to be updating the file (no need to flush)
+	// fseek-ing seems to be updating the file (?)
+	// fflush to be extra safe
 	// (required in order to apply fwrites)
 	fseek(d, 0, SEEK_SET);
 	fflush(d);
@@ -79,8 +82,7 @@ int flag_getdrive(char buffer[])
 
 	// Check if not a dev drive
 	if (strncmp(buffer, "/dev/", 5)) {
-		puts("Couldn't find a /dev/ drive.");
-		puts("Make sure your EOS_DIGITAL card is mounted.");
+		puts("Couldn't find a /dev/ filesystem named EOS_DIGITAL.");
 		return DRIVE_NONE;
 	} else if (!strncmp(buffer, "/dev/sda", 8)) {
 		puts("Somehow I got /dev/sda. I'm not writing to it...");
@@ -132,11 +134,8 @@ void updateExFAT() {
 	unsigned int buffer[EXFAT_VBR_SIZE + 512];
 
 	fread(buffer, 1, EXFAT_VBR_SIZE + 512, d);
-	printf("old=0x%x, ", buffer[ EXFAT_VBR_SIZE/4 ]);
-	int sum = VBRChecksum((unsigned char*)buffer, EXFAT_VBR_SIZE);
-	printf("new=0x%x\n", sum);
-	//int swappedSum = endian_swap(sum);
-	for(int i=0; i<512/4; i++) {
+	int sum = VBRChecksum((unsigned char *)buffer, EXFAT_VBR_SIZE);
+	for(int i = 0; i < 512 / 4; i++) {
 		buffer[ i] = sum;
 	}
 	

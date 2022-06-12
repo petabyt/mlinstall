@@ -39,4 +39,6 @@ void flag_close();
 int flag_openfs();
 void flag_write(long offset, char string[]);
 
+void updateExFAT();
+
 #endif

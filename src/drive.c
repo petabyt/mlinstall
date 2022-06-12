@@ -16,17 +16,18 @@ int flag_write_flag(int mode)
 		puts("Couldn't find an EOS_DIGITAL card.");
 		return DRIVE_NOT_AVAILABLE;
 	case DRIVE_ERROR:
-		puts("Error opening drive.");
+		puts("Error opening drive. Make sure you run mlinstall as Administrator or 'sudo'.");
 		return DRIVE_NOT_AVAILABLE;
 	}
 
 	long int of[3] = { 0, 0, 0 };
 
 	if (drive == EXFAT) {
+		#ifdef WIN32
 		puts("Quitting, no EXFAT support yet. Use EOSCARD or reformat as FAT32/FAT16.");
 		return DRIVE_UNSUPPORTED;
+		#endif
 
-		// TODO: ...
 		of[0] = 0x82;
 		of[1] = 0x7a;
 		of[2] = 0x1f0;
@@ -76,6 +77,12 @@ int flag_write_flag(int mode)
 		flag_script[0] = 'S';
 		break;
 	}
+
+	#ifndef WIN32
+	if (drive == EXFAT) {
+		updateExFAT();
+	}
+	#endif
 
 	puts("Wrote card flags.");
 	puts("Unmount the device to save changes.");

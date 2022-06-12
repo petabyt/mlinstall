@@ -12,12 +12,13 @@
 #include <stdio.h>
 #include <string.h>
 
+#include "exfat.h"
 #include "drive.h"
 
 FILE *d;
 int flag_getfs()
 {
-	char buffer[50];
+	char buffer[64];
 
 	memset(buffer, '\0', sizeof(buffer));
 	fseek(d, 54, SEEK_SET);
@@ -45,6 +46,7 @@ int flag_getfs()
 
 void flag_write(long int offset, char string[])
 {
+
 	char buffer[64] = { 0 };
 
 	fseek(d, offset, SEEK_SET);
@@ -56,7 +58,13 @@ void flag_write(long int offset, char string[])
 	fseek(d, offset, SEEK_SET);
 	fwrite(string, 1, strlen(string), d);
 
-	// fseek-ing seems to be updating the file
+	printf("Card is ExFAT, writing flags in the backup VBR.\n");
+	if (flag_getfs() == EXFAT) {
+		fseek(d, offset + (512 * 12), SEEK_SET);
+		fwrite(string, 1, strlen(string), d);
+	}
+
+	// fseek-ing seems to be updating the file (no need to flush)
 	// (required in order to apply fwrites)
 	fseek(d, 0, SEEK_SET);
 }
@@ -116,6 +124,30 @@ int flag_openfs()
 void flag_close()
 {
 	fclose(d);
+}
+
+void updateExFAT() {
+	unsigned int buffer[EXFAT_VBR_SIZE + 512];
+
+	fread(buffer, 1, EXFAT_VBR_SIZE + 512, d);
+	printf("old=0x%lx, ", buffer[ EXFAT_VBR_SIZE/4 ]);
+	int sum = VBRChecksum((unsigned char*)buffer, EXFAT_VBR_SIZE);
+	printf("new=0x%lx\n", sum);
+	int swappedSum = endian_swap(sum);
+	for(int i=0; i<512/4; i++) {
+		buffer[ i] = sum;
+	}
+	
+	// Write the VBR checksum, or as the old install script said:
+	// "write VBR checksum (from sector 0 to sector 10) at offset 5632 (sector 11) and offset 11776 (sector 23, for backup VBR)
+	// checksum sector is stored in $dump_file at offset 5632"
+	fseek(d, 5632, SEEK_SET);
+	fwrite(buffer, 1, 512, d);
+	fseek(d, 11776, SEEK_SET);
+	fwrite(buffer, 1, 512, d);
+
+	fseek(d, 0, SEEK_SET);
+	fflush(d);
 }
 
 #endif

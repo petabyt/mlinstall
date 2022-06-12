@@ -44,9 +44,10 @@ int returnMessage(unsigned int code)
 	switch (code) {
 	case 0:
 		logprint("No PTP/USB device found. \n");
-		#ifdef WIN32
-			logprint("You're on Windows, you'll probably\nneed to install libusb.\nSee the MANUAL link in the README.\n");
-		#endif
+#ifdef WIN32
+		logprint(
+			"You're on Windows, you'll probably\nneed to install libusb.\nSee the MANUAL link in the README.\n");
+#endif
 		return 1;
 	}
 

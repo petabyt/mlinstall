@@ -145,8 +145,8 @@ uint16_t ptp_usb_senddata(PTPParams *params, PTPContainer *ptp, unsigned char *d
 	/* send first part of data */
 	ret = params->write_func((unsigned char *)&usbdata,
 				 PTP_USB_BULK_HDR_LEN + ((size < PTP_USB_BULK_PAYLOAD_LEN) ?
-								 size :
-								 PTP_USB_BULK_PAYLOAD_LEN),
+								       size :
+								       PTP_USB_BULK_PAYLOAD_LEN),
 				 params->data);
 	if (ret != PTP_RC_OK) {
 		ret = PTP_ERROR_IO;

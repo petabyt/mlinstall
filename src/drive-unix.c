@@ -48,7 +48,6 @@ int flag_getfs()
 
 void flag_write(long int offset, char string[])
 {
-
 	char buffer[64] = { 0 };
 
 	fseek(d, offset, SEEK_SET);
@@ -130,15 +129,16 @@ void flag_close()
 	fclose(d);
 }
 
-void updateExFAT() {
+void updateExFAT()
+{
 	unsigned int buffer[EXFAT_VBR_SIZE + 512];
 
 	fread(buffer, 1, EXFAT_VBR_SIZE + 512, d);
 	int sum = VBRChecksum((unsigned char *)buffer, EXFAT_VBR_SIZE);
-	for(int i = 0; i < 512 / 4; i++) {
-		buffer[ i] = sum;
+	for (int i = 0; i < 512 / 4; i++) {
+		buffer[i] = sum;
 	}
-	
+
 	// Write the VBR checksum, or as the old install script said:
 	// "write VBR checksum (from sector 0 to sector 10) at offset 5632 (sector 11) and offset 11776 (sector 23, for backup VBR)
 	// checksum sector is stored in $dump_file at offset 5632"

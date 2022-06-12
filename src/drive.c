@@ -23,10 +23,10 @@ int flag_write_flag(int mode)
 	long int of[3] = { 0, 0, 0 };
 
 	if (drive == EXFAT) {
-		#ifdef WIN32
+#ifdef WIN32
 		puts("Quitting, no Windows EXFAT support yet. Use EOSCARD or reformat as FAT32/FAT16.");
 		return DRIVE_UNSUPPORTED;
-		#endif
+#endif
 
 		of[0] = 0x82;
 		of[1] = 0x7a;
@@ -78,11 +78,11 @@ int flag_write_flag(int mode)
 		break;
 	}
 
-	#ifndef WIN32
+#ifndef WIN32
 	if (drive == EXFAT) {
 		updateExFAT();
 	}
-	#endif
+#endif
 
 	puts("Wrote card flags.");
 	puts("Unmount the device to save changes.");

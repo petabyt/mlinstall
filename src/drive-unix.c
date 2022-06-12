@@ -60,6 +60,7 @@ void flag_write(long int offset, char string[])
 
 	printf("Card is ExFAT, writing flags in the backup VBR.\n");
 	if (flag_getfs() == EXFAT) {
+		printf("Writing \"%s\" at 0x%lx\n", string, offset + (512 * 12));
 		fseek(d, offset + (512 * 12), SEEK_SET);
 		fwrite(string, 1, strlen(string), d);
 	}
@@ -67,6 +68,7 @@ void flag_write(long int offset, char string[])
 	// fseek-ing seems to be updating the file (no need to flush)
 	// (required in order to apply fwrites)
 	fseek(d, 0, SEEK_SET);
+	fflush(d);
 }
 
 int flag_getdrive(char buffer[])
@@ -130,10 +132,10 @@ void updateExFAT() {
 	unsigned int buffer[EXFAT_VBR_SIZE + 512];
 
 	fread(buffer, 1, EXFAT_VBR_SIZE + 512, d);
-	printf("old=0x%lx, ", buffer[ EXFAT_VBR_SIZE/4 ]);
+	printf("old=0x%x, ", buffer[ EXFAT_VBR_SIZE/4 ]);
 	int sum = VBRChecksum((unsigned char*)buffer, EXFAT_VBR_SIZE);
-	printf("new=0x%lx\n", sum);
-	int swappedSum = endian_swap(sum);
+	printf("new=0x%x\n", sum);
+	//int swappedSum = endian_swap(sum);
 	for(int i=0; i<512/4; i++) {
 		buffer[ i] = sum;
 	}

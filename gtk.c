@@ -486,7 +486,7 @@ int main(int argc, char *argv[])
 	label = gtk_label_new(NULL);
 	gtk_label_set_markup(
 		GTK_LABEL(label),
-		"\nMade by <a href='https://petabyt.dev/'>Daniel C</a>\n"
+		"\nMade by <a href='https://danielc.dev/'>Daniel C</a>\n"
 		"Source code: <a href='https://github.com/petabyt/mlinstall'>github.com/petabyt/mlinstall</a>\n\n"
 		"Licenced under GNU General Public License v2.0\n"
 		"If it breaks, you get to keep both pieces!");

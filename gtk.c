@@ -19,6 +19,9 @@
 #include "src/appstore.h"
 #include "src/platform.h"
 
+// Activated with CLI flag -d
+int dev_flag = 0;
+
 char *driveNotFound = "Could not find card. Make sure\nto run as Administrator/sudo.";
 char *driveNotSupported = "Card not supported.\nSee console message.";
 
@@ -376,6 +379,12 @@ int main(int argc, char *argv[])
 	GtkWidget *grid;
 	GtkWidget *mainGrid;
 
+	for (int i = 1; i < argc; i++) {
+		if (!strcmp(argv[i], "-d")) {
+			dev_flag = 1;
+		}
+	}
+
 	gtk_init(&argc, &argv);
 
 	g_print("Early release of MLInstall. Use at your own risk!\n");
@@ -497,19 +506,17 @@ int main(int argc, char *argv[])
 	label = gtk_label_new("Advanced");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
 
-#ifdef DEV
+	if (dev_flag) {
+		grid = gtk_grid_new();
+		gtk_container_set_border_width(GTK_CONTAINER(grid), 10);
+		gtk_widget_show(grid);
+		order = 0;
 
-	grid = gtk_grid_new();
-	gtk_container_set_border_width(GTK_CONTAINER(grid), 10);
-	gtk_widget_show(grid);
-	order = 0;
+		MENU_ADD_BUTTON("One Click Magic Lantern Install", oneclick, "Download+Install Magic Lantern.")
 
-	MENU_ADD_BUTTON("Don't click me!", oneclick, "No, Bad! No biscuit!")
-
-	label = gtk_label_new("Quick Install");
-	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
-
-#endif
+		label = gtk_label_new("Quick Install");
+		gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
+	}
 
 	GtkWidget *scrollWindow = gtk_scrolled_window_new(NULL, NULL);
 	gtk_widget_show(scrollWindow);

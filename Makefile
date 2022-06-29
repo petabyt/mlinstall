@@ -10,7 +10,6 @@ all: unix-gtk
 # flags for unix-gtk
 unix-gtk: LDFLAGS=-lusb $(shell pkg-config --libs gtk+-3.0)
 unix-gtk: CFLAGS=$(shell pkg-config --cflags gtk+-3.0)
-unix-gtk: CFLAGS+=-D _DEV
 
 # Clean incompatible stuff, use between comiling 
 clean-out:

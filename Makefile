@@ -56,7 +56,7 @@ win64-gtk-mlinstall: CC=$(MINGW)-gcc
 win64-gtk-mlinstall: CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Ilibusb/include -Igtk/include
 win64-gtk-mlinstall: GTK_ZIP=win64-gtk-2021.zip
 win64-gtk-mlinstall: win.res gtk libusb gtk.o $(FILES)
-	mkdir win64-gtk-mlinstall
+	-mkdir win64-gtk-mlinstall
 	$(CC) win.res gtk.o $(FILES) gtk/lib/* libusb/bin/amd64/libusb0.dll \
 	    $(CFLAGS) -o win64-gtk-mlinstall/mlinstall.exe
 	cp libusb/bin/amd64/libusb0.dll win64-gtk-mlinstall/
@@ -70,7 +70,7 @@ win32-gtk-mlinstall: CC=$(MINGW)-gcc
 win32-gtk-mlinstall: CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Ilibusb/include -Igtk/include
 win32-gtk-mlinstall: GTK_ZIP=win32-gtk-2013.zip
 win32-gtk-mlinstall: win.res gtk libusb gtk.o $(FILES)
-	mkdir win32-gtk-mlinstall
+	-mkdir win32-gtk-mlinstall
 	$(CC) win.res gtk.o $(FILES) gtk/lib/* libusb/bin/x86/libusb0_x86.dll \
 	    $(CFLAGS) -o win32-gtk-mlinstall/mlinstall.exe
 	cp libusb/bin/x86/libusb0_x86.dll win32-gtk-mlinstall/libusb0.dll

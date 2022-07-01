@@ -1,5 +1,4 @@
 // This is the GTK based app for Windows / Linux
-// TODO: decide on function/variable name style
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

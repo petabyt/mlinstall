@@ -5,6 +5,7 @@
 #include <windows.h>
 
 #include "drive.h"
+#include "exfat.h"
 
 // Bootsector size
 #define SIZE 512
@@ -114,7 +115,30 @@ int flag_openfs(int mode)
 
 void flag_close()
 {
-	// TODO: figure out FileClose (?)
+	CloseHandle(d);
+}
+
+void updateExFAT()
+{
+	unsigned int buffer[EXFAT_VBR_SIZE + 512];
+
+	ReadFile(d, buffer, EXFAT_VBR_SIZE + 512, &bytesRead, NULL);
+	int sum = VBRChecksum((unsigned char *)buffer, EXFAT_VBR_SIZE);
+	for (int i = 0; i < 512 / 4; i++) {
+		buffer[i] = sum;
+	}
+
+	// Write the VBR checksum, or as the old install script said:
+	// "write VBR checksum (from sector 0 to sector 10) at offset 5632 (sector 11) and offset 11776 (sector 23, for backup VBR)
+	// checksum sector is stored in $dump_file at offset 5632"
+	SetFilePointer(d, 5632, NULL, FILE_BEGIN);
+	WriteFile(d, buffer, 512, &bytesRead, NULL);
+	SetFilePointer(d, 11776, NULL, FILE_BEGIN);
+	WriteFile(d, buffer, 512, &bytesRead, NULL);
+
+	SetFilePointer(d, 0, NULL, FILE_BEGIN);
+	FlushFileBuffers(d);
 }
 
 #endif
+

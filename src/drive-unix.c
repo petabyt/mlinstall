@@ -13,6 +13,8 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <sys/mount.h>
+#include <unistd.h>
 
 #include "exfat.h"
 #include "drive.h"
@@ -63,7 +65,7 @@ void flag_write(long int offset, char string[])
 		printf("Card is ExFAT, writing flags in the backup VBR.\n");
 		printf("Writing \"%s\" at 0x%lx\n", string, offset + (512 * 12));
 		fseek(d, offset + (512 * 12), SEEK_SET);
-		fwrite(string, 1, strlen(string), d);
+		fwrite(string,  1, strlen(string), d);
 	}
 
 	// fseek-ing seems to be updating the file (?)
@@ -75,18 +77,29 @@ void flag_write(long int offset, char string[])
 
 int flag_getdrive(char buffer[])
 {
+	if (geteuid() != 0) {
+		puts("This app must be run as ROOT to modify filesystems.");
+		return DRIVE_NONE;
+	}
+
 	// Get EOS_DIGITAL Drive
-	FILE *c = popen("mount | grep EOS_DIGITAL | awk '{printf $1}'", "r");
+	FILE *c = popen("mount | grep EOS_DIGITAL", "r");
 	fgets(buffer, 64, c);
+
+	strtok(buffer, " "); // Get first token before space
 
 	// Check if not a dev drive
 	if (strncmp(buffer, "/dev/", 5)) {
-		puts("Couldn't find a /dev/ filesystem named EOS_DIGITAL.");
+		puts("Make sure your EOS_DIGITAL card is mounted.");
 		return DRIVE_NONE;
 	} else if (!strncmp(buffer, "/dev/sda", 8)) {
 		puts("Somehow I got /dev/sda. I'm not writing to it...");
 		return DRIVE_NONE;
 	}
+
+	// Unmount to prevent filesystem from being written to
+	// by other software
+	umount(buffer);
 
 	return 0;
 }

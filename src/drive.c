@@ -10,7 +10,7 @@ int flag_write_flag(int mode)
 	int drive = flag_openfs();
 	switch (drive) {
 	case DRIVE_BADFS:
-		puts("No usable filesystem on card.");
+		puts("The EOS_DIGITAL card must be FAT32, FAT16, or ExFAT.");
 		return DRIVE_UNSUPPORTED;
 	case DRIVE_NONE:
 		puts("Couldn't find an EOS_DIGITAL card.");

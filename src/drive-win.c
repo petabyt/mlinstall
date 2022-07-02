@@ -46,6 +46,13 @@ void flag_write(long offset, char string[])
 
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
 	WriteFile(d, bootsector, SIZE, &bytesRead, NULL);
+
+	if (flag_getfs() == EXFAT) {
+		printf("Card is ExFAT, writing flags in the backup VBR.\n");
+		printf("Writing \"%s\" at 0x%lx\n", string, offset + (512 * 12));
+		SetFilePointer(d, offset + (512 * 12), NULL, FILE_BEGIN);
+		WriteFile(d, string, strlen(string), &bytesRead, NULL);
+	}
 }
 
 int flag_getdrive()

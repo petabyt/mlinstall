@@ -59,8 +59,8 @@ void flag_write(long int offset, char string[])
 	fseek(d, offset, SEEK_SET);
 	fwrite(string, 1, strlen(string), d);
 
-	printf("Card is ExFAT, writing flags in the backup VBR.\n");
 	if (flag_getfs() == EXFAT) {
+		printf("Card is ExFAT, writing flags in the backup VBR.\n");
 		printf("Writing \"%s\" at 0x%lx\n", string, offset + (512 * 12));
 		fseek(d, offset + (512 * 12), SEEK_SET);
 		fwrite(string, 1, strlen(string), d);

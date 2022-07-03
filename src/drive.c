@@ -5,19 +5,19 @@
 
 // Detect the filesystem and write the flags
 // in the correct place
-int flag_write_flag(int mode)
+int drive_write_flag(int mode)
 {
 	int drive = flag_openfs();
 	switch (drive) {
 	case DRIVE_BADFS:
 		puts("The EOS_DIGITAL card must be FAT32, FAT16, or ExFAT.");
-		return DRIVE_UNSUPPORTED;
+		return DRIVE_BADFS;
 	case DRIVE_NONE:
-		puts("Couldn't find an EOS_DIGITAL card.");
-		return DRIVE_NOT_AVAILABLE;
+		puts("Couldn't find an EOS_DIGITAL card. Make sure the EOS_DIGITAL card is mounted.");
+		return DRIVE_NONE;
 	case DRIVE_ERROR:
-		puts("Error opening drive. Make sure you run mlinstall as Administrator or 'sudo'.");
-		return DRIVE_NOT_AVAILABLE;
+		puts("Error opening drive.");
+		return DRIVE_ERROR;
 	}
 
 	long int of[3] = { 0, 0, 0 };
@@ -27,19 +27,19 @@ int flag_write_flag(int mode)
 		of[1] = 0x7a;
 		of[2] = 0x1f0;
 	} else if (drive == FAT16) {
-		puts("Writing to FAT16 filesystem.");
 		of[0] = 0x2b;
 		of[1] = 0x40;
 		of[2] = 0x1f0;
 	} else if (drive == FAT32) {
-		puts("Writing to FAT32 filesystem.");
 		of[0] = 0x47;
 		of[1] = 0x5c;
 		of[2] = 0x1f0;
 	} else {
 		puts("Unsupported FS");
-		return DRIVE_UNSUPPORTED;
+		return DRIVE_BADFS;
 	}
+
+	drive_dump("SD_BACKUP");
 
 	switch (mode) {
 	case FLAG_ALL:
@@ -74,10 +74,9 @@ int flag_write_flag(int mode)
 	}
 
 	if (drive == EXFAT) {
-		updateExFAT();
+		update_exfat();
 	}
 
 	puts("Wrote card flags.");
-	puts("Unmount the device to save changes.");
 	return 0;
 }

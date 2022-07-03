@@ -13,12 +13,6 @@ enum FlagsMode {
 };
 
 enum FlagsErr {
-	// Generic error returned by flag_write_flag
-	DRIVE_UNSUPPORTED = 1,
-	DRIVE_NOT_AVAILABLE = 2,
-
-	// Error codes for filesystem
-	// for Windows/Unix backend
 	DRIVE_BADFS = -1,
 	DRIVE_NONE = -2,
 	DRIVE_ERROR = -3
@@ -32,13 +26,15 @@ static char flag_script[] = "SCRIPT";
 // making files and stuff
 int flag_usable_drive(char buffer[]);
 
-int flag_write_flag(int mode);
+int drive_write_flag(int mode);
 void flag_close();
 
 // TODO: flag_closefs
 int flag_openfs();
 void flag_write(long offset, char string[]);
 
-void updateExFAT();
+void update_exfat();
+
+void drive_dump(char name[]);
 
 #endif

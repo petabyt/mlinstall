@@ -12,6 +12,7 @@
 // do the same thing I think.
 
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sys/mount.h>
 #include <unistd.h>
@@ -59,7 +60,10 @@ void flag_write(long int offset, char string[])
 	printf("Writing \"%s\" at 0x%lx\n", string, offset);
 
 	fseek(d, offset, SEEK_SET);
-	fwrite(string, 1, strlen(string), d);
+	if (fwrite(string, 1, strlen(string), d) != strlen(string)) {
+		puts("Error writing to drive.");
+		return;
+	}
 
 	if (flag_getfs() == EXFAT) {
 		printf("Card is ExFAT, writing flags in the backup VBR.\n");
@@ -78,7 +82,7 @@ void flag_write(long int offset, char string[])
 int flag_getdrive(char buffer[])
 {
 	if (geteuid() != 0) {
-		puts("This app must be run as ROOT to modify filesystems.");
+		puts("This app must be run as superuser to modify filesystems, like: sudo ./mlinstall");
 		return DRIVE_NONE;
 	}
 
@@ -96,10 +100,6 @@ int flag_getdrive(char buffer[])
 		puts("Somehow I got /dev/sda. I'm not writing to it...");
 		return DRIVE_NONE;
 	}
-
-	// Unmount to prevent filesystem from being written to
-	// by other software
-	umount(buffer);
 
 	return 0;
 }
@@ -134,6 +134,16 @@ int flag_openfs()
 		return DRIVE_ERROR;
 	}
 
+	// Unmount to prevent other processes from writing to it
+	char drive[128];
+	flag_usable_drive(drive);
+	if (umount(drive)) {
+		puts("Error unmounting drive.");
+		return DRIVE_ERROR;
+	} else {
+		puts("Unmounted drive for filesystem safety.");
+	}
+
 	return flag_getfs();
 }
 
@@ -142,7 +152,7 @@ void flag_close()
 	fclose(d);
 }
 
-void updateExFAT()
+void update_exfat()
 {
 	unsigned int buffer[EXFAT_VBR_SIZE + 512];
 
@@ -162,6 +172,18 @@ void updateExFAT()
 
 	fseek(d, 0, SEEK_SET);
 	fflush(d);
+}
+
+void drive_dump(char name[]) {
+	puts("Creating a backup of your SD card first few sectors.");
+
+	char *dump = malloc(512 * 12);
+	fseek(d, 0, SEEK_SET);
+	fread(dump, 1, 512 * 12, d);
+
+	FILE *f = fopen(name, "w");
+	fwrite(dump, 1, 512 * 12, f);
+	fclose(f);
 }
 
 #endif

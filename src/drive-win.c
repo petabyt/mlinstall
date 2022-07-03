@@ -65,6 +65,11 @@ void flag_write(long offset, char string[])
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
 	WriteFile(d, bootsector, SIZE, &bytesRead, NULL);
 
+	if (GetLastError()) {
+		puts("Error writing to drive.");
+		return;
+	}
+
 	if (flag_getfs() == EXFAT) {
 		printf("Card is ExFAT, writing flags in the backup VBR.\n");
 		printf("Writing \"%s\" at 0x%lx\n", string, offset + (512 * 12));
@@ -148,7 +153,7 @@ void flag_close()
 	CloseHandle(d);
 }
 
-void updateExFAT()
+void update_exfat()
 {
 	unsigned int buffer[EXFAT_VBR_SIZE + 512];
 
@@ -167,6 +172,18 @@ void updateExFAT()
 
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
 	FlushFileBuffers(d);
+}
+
+void drive_dump(char name[]) {
+	puts("Creating a backup of your SD card first few sectors.");
+
+	char *dump = malloc(512 * 12);
+	SetFilePointer(d, 0, NULL, FILE_BEGIN);
+	ReadFile(d, dump, 512 * 12, &bytesRead, NULL);
+
+	FILE *f = fopen(name, "w");
+	fwrite(dump, 1, 512 * 12, f);
+	fclose(f);
 }
 
 #endif

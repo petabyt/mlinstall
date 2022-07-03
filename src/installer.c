@@ -9,9 +9,6 @@
 #include "installer.h"
 #include "platform.h"
 
-// TODO: avoid system shell commands, use
-// actual libraries
-
 // Linux: unzip
 // Windows: 7z (optional)
 
@@ -140,7 +137,7 @@ int installer_start(char model[], char version[])
 #endif
 
 	puts("Writing card flags...");
-	if (flag_write_flag(FLAG_BOOT)) {
+	if (drive_write_flag(FLAG_BOOT)) {
 		puts("Can't write card flags");
 		return 1;
 	}
@@ -182,7 +179,7 @@ int installer_remove()
 	system(command);
 
 	puts("Destroying card flags...");
-	if (flag_write_flag(FLAG_DESTROY_BOOT)) {
+	if (drive_write_flag(FLAG_DESTROY_BOOT)) {
 		puts("Can't destroy card flags");
 		return 1;
 	}

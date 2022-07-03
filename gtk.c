@@ -21,8 +21,9 @@
 // Activated with CLI flag -d
 int dev_flag = 0;
 
-char *driveNotFound = "Could not find card. Make sure\nto run as Administrator/sudo.";
-char *driveNotSupported = "Card not supported.\nSee console message.";
+char *driveNotFound = "Could not find card. Make sure\nthe EOS_DIGITAL card is mounted.";
+char *driveNotSupported = "Only ExFAT, FAT32, and FAT16\ncards are supported.";
+char *driveError = "Error opening drive.";
 
 // Quick, messy, logging mechanism:
 GtkWidget *logw;
@@ -72,16 +73,22 @@ int returnMessage(unsigned int code)
 	return 0;
 }
 
+#define HANDLE_DRIVE_ERROR() \
+		case DRIVE_BADFS: \
+		logprint(driveNotSupported); \
+		return; \
+	case DRIVE_NONE: \
+		logprint(driveNotFound); \
+		return; \
+	case DRIVE_ERROR: \
+		logprint(driveError); \
+		return; 
+
 static void writeflag(GtkWidget *widget, gpointer data)
 {
 	logclear();
-	switch (flag_write_flag(FLAG_BOOT)) {
-	case DRIVE_UNSUPPORTED:
-		logprint(driveNotSupported);
-		return;
-	case DRIVE_NOT_AVAILABLE:
-		logprint(driveNotFound);
-		return;
+	switch (drive_write_flag(FLAG_BOOT)) {
+	HANDLE_DRIVE_ERROR()
 	case 0:
 		logprint("Wrote card flags on EOS_DIGITAL");
 		flag_close();
@@ -91,13 +98,8 @@ static void writeflag(GtkWidget *widget, gpointer data)
 static void destroyflag(GtkWidget *widget, gpointer data)
 {
 	logclear();
-	switch (flag_write_flag(FLAG_DESTROY_BOOT)) {
-	case DRIVE_UNSUPPORTED:
-		logprint(driveNotSupported);
-		return;
-	case DRIVE_NOT_AVAILABLE:
-		logprint(driveNotFound);
-		return;
+	switch (drive_write_flag(FLAG_DESTROY_BOOT)) {
+	HANDLE_DRIVE_ERROR()
 	case 0:
 		logprint("Overwrote card flags.");
 		flag_close();
@@ -107,13 +109,8 @@ static void destroyflag(GtkWidget *widget, gpointer data)
 static void scriptflag(GtkWidget *widget, gpointer data)
 {
 	logclear();
-	switch (flag_write_flag(FLAG_SCRIPT)) {
-	case DRIVE_UNSUPPORTED:
-		logprint(driveNotSupported);
-		return;
-	case DRIVE_NOT_AVAILABLE:
-		logprint(driveNotFound);
-		return;
+	switch (drive_write_flag(FLAG_SCRIPT)) {
+	HANDLE_DRIVE_ERROR()
 	case 0:
 		logprint("Wrote script flags.");
 		flag_close();
@@ -123,13 +120,8 @@ static void scriptflag(GtkWidget *widget, gpointer data)
 static void unscriptflag(GtkWidget *widget, gpointer data)
 {
 	logclear();
-	switch (flag_write_flag(FLAG_DESTROY_SCRIPT)) {
-	case DRIVE_UNSUPPORTED:
-		logprint(driveNotSupported);
-		return;
-	case DRIVE_NOT_AVAILABLE:
-		logprint(driveNotFound);
-		return;
+	switch (drive_write_flag(FLAG_DESTROY_SCRIPT)) {
+	HANDLE_DRIVE_ERROR()
 	case 0:
 		logprint("Destroyed script flags.");
 		flag_close();
@@ -203,10 +195,10 @@ static void showdrive(GtkWidget *widget, gpointer data)
 {
 	logclear();
 	char buffer[128];
-	if (flag_usable_drive(buffer)) {
-		logprint("Error getting usable drive.\n");
-	} else {
-		logprint(buffer);
+	switch (flag_usable_drive(buffer)) {
+		HANDLE_DRIVE_ERROR()
+		case 0:
+			logprint(buffer);
 	}
 }
 

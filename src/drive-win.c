@@ -35,6 +35,24 @@ int flag_getfs()
 	return DRIVE_BADFS;
 }
 
+// WriteFile only writes to a single sector at a time, this
+// immitates fwrite to make things a little easier
+static int exfat_write(int location, int length, void *bytes)
+{
+	// Get sector address to write to
+	int offset = location + (512 * 12);
+	int sector = offset - (offset % 512);
+
+	// Write to specific spot in 
+	SetFilePointer(d, sector, NULL, FILE_BEGIN);
+	ReadFile(d, bootsector, SIZE, &bytesRead, NULL);
+	memcpy(bootsector + (offset % 512), bytes, length);
+	SetFilePointer(d, sector, NULL, FILE_BEGIN);
+	WriteFile(d, bootsector, 512, &bytesRead, NULL);
+	
+	return GetLastError();
+}
+
 void flag_write(long offset, char string[])
 {
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
@@ -50,9 +68,12 @@ void flag_write(long offset, char string[])
 	if (flag_getfs() == EXFAT) {
 		printf("Card is ExFAT, writing flags in the backup VBR.\n");
 		printf("Writing \"%s\" at 0x%lx\n", string, offset + (512 * 12));
-		SetFilePointer(d, offset + (512 * 12), NULL, FILE_BEGIN);
-		WriteFile(d, string, strlen(string), &bytesRead, NULL);
+
+		exfat_write(offset, strlen(string), string);
 	}
+	
+	SetFilePointer(d, 0, NULL, FILE_BEGIN);
+	FlushFileBuffers(d);
 }
 
 int flag_getdrive()
@@ -75,6 +96,8 @@ int flag_getdrive()
 					puts("PANIC, somehow got C drive...");
 					return DRIVE_NONE;
 				}
+				
+				DeleteVolumeMountPointA(dstr);
 
 				return (int)(i + 'A');
 			}
@@ -135,9 +158,8 @@ void updateExFAT()
 		buffer[i] = sum;
 	}
 
-	// Write the VBR checksum, or as the old install script said:
-	// "write VBR checksum (from sector 0 to sector 10) at offset 5632 (sector 11) and offset 11776 (sector 23, for backup VBR)
-	// checksum sector is stored in $dump_file at offset 5632"
+	// "write VBR checksum (from sector 0 to sector 10) at offset 5632 (sector 11) and offset 11776 (sector 23, for backup VBR)"
+	// Don't need to use exfat_write since these regions are divisible by 512
 	SetFilePointer(d, 5632, NULL, FILE_BEGIN);
 	WriteFile(d, buffer, 512, &bytesRead, NULL);
 	SetFilePointer(d, 11776, NULL, FILE_BEGIN);

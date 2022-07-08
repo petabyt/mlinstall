@@ -95,7 +95,6 @@ static void writeflag(GtkWidget *widget, gpointer data)
 	HANDLE_DRIVE_ERROR()
 	case 0:
 		logprint("Wrote card flags on EOS_DIGITAL");
-		flag_close();
 	}
 }
 
@@ -106,7 +105,6 @@ static void destroyflag(GtkWidget *widget, gpointer data)
 	HANDLE_DRIVE_ERROR()
 	case 0:
 		logprint("Overwrote card flags.");
-		flag_close();
 	}
 }
 
@@ -117,7 +115,6 @@ static void scriptflag(GtkWidget *widget, gpointer data)
 	HANDLE_DRIVE_ERROR()
 	case 0:
 		logprint("Wrote script flags.");
-		flag_close();
 	}
 }
 
@@ -128,7 +125,6 @@ static void unscriptflag(GtkWidget *widget, gpointer data)
 	HANDLE_DRIVE_ERROR()
 	case 0:
 		logprint("Destroyed script flags.");
-		flag_close();
 	}
 }
 

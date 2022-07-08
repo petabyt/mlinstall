@@ -59,7 +59,7 @@ int returnMessage(unsigned int code)
 	}
 
 	char buf[128];
-	sprintf(buf, "Response Code: %x\n", code);
+	snprintf(buf, sizeof(buf), "Response Code: %x\n", code);
 	logprint(buf);
 
 	switch (code) {
@@ -148,7 +148,7 @@ static void deviceinfo(GtkWidget *widget, gpointer data)
 	ptp_getdeviceinfo(&params, &info);
 
 	char buffer[256];
-	sprintf(buffer,
+	snprintf(buffer, sizeof(buffer),
 		"Manufacturer: %s\n"
 		"Model: %s\n"
 		"DeviceVersion: %s\n"
@@ -194,8 +194,8 @@ static void disablebootdisk(GtkWidget *widget, gpointer data)
 static void showdrive(GtkWidget *widget, gpointer data)
 {
 	logclear();
-	char buffer[128];
-	switch (flag_usable_drive(buffer)) {
+	char buffer[1024];
+	switch (drive_get_usable(buffer, sizeof(buffer))) {
 		HANDLE_DRIVE_ERROR()
 		case 0:
 			logprint(buffer);
@@ -235,7 +235,7 @@ static void oneclick(GtkWidget *widget, gpointer data)
 	}
 }
 
-static void downloadmodule(GtkWidget *widget, gpointer data)
+static int downloadmodule(GtkWidget *widget, gpointer data)
 {
 	logclear();
 
@@ -243,20 +243,26 @@ static void downloadmodule(GtkWidget *widget, gpointer data)
 	char *download = g_object_get_data(G_OBJECT(widget), "download");
 
 	if (appstore_download(name, download)) {
-		logprint("Error downloading module.");
+		logprint("Error downloading module.\nIs ML installed?");
+		return 1;
 	} else {
 		logprint("Module downloaded to card.");
+		return 0;
 	}
 }
 
-static void removemodule(GtkWidget *widget, gpointer data)
+static int removemodule(GtkWidget *widget, gpointer data)
 {
 	logclear();
 
 	char *name = g_object_get_data(G_OBJECT(widget), "name");
 
-	if (!appstore_remove(name)) {
+	if (appstore_remove(name)) {
+		logprint("Error removing module.");
+		return 1;
+	} else {
 		logprint("Module removed.");
+		return 0;
 	}
 }
 
@@ -264,11 +270,13 @@ static void modulebtn_callback(GtkWidget *widget, gpointer data)
 {
 	const char *name = gtk_button_get_label(GTK_BUTTON(widget));
 	if (!strcmp(name, "Remove")) {
-		removemodule(widget, data);
-		gtk_button_set_label(GTK_BUTTON(widget), "Install");
+		if (!removemodule(widget, data)) {
+			gtk_button_set_label(GTK_BUTTON(widget), "Install");
+		}
 	} else if (!strcmp(name, "Install")) {
-		downloadmodule(widget, data);
-		gtk_button_set_label(GTK_BUTTON(widget), "Remove");
+		if (!downloadmodule(widget, data)) {
+			gtk_button_set_label(GTK_BUTTON(widget), "Remove");
+		}
 	}
 }
 
@@ -279,7 +287,7 @@ static void appstore(GtkWidget *widget, gpointer data)
 	gtk_widget_destroy(widget);
 
 	char usableDrive[1024];
-	if (flag_usable_drive(usableDrive)) {
+	if (drive_get_usable(usableDrive, sizeof(usableDrive))) {
 		logprint(driveNotFound);
 		return;
 	}
@@ -307,7 +315,7 @@ static void appstore(GtkWidget *widget, gpointer data)
 
 		char moduleTest[4096];
 
-		appstore_getname(moduleTest, fields.name);
+		appstore_getname(moduleTest, fields.name, sizeof(moduleTest));
 
 		GtkWidget *button;
 		FILE *f = fopen(moduleTest, "r");
@@ -319,12 +327,11 @@ static void appstore(GtkWidget *widget, gpointer data)
 		}
 
 		g_signal_connect(button, "clicked", G_CALLBACK(modulebtn_callback), NULL);
-
 		gtk_widget_set_halign(button, GTK_ALIGN_END);
 		gtk_grid_attach(GTK_GRID(app), button, 1, 1, 1, 1);
 		gtk_widget_show(button);
 
-		// TODO: Free memory :/
+		// Note: Can't free memory because this is used throughout runtime.
 		char *name = malloc(strlen(fields.name) + 1);
 		strcpy(name, fields.name);
 
@@ -395,11 +402,9 @@ int main(int argc, char *argv[])
 	gtk_label_set_justify(GTK_LABEL(logw), GTK_JUSTIFY_CENTER);
 	gtk_widget_show(logw);
 
-	// Add title label
 	label = gtk_label_new(NULL);
 	gtk_widget_set_hexpand(label, TRUE);
-	gtk_label_set_markup(GTK_LABEL(label), "<span size=\"large\">MLInstall</span>\n"
-					       "(Early Release)\n");
+	gtk_label_set_markup(GTK_LABEL(label), "<span size=\"large\">MLInstall</span>\n\n");
 	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
 	gtk_grid_attach(GTK_GRID(mainGrid), label, 0, 0, 1, 1);
 	gtk_widget_show(label);
@@ -441,8 +446,6 @@ int main(int argc, char *argv[])
 
 	label = gtk_label_new(NULL);
 	gtk_label_set_markup(GTK_LABEL(label),
-			     //"<span size=\"small\">This code has not been tested much and may\n"
-			     //"be dangerous. Use EOSCard if possible.</span>\n"
 			     "This will automatically find and write to\n"
 			     "a card named \"EOS_DIGITAL\".\n");
 	gtk_grid_attach(GTK_GRID(grid), label, 0, order++, 1, 1);

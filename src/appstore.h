@@ -4,7 +4,9 @@
 
 #define MAX_FIELD 1024
 
-enum AppStore { APPSTORE_EOF };
+enum AppStore {
+	APPSTORE_EOF
+};
 
 struct AppstoreFields {
 	char name[MAX_FIELD];
@@ -20,6 +22,5 @@ int appstore_close();
 
 int appstore_remove(char name[]);
 int appstore_download(char name[], char download[]);
-int appstore_getname(char *buffer, char filename[]);
-
+int appstore_getname(char *buffer, char filename[], int n);
 #endif

@@ -17,7 +17,7 @@ DWORD bytesRead = 0;
 
 HANDLE d;
 
-int flag_getfs()
+int drive_getfs()
 {
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
 	ReadFile(d, bootsector, SIZE, &bytesRead, NULL);
@@ -81,7 +81,8 @@ void flag_write(long offset, char string[])
 	FlushFileBuffers(d);
 }
 
-int flag_getdrive()
+// Returns drive letter as int
+int drive_get()
 {
 	char id;
 	char dstr[] = "X:\\";
@@ -102,8 +103,6 @@ int flag_getdrive()
 					return DRIVE_NONE;
 				}
 				
-				//DeleteVolumeMountPointA(dstr);
-
 				return (int)(i + 'A');
 			}
 		}
@@ -112,20 +111,19 @@ int flag_getdrive()
 	return DRIVE_NONE;
 }
 
-// Should never buffer overflow
-int flag_usable_drive(char buffer[])
+int drive_get_usable(char buffer[], int n)
 {
 	int drive = flag_getdrive();
 	if (drive < 0) {
 		return drive;
 	}
 
-	strcpy(buffer, " :");
+	strncpy(buffer, " :", int n);
 	buffer[0] = (char)drive;
 	return 0;
 }
 
-int flag_openfs(int mode)
+int drive_openfs(int mode)
 {
 	// Windows filesystems must be opened like this: \\.\E:
 	char buffer[64] = "\\\\.\\0:";
@@ -153,7 +151,7 @@ int flag_openfs(int mode)
 	return 0;
 }
 
-void flag_close()
+void drive_close()
 {
 	CloseHandle(d);
 }
@@ -180,7 +178,7 @@ void update_exfat()
 }
 
 void drive_dump(char name[]) {
-	puts("Creating a backup of your SD card first few sectors.");
+	puts("Creating a backup of your SD card's first few sectors.");
 
 	char *dump = malloc(512 * 12);
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);

@@ -6,12 +6,14 @@
 #include "appstore.h"
 #include "drive.h"
 
+
+
 FILE *appstore_f = NULL;
 
-int appstore_getname(char *buffer, char filename[])
+int appstore_getname(char *buffer, char filename[], int n)
 {
 	char usableDrive[1024];
-	flag_usable_drive(usableDrive);
+	drive_get_usable(usableDrive, sizeof(usableDrive));
 
 	char *extension = filename;
 	while (*extension != '.') {
@@ -23,9 +25,9 @@ int appstore_getname(char *buffer, char filename[])
 	}
 
 	if (!strcmp(extension, ".mo")) {
-		snprintf(buffer, 2048, "%s/ML/modules/%s", usableDrive, filename);
+		snprintf(buffer, n, "%s/ML/modules/%s", usableDrive, filename);
 	} else if (!strcmp(extension, ".lua")) {
-		snprintf(buffer, 2048, "%s/ML/scripts/%s", usableDrive, filename);
+		snprintf(buffer, n, "%s/ML/scripts/%s", usableDrive, filename);
 	} else {
 		printf("Unsupported file extension %s\n", extension);
 		return 2;
@@ -102,10 +104,12 @@ int appstore_close()
 int appstore_download(char name[], char download[])
 {
 	char usableDrive[1024];
-	flag_usable_drive(usableDrive);
+	if (drive_get_usable(usableDrive, sizeof(usableDrive))) {
+		return 1;
+	}
 
 	char toDownload[1024];
-	appstore_getname(toDownload, name);
+	appstore_getname(toDownload, name, sizeof(toDownload));
 
 	return platform_download(download, toDownload);
 }
@@ -113,11 +117,11 @@ int appstore_download(char name[], char download[])
 int appstore_remove(char name[])
 {
 	char usableDrive[1024];
-	flag_usable_drive(usableDrive);
+	drive_get_usable(usableDrive, sizeof(usableDrive));
 
-	char toRemove[2048];
+	char toRemove[1024];
 
-	appstore_getname(toRemove, name);
+	appstore_getname(toRemove, name, sizeof(toRemove));
 
 	remove(toRemove);
 

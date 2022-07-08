@@ -22,21 +22,15 @@ static char flag_develop[] = "EOS_DEVELOP";
 static char flag_bootdisk[] = "BOOTDISK";
 static char flag_script[] = "SCRIPT";
 
-// Get a usable drive directory, for
-// making files and stuff
-int flag_usable_drive(char buffer[]);
-
+int drive_get_usable(char buffer[], int n);
 int drive_write_flag(int mode);
-void flag_close();
+int drive_openfs();
+int drive_getfs();
+void drive_close();
+void drive_dump(char name[]);
 
-// TODO: flag_closefs
-int flag_openfs();
-int flag_getfs();
 void flag_write(long offset, char string[]);
-void flag_close();
-
 void update_exfat();
 
-void drive_dump(char name[]);
 
 #endif

@@ -114,7 +114,7 @@ int installer_start(char model[], char version[])
 	puts("Unpacking file into SD card...");
 
 	char file[128];
-	flag_usable_drive(file);
+	drive_get_usable(file, sizeof(file));
 
 	char command[512];
 #ifdef __unix__
@@ -142,8 +142,6 @@ int installer_start(char model[], char version[])
 		return 1;
 	}
 
-	flag_close();
-
 	puts("Running 'EnableBootDisk'...");
 
 	evproc_run("EnableBootDisk");
@@ -165,7 +163,7 @@ int installer_remove()
 	}
 
 	char file[128];
-	flag_usable_drive(file);
+	drive_get_usable(file, sizeof(file));
 
 #ifdef __unix__
 	snprintf(command, 512, "rm -rf %s/autoexec.bin %s/ML", file, file);
@@ -183,6 +181,4 @@ int installer_remove()
 		puts("Can't destroy card flags");
 		return 1;
 	}
-
-	flag_close();
 }

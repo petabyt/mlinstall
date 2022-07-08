@@ -21,7 +21,7 @@
 #include "drive.h"
 
 FILE *d;
-int flag_getfs()
+int drive_getfs()
 {
 	char buffer[64];
 
@@ -65,7 +65,7 @@ void flag_write(long int offset, char string[])
 		return;
 	}
 
-	if (flag_getfs() == EXFAT) {
+	if (drive_getfs() == EXFAT) {
 		printf("Card is ExFAT, writing flags in the backup VBR.\n");
 		printf("Writing \"%s\" at 0x%lx\n", string, offset + (512 * 12));
 		fseek(d, offset + (512 * 12), SEEK_SET);
@@ -79,16 +79,11 @@ void flag_write(long int offset, char string[])
 	fflush(d);
 }
 
-int flag_getdrive(char buffer[])
+int drive_get(char buffer[], int n)
 {
-	if (geteuid() != 0) {
-		puts("This app must be run as superuser to modify filesystems, like: sudo ./mlinstall");
-		return DRIVE_NONE;
-	}
-
 	// Get EOS_DIGITAL Drive
 	FILE *c = popen("mount | grep EOS_DIGITAL", "r");
-	fgets(buffer, 64, c);
+	fgets(buffer, n, c);
 
 	strtok(buffer, " "); // Get first token before space
 
@@ -104,10 +99,10 @@ int flag_getdrive(char buffer[])
 	return 0;
 }
 
-int flag_usable_drive(char buffer[])
+int drive_get_usable(char buffer[], int n)
 {
 	char filesystem[64];
-	if (flag_getdrive(filesystem)) {
+	if (drive_get(filesystem, sizeof(filesystem))) {
 		return DRIVE_NONE;
 	}
 
@@ -119,15 +114,20 @@ int flag_usable_drive(char buffer[])
 	}
 
 	FILE *c = popen(command, "r");
-	fgets(buffer, 50, c);
+	fgets(buffer, n, c);
 
 	return 0;
 }
 
-int flag_openfs()
+int drive_openfs()
 {
+	if (geteuid() != 0) {
+		puts("This app must be run as superuser to modify filesystems, like: sudo ./mlinstall");
+		return DRIVE_ERROR;
+	}
+
 	char buffer[128];
-	flag_getdrive(buffer);
+	drive_get(buffer, 128);
 	d = fopen(buffer, "rw+");
 
 	if (d == NULL) {
@@ -136,7 +136,7 @@ int flag_openfs()
 
 	// Unmount to prevent other processes from writing to it
 	char drive[128];
-	flag_usable_drive(drive);
+	drive_get_usable(drive, sizeof(drive));
 	if (umount(drive)) {
 		puts("Error unmounting drive.");
 		return DRIVE_ERROR;
@@ -144,10 +144,10 @@ int flag_openfs()
 		puts("Unmounted drive for filesystem safety.");
 	}
 
-	return flag_getfs();
+	return 0;
 }
 
-void flag_close()
+void drive_close()
 {
 	fclose(d);
 }
@@ -175,7 +175,7 @@ void update_exfat()
 }
 
 void drive_dump(char name[]) {
-	puts("Creating a backup of your SD card first few sectors.");
+	puts("Creating a backup of your SD card's first few sectors.");
 
 	char *dump = malloc(512 * 12);
 	fseek(d, 0, SEEK_SET);

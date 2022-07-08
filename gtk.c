@@ -23,7 +23,11 @@ int dev_flag = 0;
 
 char *driveNotFound = "Could not find card. Make sure\nthe EOS_DIGITAL card is mounted.";
 char *driveNotSupported = "Only ExFAT, FAT32, and FAT16\ncards are supported.";
-char *driveError = "Error opening drive.";
+#ifdef WIN32
+	char *driveError = "Error opening drive. Make sure to\nrun as Administrator.";
+#else
+	char *driveError = "Error opening drive. Make sure to\nrun as sudo.";
+#endif
 
 // Quick, messy, logging mechanism:
 GtkWidget *logw;

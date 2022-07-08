@@ -31,7 +31,9 @@ void flag_close();
 
 // TODO: flag_closefs
 int flag_openfs();
+int flag_getfs();
 void flag_write(long offset, char string[]);
+void flag_close();
 
 void update_exfat();
 

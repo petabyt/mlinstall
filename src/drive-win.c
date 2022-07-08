@@ -4,6 +4,8 @@
 #include <stdio.h>
 #include <windows.h>
 
+BOOL IsUserAnAdmin();
+
 #include "drive.h"
 #include "exfat.h"
 
@@ -63,10 +65,8 @@ void flag_write(long offset, char string[])
 	printf("New Flag:     %s\n", bootsector + offset);
 
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
-	WriteFile(d, bootsector, SIZE, &bytesRead, NULL);
-
-	if (GetLastError()) {
-		puts("Error writing to drive.");
+	if (!WriteFile(d, bootsector, SIZE, &bytesRead, NULL)) {
+		printf("Error writing to drive: %d\n", GetLastError());
 		return;
 	}
 
@@ -102,7 +102,7 @@ int flag_getdrive()
 					return DRIVE_NONE;
 				}
 				
-				DeleteVolumeMountPointA(dstr);
+				//DeleteVolumeMountPointA(dstr);
 
 				return (int)(i + 'A');
 			}
@@ -130,22 +130,32 @@ int flag_openfs(int mode)
 	// Windows filesystems must be opened like this: \\.\E:
 	char buffer[64] = "\\\\.\\0:";
 	int drive = flag_getdrive();
-	if (drive < 0) {
-		return drive;
+	if (drive == DRIVE_NONE) {
+		return DRIVE_NONE;
 	}
-
+	
 	buffer[4] = (char)drive;
 
 	d = CreateFile(buffer, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
 		       NULL, OPEN_EXISTING, FILE_FLAG_NO_BUFFERING | FILE_FLAG_RANDOM_ACCESS, NULL);
 
 	if (d == INVALID_HANDLE_VALUE) {
-		puts("Couldn't open the filesystem. Try running as Administrator.\n"
-		     "Check file explorer and make sure EOS_DIGITAL is mounted.");
-		return -1;
+		puts("Couldn't open the filesystem. Check file explorer and make sure EOS_DIGITAL exists.");
+		return DRIVE_ERROR;
+	}
+	
+	if (!IsUserAnAdmin()) {
+		puts("MLinstall needs Administrator privileges to write and unmount drive.");
+		return DRIVE_ERROR;
+	}
+	
+	// DeviceIoControl returns 1 on success
+	if (!DeviceIoControl(d, FSCTL_LOCK_VOLUME, NULL, 0, NULL, 0, &bytesRead, NULL)) {
+		puts("Couldn't lock drive for some reason.");
+		return DRIVE_ERROR;
 	}
 
-	return flag_getfs();
+	return 0;
 }
 
 void flag_close()

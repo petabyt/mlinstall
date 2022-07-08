@@ -7,8 +7,8 @@
 // in the correct place
 int drive_write_flag(int mode)
 {
-	int drive = flag_openfs();
-	switch (drive) {
+	int r = flag_openfs();
+	switch (r) {
 	case DRIVE_BADFS:
 		puts("The EOS_DIGITAL card must be FAT32, FAT16, or ExFAT.");
 		return DRIVE_BADFS;
@@ -19,6 +19,8 @@ int drive_write_flag(int mode)
 		puts("Error opening drive.");
 		return DRIVE_ERROR;
 	}
+	
+	int drive = flag_getfs();
 
 	long int of[3] = { 0, 0, 0 };
 
@@ -76,6 +78,8 @@ int drive_write_flag(int mode)
 	if (drive == EXFAT) {
 		update_exfat();
 	}
+	
+	flag_close();
 
 	puts("Wrote card flags.");
 	return 0;

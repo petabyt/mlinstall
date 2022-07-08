@@ -144,12 +144,7 @@ int flag_openfs(int mode)
 		return DRIVE_ERROR;
 	}
 	
-	if (!IsUserAnAdmin()) {
-		puts("MLinstall needs Administrator privileges to write and unmount drive.");
-		return DRIVE_ERROR;
-	}
-	
-	// DeviceIoControl returns 1 on success
+	// Lock drive while writing to it
 	if (!DeviceIoControl(d, FSCTL_LOCK_VOLUME, NULL, 0, NULL, 0, &bytesRead, NULL)) {
 		puts("Couldn't lock drive for some reason.");
 		return DRIVE_ERROR;

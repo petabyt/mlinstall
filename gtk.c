@@ -21,10 +21,10 @@
 // Activated with CLI flag -d
 int dev_flag = 0;
 
-char *driveNotFound = "Could not find card. Make sure\nthe EOS_DIGITAL card is mounted.";
+char *driveNotFound = "Couldn't find card. Make sure\nthe EOS_DIGITAL card is mounted.";
 char *driveNotSupported = "Only ExFAT, FAT32, and FAT16\ncards are supported.";
 #ifdef WIN32
-	char *driveError = "Error opening drive. Make sure to\nrun as Administrator.";
+	char *driveError = "Error opening drive.";
 #else
 	char *driveError = "Error opening drive. Make sure to\nrun as sudo.";
 #endif
@@ -53,7 +53,7 @@ int returnMessage(unsigned int code)
 		logprint("No PTP/USB device found. \n");
 #ifdef WIN32
 		logprint(
-			"You're on Windows, you'll probably\nneed to install libusb.\nSee the MANUAL link in the README.\n");
+			"You're on Windows, you'll\nneed to install libusb.\nSee the MANUAL link in the README.\n");
 #endif
 		return 1;
 	}

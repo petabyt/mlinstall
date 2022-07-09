@@ -70,7 +70,7 @@ void flag_write(long offset, char string[])
 		return;
 	}
 
-	if (flag_getfs() == EXFAT) {
+	if (drive_getfs() == EXFAT) {
 		printf("Card is ExFAT, writing flags in the backup VBR.\n");
 		printf("Writing \"%s\" at 0x%lx\n", string, offset + (512 * 12));
 
@@ -113,12 +113,12 @@ int drive_get()
 
 int drive_get_usable(char buffer[], int n)
 {
-	int drive = flag_getdrive();
+	int drive = drive_get();
 	if (drive < 0) {
 		return drive;
 	}
 
-	strncpy(buffer, " :", int n);
+	strncpy(buffer, " :", n);
 	buffer[0] = (char)drive;
 	return 0;
 }
@@ -127,7 +127,7 @@ int drive_openfs(int mode)
 {
 	// Windows filesystems must be opened like this: \\.\E:
 	char buffer[64] = "\\\\.\\0:";
-	int drive = flag_getdrive();
+	int drive = drive_get();
 	if (drive == DRIVE_NONE) {
 		return DRIVE_NONE;
 	}

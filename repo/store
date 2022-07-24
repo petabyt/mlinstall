@@ -6,6 +6,18 @@ Daniel C
 -----
 mlt.mo
 https://github.com/petabyt/mlt
-https://github.com/petabyt/mlt/releases/download/0.2.1/mlt.mo
+https://github.com/petabyt/mlt/releases/download/0.3/mlt.mo
 (v7) Translates menus into different languages.
 Daniel C
+-----
+mlt.mo
+https://github.com/petabyt/mlt
+https://github.com/petabyt/mlt/releases/download/0.3/mlt-mcu.mo
+(v7) Translates menus into different languages. (With custom rendering backend)
+Daniel C
+-----
+img_name.mo
+https://www.magiclantern.fm/forum/index.php?topic=21111
+https://builds.magiclantern.fm/jenkins/job/img_name/16/artifact/modules/img_name/img_name.mo
+(v6) Allows names of images to be changed (IMG_123->ABC_123)
+a1ex

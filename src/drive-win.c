@@ -62,7 +62,7 @@ void flag_write(long offset, char string[])
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
 	ReadFile(d, bootsector, SIZE, &bytesRead, NULL);
 
-	memcpy(old_flag, bootsector + offset, strlen(string) % sizeof(buffer));
+	memcpy(old_flag, bootsector + offset, strlen(string) % sizeof(old_flag));
 	printf("Current Flag: %s\n", old_flag);
 	memcpy(bootsector + offset, string, strlen(string));
 	printf("New Flag:     %s\n", string);

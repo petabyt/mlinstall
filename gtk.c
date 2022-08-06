@@ -385,12 +385,12 @@ int main(int argc, char *argv[])
 
 	gtk_init(&argc, &argv);
 
-	g_print("Early release of MLInstall. Use at your own risk!\n");
+	g_print("MLinstall by Daniel C. Use at your own risk!\n");
 	g_print("https://github.com/petabyt/mlinstall\n");
 	g_print("https://www.magiclantern.fm/forum/index.php?topic=26162\n");
 
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
-	gtk_window_set_title(GTK_WINDOW(window), "ML Install Tool");
+	gtk_window_set_title(GTK_WINDOW(window), "MLinstall");
 	gtk_window_set_default_size(GTK_WINDOW(window), 375, 500);
 	g_signal_connect(window, "delete-event", G_CALLBACK(delete_event), NULL);
 	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
@@ -404,7 +404,7 @@ int main(int argc, char *argv[])
 
 	label = gtk_label_new(NULL);
 	gtk_widget_set_hexpand(label, TRUE);
-	gtk_label_set_markup(GTK_LABEL(label), "<span size=\"large\">MLInstall</span>\n\n");
+	gtk_label_set_markup(GTK_LABEL(label), "<span size=\"large\">MLinstall</span>\nFor Canon cameras only!\n");
 	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
 	gtk_grid_attach(GTK_GRID(mainGrid), label, 0, 0, 1, 1);
 	gtk_widget_show(label);

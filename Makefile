@@ -17,7 +17,7 @@ clean-out:
 
 # Clean everything
 clean: clean-out
-	$(RM) -r *.zip *.AppImage unix-gtk unix-cli win64* win32*
+	$(RM) -r *.zip *.AppImage unix-gtk unix-cli win64* win32* SD_BACKUP
 
 unix-gtk: $(FILES) gtk.o
 	$(CC) gtk.o $(FILES) $(CFLAGS) $(LDFLAGS) -o unix-gtk
@@ -62,6 +62,7 @@ win64-gtk-mlinstall: win.res gtk libusb gtk.o $(FILES)
 	cp libusb/bin/amd64/libusb0.dll win64-gtk-mlinstall/
 	cd gtk/lib/; cp * ../../win64-gtk-mlinstall/
 	cp assets/README.txt win64-gtk-mlinstall/
+	curl https://github.com/pbatard/libwdi/releases/download/v1.4.1/zadig-2.7.exe > win64-gtk-mlinstall/zadig.exe
 
 # 32 bit Windows XP, ReactOS
 win32-gtk: win32-gtk-mlinstall
@@ -76,6 +77,7 @@ win32-gtk-mlinstall: win.res gtk libusb gtk.o $(FILES)
 	cp libusb/bin/x86/libusb0_x86.dll win32-gtk-mlinstall/libusb0.dll
 	cp gtk/lib/* win32-gtk-mlinstall/
 	cp assets/README.txt win32-gtk-mlinstall/
+	curl https://github.com/pbatard/libwdi/releases/download/v1.2.5/zadig_xp-2.2.exe > win64-gtk-mlinstall/zadig.exe
 
 # Main C out, will be used by all targets
 %.o: %.c

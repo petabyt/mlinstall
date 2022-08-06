@@ -56,8 +56,8 @@ void flag_write(long int offset, char string[])
 	fseek(d, offset, SEEK_SET);
 	fread(buffer, 1, strlen(string), d);
 
-	printf("Current Flag: \"%s\"\n", buffer);
-	printf("Writing \"%s\" at 0x%lx\n", string, offset);
+	printf("Current Flag: %s\n", buffer);
+	printf("New Flag:     %s\n", string);
 
 	fseek(d, offset, SEEK_SET);
 	if (fwrite(string, 1, strlen(string), d) != strlen(string)) {

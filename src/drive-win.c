@@ -57,12 +57,15 @@ static int exfat_write(int location, int length, void *bytes)
 
 void flag_write(long offset, char string[])
 {
+	char old_flag[16] = { 0 };
+
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
 	ReadFile(d, bootsector, SIZE, &bytesRead, NULL);
 
-	printf("Current Flag: %s\n", bootsector + offset);
+	memcpy(old_flag, bootsector + offset, strlen(string) % sizeof(buffer));
+	printf("Current Flag: %s\n", old_flag);
 	memcpy(bootsector + offset, string, strlen(string));
-	printf("New Flag:     %s\n", bootsector + offset);
+	printf("New Flag:     %s\n", string);
 
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
 	if (!WriteFile(d, bootsector, SIZE, &bytesRead, NULL)) {

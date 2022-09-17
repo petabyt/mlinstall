@@ -32,16 +32,16 @@ style:
 # Download GTK libs, GTK_ZIP is sent from parent target
 # See https://github.com/petabyt/windows-gtk for more info on this
 gtk:
+	-wget -4 -nc https://github.com/petabyt/windows-gtk/raw/master/$(GTK_ZIP) -O ~/Downloads/$(GTK_ZIP)
 	mkdir gtk
-	wget -4 https://github.com/petabyt/windows-gtk/raw/master/$(GTK_ZIP)
-	unzip $(GTK_ZIP) -d gtk
+	unzip ~/Downloads/$(GTK_ZIP) -d gtk
 	mv gtk/win32 .
 	rm -rf gtk
 	mv win32 gtk
 
 libusb:
-	wget -4 https://cfhcable.dl.sourceforge.net/project/libusb-win32/libusb-win32-releases/1.2.2.0/libusb-win32-bin-1.2.2.0.zip
-	unzip libusb-win32-bin-1.2.2.0.zip
+	-wget -4 -nc https://cfhcable.dl.sourceforge.net/project/libusb-win32/libusb-win32-releases/1.2.2.0/libusb-win32-bin-1.2.2.0.zip -O ~/Downloads/libusb.zip
+	unzip ~/Downloads/libusb.zip
 	mv libusb-win32-bin-1.2.2.0 libusb
 
 # Contains app info, asset stuff
@@ -55,14 +55,13 @@ win64-gtk-mlinstall: MINGW=x86_64-w64-mingw32
 win64-gtk-mlinstall: CC=$(MINGW)-gcc
 win64-gtk-mlinstall: CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Ilibusb/include -Igtk/include
 win64-gtk-mlinstall: GTK_ZIP=win64-gtk-2021.zip
-win64-gtk-mlinstall: win.res gtk libusb gtk.o $(FILES)
+win64-gtk-mlinstall: win.res gtk libusb gtk.o $(FILES) ../libwinusb/liblibusb.a
 	-mkdir win64-gtk-mlinstall
-	$(CC) win.res gtk.o $(FILES) gtk/lib/* libusb/bin/amd64/libusb0.dll \
+	$(CC) win.res gtk.o $(FILES) gtk/lib/* ../libwinusb/liblibusb.a /usr/x86_64-w64-mingw32/lib/libsetupapi.a /usr/x86_64-w64-mingw32/lib/libwinusb.a \
 	    $(CFLAGS) -o win64-gtk-mlinstall/mlinstall.exe
-	cp libusb/bin/amd64/libusb0.dll win64-gtk-mlinstall/
 	cd gtk/lib/; cp * ../../win64-gtk-mlinstall/
 	cp assets/README.txt win64-gtk-mlinstall/
-	curl https://github.com/pbatard/libwdi/releases/download/v1.4.1/zadig-2.7.exe > win64-gtk-mlinstall/zadig.exe
+	#curl https://github.com/pbatard/libwdi/releases/download/v1.4.1/zadig-2.7.exe > win64-gtk-mlinstall/zadig.exe
 
 # 32 bit Windows XP, ReactOS
 win32-gtk: win32-gtk-mlinstall
@@ -77,7 +76,7 @@ win32-gtk-mlinstall: win.res gtk libusb gtk.o $(FILES)
 	cp libusb/bin/x86/libusb0_x86.dll win32-gtk-mlinstall/libusb0.dll
 	cp gtk/lib/* win32-gtk-mlinstall/
 	cp assets/README.txt win32-gtk-mlinstall/
-	curl https://github.com/pbatard/libwdi/releases/download/v1.2.5/zadig_xp-2.2.exe > win64-gtk-mlinstall/zadig.exe
+	#curl https://github.com/pbatard/libwdi/releases/download/v1.2.5/zadig_xp-2.2.exe > win64-gtk-mlinstall/zadig.exe
 
 # Main C out, will be used by all targets
 %.o: %.c

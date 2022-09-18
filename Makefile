@@ -13,7 +13,7 @@ unix-gtk: CFLAGS=$(shell pkg-config --cflags gtk+-3.0)
 
 # Clean incompatible stuff, use between comiling 
 clean-out:
-	$(RM) -r src/*.o mlinstall unix-gtk unix-cli win-gtk win-cli *.o *.out *.exe *.res gtk libusb
+	$(RM) -r src/winusb/*.o src/*.o mlinstall unix-gtk unix-cli win-gtk win-cli *.o *.out *.exe *.res gtk libusb
 
 # Clean everything
 clean: clean-out
@@ -29,20 +29,13 @@ style:
 #  Windows stuff:
 #
 
-# Download GTK libs, GTK_ZIP is sent from parent target
-# See https://github.com/petabyt/windows-gtk for more info on this
 gtk:
+	-wget -4 -nc https://github.com/petabyt/windows-gtk/raw/master/$(GTK_ZIP) -O ~/Downloads/$(GTK_ZIP)
 	mkdir gtk
-	wget -4 https://github.com/petabyt/windows-gtk/raw/master/$(GTK_ZIP)
-	unzip $(GTK_ZIP) -d gtk
+	unzip /home/$(USER)/Downloads/$(GTK_ZIP) -d gtk
 	mv gtk/win32 .
 	rm -rf gtk
 	mv win32 gtk
-
-libusb:
-	wget -4 https://cfhcable.dl.sourceforge.net/project/libusb-win32/libusb-win32-releases/1.2.2.0/libusb-win32-bin-1.2.2.0.zip
-	unzip libusb-win32-bin-1.2.2.0.zip
-	mv libusb-win32-bin-1.2.2.0 libusb
 
 # Contains app info, asset stuff
 win.res: assets/win.rc
@@ -53,31 +46,28 @@ win.res: assets/win.rc
 win-gtk: win64-gtk-mlinstall
 win64-gtk-mlinstall: MINGW=x86_64-w64-mingw32
 win64-gtk-mlinstall: CC=$(MINGW)-gcc
-win64-gtk-mlinstall: CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Ilibusb/include -Igtk/include
+win64-gtk-mlinstall: CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Igtk/include
 win64-gtk-mlinstall: GTK_ZIP=win64-gtk-2021.zip
-win64-gtk-mlinstall: win.res gtk libusb gtk.o $(FILES)
+win64-gtk-mlinstall: win.res gtk gtk.o src/winusb/libusb-winusb-bridge.o $(FILES)
 	-mkdir win64-gtk-mlinstall
-	$(CC) win.res gtk.o $(FILES) gtk/lib/* libusb/bin/amd64/libusb0.dll \
+	$(CC) win.res gtk.o $(FILES) gtk/lib/* src/winusb/libusb-winusb-bridge.o /usr/x86_64-w64-mingw32/lib/libsetupapi.a /usr/x86_64-w64-mingw32/lib/libwinusb.a \
 	    $(CFLAGS) -o win64-gtk-mlinstall/mlinstall.exe
-	cp libusb/bin/amd64/libusb0.dll win64-gtk-mlinstall/
 	cd gtk/lib/; cp * ../../win64-gtk-mlinstall/
 	cp assets/README.txt win64-gtk-mlinstall/
-	curl https://github.com/pbatard/libwdi/releases/download/v1.4.1/zadig-2.7.exe > win64-gtk-mlinstall/zadig.exe
+
 
 # 32 bit Windows XP, ReactOS
 win32-gtk: win32-gtk-mlinstall
 win32-gtk-mlinstall: MINGW=i686-w64-mingw32
 win32-gtk-mlinstall: CC=$(MINGW)-gcc
-win32-gtk-mlinstall: CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Ilibusb/include -Igtk/include
+win32-gtk-mlinstall: CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Igtk/include
 win32-gtk-mlinstall: GTK_ZIP=win32-gtk-2013.zip
-win32-gtk-mlinstall: win.res gtk libusb gtk.o $(FILES)
+win32-gtk-mlinstall: win.res gtk gtk.o src/winusb/libusb-winusb-bridge.o $(FILES)
 	-mkdir win32-gtk-mlinstall
-	$(CC) win.res gtk.o $(FILES) gtk/lib/* libusb/bin/x86/libusb0_x86.dll \
+	$(CC) win.res gtk.o $(FILES) gtk/lib/* src/winusb/libusb-winusb-bridge.o /usr/i686-w64-mingw32/lib/libsetupapi.a /usr/i686-w64-mingw32/lib/libwinusb.a \
 	    $(CFLAGS) -o win32-gtk-mlinstall/mlinstall.exe
-	cp libusb/bin/x86/libusb0_x86.dll win32-gtk-mlinstall/libusb0.dll
 	cp gtk/lib/* win32-gtk-mlinstall/
 	cp assets/README.txt win32-gtk-mlinstall/
-	curl https://github.com/pbatard/libwdi/releases/download/v1.2.5/zadig_xp-2.2.exe > win64-gtk-mlinstall/zadig.exe
 
 # Main C out, will be used by all targets
 %.o: %.c

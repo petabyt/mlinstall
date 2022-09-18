@@ -29,7 +29,7 @@
 
 #include <errno.h>
 #include <sys/ioctl.h>
-#include <usb.h>
+#include "libusb.h"
 
 #define IOCTL_USB_CONTROL _IOWR('U', 0, struct usb_ctrltransfer)
 #define IOCTL_USB_BULK _IOWR('U', 2, struct usb_bulktransfer)

@@ -3,9 +3,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
-#include <usb.h>
 #include <gtk/gtk.h>
 #include <ctype.h>
+
+#include "src/libusb.h"
 
 #include "src/config.h"
 #include "src/ptp.h"
@@ -386,6 +387,7 @@ int main(int argc, char *argv[])
 	gtk_init(&argc, &argv);
 
 	g_print("MLinstall by Daniel C. Use at your own risk!\n");
+	g_print("You can buy the creator of mlinstall a Coffee here: https://ko-fi.com/petabyte/");
 	g_print("https://github.com/petabyt/mlinstall\n");
 	g_print("https://www.magiclantern.fm/forum/index.php?topic=26162\n");
 

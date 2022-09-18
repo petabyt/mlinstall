@@ -35,7 +35,7 @@
 #ifndef WIN32
 #include <sys/mman.h>
 #endif
-#include <usb.h>
+#include "libusb.h"
 
 #ifdef WIN32
 #define usleep(usec) Sleep((usec) / 1000)

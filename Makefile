@@ -4,7 +4,7 @@
 # Note: Platform specific files will not be
 # compiled because of "#ifdef WIN32" guards
 FILES=$(patsubst %.c,%.o,$(wildcard src/*.c))
-
+RM=rm -rf
 all: unix-gtk
 
 # flags for unix-gtk
@@ -61,7 +61,6 @@ win64-gtk-mlinstall: win.res gtk libusb gtk.o $(FILES) ../libwinusb/liblibusb.a
 	    $(CFLAGS) -o win64-gtk-mlinstall/mlinstall.exe
 	cd gtk/lib/; cp * ../../win64-gtk-mlinstall/
 	cp assets/README.txt win64-gtk-mlinstall/
-	#curl https://github.com/pbatard/libwdi/releases/download/v1.4.1/zadig-2.7.exe > win64-gtk-mlinstall/zadig.exe
 
 # 32 bit Windows XP, ReactOS
 win32-gtk: win32-gtk-mlinstall
@@ -76,7 +75,6 @@ win32-gtk-mlinstall: win.res gtk libusb gtk.o $(FILES)
 	cp libusb/bin/x86/libusb0_x86.dll win32-gtk-mlinstall/libusb0.dll
 	cp gtk/lib/* win32-gtk-mlinstall/
 	cp assets/README.txt win32-gtk-mlinstall/
-	#curl https://github.com/pbatard/libwdi/releases/download/v1.2.5/zadig_xp-2.2.exe > win64-gtk-mlinstall/zadig.exe
 
 # Main C out, will be used by all targets
 %.o: %.c
@@ -84,6 +82,10 @@ win32-gtk-mlinstall: win.res gtk libusb gtk.o $(FILES)
 
 # Release targets:
 win64-gtk-mlinstall.zip: win64-gtk-mlinstall
+	wget -4 -nc https://github.com/mcuee/libusb-win32/releases/download/snapshot_1.2.7.3/libusb-win32-bin-1.2.7.3.zip
+	unzip libusb-win32-bin-1.2.7.3.zip -d win64-gtk-mlinstall
+	mv win64-gtk-mlinstall/libusb-win32-bin-1.2.7.3/bin/amd64/ win64-gtk-mlinstall/install-libusb
+	$(RM) win64-gtk-mlinstall/libusb-win32-bin-1.2.7.3
 	zip -r win64-gtk-mlinstall.zip win64-gtk-mlinstall
 
 win32-gtk-mlinstall.zip: win32-gtk-mlinstall

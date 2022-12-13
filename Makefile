@@ -55,10 +55,11 @@ win64-gtk-mlinstall: MINGW=x86_64-w64-mingw32
 win64-gtk-mlinstall: CC=$(MINGW)-gcc
 win64-gtk-mlinstall: CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Ilibusb/include -Igtk/include
 win64-gtk-mlinstall: GTK_ZIP=win64-gtk-2021.zip
-win64-gtk-mlinstall: win.res gtk libusb gtk.o $(FILES) ../libwinusb/liblibusb.a
+win64-gtk-mlinstall: win.res gtk libusb gtk.o $(FILES)
 	-mkdir win64-gtk-mlinstall
-	$(CC) win.res gtk.o $(FILES) gtk/lib/* ../libwinusb/liblibusb.a /usr/x86_64-w64-mingw32/lib/libsetupapi.a /usr/x86_64-w64-mingw32/lib/libwinusb.a \
+	$(CC) win.res gtk.o $(FILES) gtk/lib/* libusb/bin/amd64/libusb0.dll \
 	    $(CFLAGS) -o win64-gtk-mlinstall/mlinstall.exe
+	cp libusb/bin/amd64/libusb0.dll win64-gtk-mlinstall/
 	cd gtk/lib/; cp * ../../win64-gtk-mlinstall/
 	cp assets/README.txt win64-gtk-mlinstall/
 

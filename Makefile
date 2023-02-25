@@ -4,12 +4,18 @@
 # Note: Platform specific files will not be
 # compiled because of "#ifdef WIN32" guards
 FILES=$(patsubst %.c,%.o,$(wildcard src/*.c))
+
+CL_OBJ=libusb.o operations.o packet.o enums.o data.o enum_dump.o util.o canon.o backend.o liveview.o bind.o
+CL_OBJ2=$(addprefix camlib/src/,$(CL_OBJ))
+FILES+=$(CL_OBJ2)
+
 RM=rm -rf
+
 all: unix-gtk
 
 # flags for unix-gtk
 unix-gtk: LDFLAGS=-lusb $(shell pkg-config --libs gtk+-3.0)
-unix-gtk: CFLAGS=$(shell pkg-config --cflags gtk+-3.0)
+unix-gtk: CFLAGS=$(shell pkg-config --cflags gtk+-3.0) -Icamlib/src -DVERBOSE
 
 # Clean incompatible stuff, use between comiling 
 clean-out:
@@ -17,7 +23,7 @@ clean-out:
 
 # Clean everything
 clean: clean-out
-	$(RM) -r *.zip *.AppImage unix-gtk unix-cli win64* win32* SD_BACKUP
+	$(RM) -r *.zip *.AppImage unix-gtk unix-cli win64* win32* SD_BACKUP camlib/src/*.o
 
 unix-gtk: $(FILES) gtk.o
 	$(CC) gtk.o $(FILES) $(CFLAGS) $(LDFLAGS) -o unix-gtk
@@ -40,9 +46,7 @@ gtk:
 	mv win32 gtk
 
 libusb:
-	-wget -4 -nc https://cfhcable.dl.sourceforge.net/project/libusb-win32/libusb-win32-releases/1.2.2.0/libusb-win32-bin-1.2.2.0.zip -O ~/Downloads/libusb.zip
-	unzip ~/Downloads/libusb.zip
-	mv libusb-win32-bin-1.2.2.0 libusb
+	-wget -4 -nc https://github.com/petabyt/libwpd/releases/download/0.1.1/libwpd_x64.dll -O ~/Downloads/libwpd_x64.dll
 
 # Contains app info, asset stuff
 win.res: assets/win.rc
@@ -57,7 +61,8 @@ win64-gtk-mlinstall: CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Ilibusb/include -Ig
 win64-gtk-mlinstall: GTK_ZIP=win64-gtk-2021.zip
 win64-gtk-mlinstall: win.res gtk libusb gtk.o $(FILES) ../libwinusb/liblibusb.a
 	-mkdir win64-gtk-mlinstall
-	$(CC) win.res gtk.o $(FILES) gtk/lib/* ../libwinusb/liblibusb.a /usr/x86_64-w64-mingw32/lib/libsetupapi.a /usr/x86_64-w64-mingw32/lib/libwinusb.a \
+	$(CC) win.res gtk.o $(FILES) gtk/lib/* ~/Downloads/libwpd_x64.dll \
+	cp ~/Downloads/libwpd_x64.dll win32-gtk-mlinstall/libwpd.dll
 	    $(CFLAGS) -o win64-gtk-mlinstall/mlinstall.exe
 	cd gtk/lib/; cp * ../../win64-gtk-mlinstall/
 	cp assets/README.txt win64-gtk-mlinstall/
@@ -70,9 +75,9 @@ win32-gtk-mlinstall: CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Ilibusb/include -Ig
 win32-gtk-mlinstall: GTK_ZIP=win32-gtk-2013.zip
 win32-gtk-mlinstall: win.res gtk libusb gtk.o $(FILES)
 	-mkdir win32-gtk-mlinstall
-	$(CC) win.res gtk.o $(FILES) gtk/lib/* libusb/bin/x86/libusb0_x86.dll \
+	$(CC) win.res gtk.o $(FILES) gtk/lib/* ~/Downloads/libwpd_x86.dll \
 	    $(CFLAGS) -o win32-gtk-mlinstall/mlinstall.exe
-	cp libusb/bin/x86/libusb0_x86.dll win32-gtk-mlinstall/libusb0.dll
+	cp ~/Downloads/libwpd_x86.dll win32-gtk-mlinstall/libwpd.dll
 	cp gtk/lib/* win32-gtk-mlinstall/
 	cp assets/README.txt win32-gtk-mlinstall/
 
@@ -82,10 +87,6 @@ win32-gtk-mlinstall: win.res gtk libusb gtk.o $(FILES)
 
 # Release targets:
 win64-gtk-mlinstall.zip: win64-gtk-mlinstall
-	wget -4 -nc https://github.com/mcuee/libusb-win32/releases/download/snapshot_1.2.7.3/libusb-win32-bin-1.2.7.3.zip
-	unzip libusb-win32-bin-1.2.7.3.zip -d win64-gtk-mlinstall
-	mv win64-gtk-mlinstall/libusb-win32-bin-1.2.7.3/bin/amd64/ win64-gtk-mlinstall/install-libusb
-	$(RM) win64-gtk-mlinstall/libusb-win32-bin-1.2.7.3
 	zip -r win64-gtk-mlinstall.zip win64-gtk-mlinstall
 
 win32-gtk-mlinstall.zip: win32-gtk-mlinstall

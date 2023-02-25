@@ -7,9 +7,8 @@
 #include <gtk/gtk.h>
 #include <ctype.h>
 
-#include "src/config.h"
-#include "src/ptp.h"
-#include "src/ptpcam.h"
+#include <camlib.h>
+#include <ptp.h>
 
 #include "src/drive.h"
 #include "src/model.h"
@@ -21,6 +20,7 @@
 // Activated with CLI flag -d
 int dev_flag = 0;
 
+char *deviceNotFound = "Couldn't find a PTP/USB device.";
 char *driveNotFound = "Couldn't find card. Make sure\nthe EOS_DIGITAL card is mounted.";
 char *driveNotSupported = "Only ExFAT, FAT32, and FAT16\ncards are supported.";
 #ifdef WIN32
@@ -45,29 +45,24 @@ void logclear()
 	gtk_label_set_text(GTK_LABEL(logw), logbuf);
 }
 
-// Log a return message after doing a usb thing
+struct PtpRuntime ptp_runtime;
+
+// Detect PTP return codes
 int returnMessage(unsigned int code)
 {
-	switch (code) {
-	case 0:
-		logprint("No PTP/USB device found. \n");
-#ifdef WIN32
-		logprint(
-			"You're on Windows, you'll\nneed to install libusb.\nSee the MANUAL link in the README.\n");
-#endif
-		return 1;
-	}
-
 	char buf[128];
 	snprintf(buf, sizeof(buf), "Response Code: %x\n", code);
 	logprint(buf);
 
 	switch (code) {
-	case 0x2001:
+	case PTP_RC_OK:
 		logprint("Return Code OK.\n");
 		return 0;
-	case 0x201d:
+	case PTP_RC_InvalidParameter:
 		logprint("Return Code INVALID_PARAMETER.\n");
+		return 1;
+	case PTP_RC_OperationNotSupported:
+		logprint("Operation not supported. Your camera is probably unsupported.");
 		return 1;
 	case 1:
 		logprint("Parser error. See console.");
@@ -128,45 +123,51 @@ static void unscriptflag(GtkWidget *widget, gpointer data)
 	}
 }
 
+int ptpConnect() {
+	int r = ptp_device_init(&ptp_runtime);
+	if (r) {
+		logprint(deviceNotFound);
+		return r;
+	}
+
+	r = ptp_open_session(&ptp_runtime);
+	if (r) {
+		return r;
+	}
+
+	return r;
+}
+
 static void deviceinfo(GtkWidget *widget, gpointer data)
 {
 	logclear();
+	if (ptpConnect()) return;
 
-	int busn = 0;
-	int devn = 0;
-	short force = 0;
-	PTPParams params;
-	PTP_USB ptp_usb;
-	struct usb_device *dev;
+	struct PtpDeviceInfo di;
+	ptp_get_device_info(&ptp_runtime, &di);
 
-	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
-		returnMessage(0);
-		return;
-	}
-
-	PTPDeviceInfo info;
-	ptp_getdeviceinfo(&params, &info);
-
-	char buffer[256];
+	char buffer[512];
 	snprintf(buffer, sizeof(buffer),
 		"Manufacturer: %s\n"
 		"Model: %s\n"
 		"DeviceVersion: %s\n"
 		"SerialNumber: %s\n",
-		info.Manufacturer, info.Model, info.DeviceVersion, info.SerialNumber);
+		di.manufacturer, di.model, di.device_version, di.serial_number);
 
 	logprint(buffer);
 
 	// Test model detector
-	printf("Model ID is %d\n", model_get(info.Model));
+	printf("Model ID is %d\n", model_get(di.model));
 
-	close_camera(&ptp_usb, &params, dev);
+	ptp_device_close(&ptp_runtime);
 }
 
 // Run a custom event proc from input
 static void eventproc(GtkWidget *widget, gpointer data)
 {
 	logclear();
+	if (ptpConnect()) return;
+
 	const gchar *entry = gtk_entry_get_text(GTK_ENTRY(widget));
 	returnMessage(evproc_run((char *)entry));
 }
@@ -174,7 +175,10 @@ static void eventproc(GtkWidget *widget, gpointer data)
 static void enablebootdisk(GtkWidget *widget, gpointer data)
 {
 	logclear();
-	if (returnMessage(evproc_run("EnableBootDisk"))) {
+
+	if (ptpConnect()) return;
+
+	if (evproc_run("EnableBootDisk")) {
 		logprint("Couldn't enable boot disk.\n");
 	} else {
 		logprint("Enabled boot disk\n");
@@ -184,7 +188,10 @@ static void enablebootdisk(GtkWidget *widget, gpointer data)
 static void disablebootdisk(GtkWidget *widget, gpointer data)
 {
 	logclear();
-	if (returnMessage(evproc_run("DisableBootDisk"))) {
+
+	if (ptpConnect()) return;
+
+	if (evproc_run("DisableBootDisk")) {
 		logprint("Couldn't disable boot disk.\n");
 	} else {
 		logprint("Disabled boot disk\n");
@@ -206,24 +213,14 @@ static void oneclick(GtkWidget *widget, gpointer data)
 {
 	logclear();
 
-	int busn = 0;
-	int devn = 0;
-	short force = 0;
-	PTPParams params;
-	PTP_USB ptp_usb;
-	struct usb_device *dev;
+	if (ptpConnect()) return;
 
-	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
-		returnMessage(0);
-		return;
-	}
+	struct PtpDeviceInfo di;
+	ptp_get_device_info(&ptp_runtime, &di);
 
-	PTPDeviceInfo info;
-	ptp_getdeviceinfo(&params, &info);
+	//close_camera(&ptp_usb, &params, dev);
 
-	close_camera(&ptp_usb, &params, dev);
-
-	switch (installer_start(info.Model, info.DeviceVersion)) {
+	switch (installer_start(di.model, di.device_version)) {
 	case NO_AVAILABLE_FIRMWARE:
 		logprint("Your camera model has a working build,\n"
 			 "but not for your firmware version.");
@@ -389,6 +386,8 @@ int main(int argc, char *argv[])
 	g_print("https://github.com/petabyt/mlinstall\n");
 	g_print("https://www.magiclantern.fm/forum/index.php?topic=26162\n");
 
+	ptp_generic_init(&ptp_runtime);
+
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(window), "MLinstall");
 	gtk_window_set_default_size(GTK_WINDOW(window), 375, 500);
@@ -534,3 +533,4 @@ int main(int argc, char *argv[])
 
 	return 0;
 }
+// What kind of idiot would write a UI in C. This is seriously stupid.

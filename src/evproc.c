@@ -4,9 +4,12 @@
 #include <usb.h>
 #include <stdint.h>
 
-#include "config.h"
-#include "ptp.h"
-#include "ptpcam.h"
+#include <camlib.h>
+
+extern struct PtpRuntime ptp_runtime;
+
+int ptp_canon_activate_command(struct PtpRuntime *r);
+int ptp_canon_exec_evproc(struct PtpRuntime *r, void *data, int length);
 
 // TODO:
 //  Parse hex into int
@@ -242,22 +245,16 @@ int evproc_run(char string[])
 	memcpy(data + curr, &footer, sizeof(struct EvProcFooter));
 	curr += sizeof(struct EvProcFooter);
 
-	int busn = 0;
-	int devn = 0;
-	short force = 0;
-	PTPParams params;
-	PTP_USB ptp_usb;
-	struct usb_device *dev;
-
-	if (open_camera(busn, devn, force, &ptp_usb, &params, &dev) < 0) {
-		return 0;
+	// Command is disabled on some cams, run it nonetheless
+	int ret = ptp_canon_activate_command(&ptp_runtime);
+	if (ret) {
+		printf("Error activating command %d\n", ret);
+		ptp_device_close(&ptp_runtime);
+		return 1;
 	}
 
-	// Command is disabled on some cams
-	ptp_activate_command(&params);
+	ret = ptp_canon_exec_evproc(&ptp_runtime, data, curr);
 
-	unsigned int r = ptp_run_command(&params, data, curr, 0, 0);
-
-	close_camera(&ptp_usb, &params, dev);
-	return r;
+	ptp_device_close(&ptp_runtime);
+	return ret;
 }

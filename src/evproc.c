@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <usb.h>
 #include <stdint.h>
 
 #include <camlib.h>

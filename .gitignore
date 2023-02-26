@@ -10,3 +10,5 @@ libusb*/
 libusb*/*
 gtk/*
 *.res
+*.zip
+*.dll

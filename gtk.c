@@ -3,9 +3,9 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
-#include <usb.h>
 #include <gtk/gtk.h>
 #include <ctype.h>
+#include <pthread.h>
 
 #include <camlib.h>
 #include <ptp.h>
@@ -20,7 +20,7 @@
 // Activated with CLI flag -d
 int dev_flag = 0;
 
-char *deviceNotFound = "Couldn't find a PTP/USB device.";
+char *deviceNotFound = "Couldn't find a PTP/USB device.\n";
 char *driveNotFound = "Couldn't find card. Make sure\nthe EOS_DIGITAL card is mounted.";
 char *driveNotSupported = "Only ExFAT, FAT32, and FAT16\ncards are supported.";
 #ifdef WIN32
@@ -123,7 +123,7 @@ static void unscriptflag(GtkWidget *widget, gpointer data)
 	}
 }
 
-int ptpConnect() {
+int ptp_connect_init() {
 	int r = ptp_device_init(&ptp_runtime);
 	if (r) {
 		logprint(deviceNotFound);
@@ -138,10 +138,9 @@ int ptpConnect() {
 	return r;
 }
 
-static void deviceinfo(GtkWidget *widget, gpointer data)
-{
+void *deviceinfo_thread(void *arg) {
 	logclear();
-	if (ptpConnect()) return;
+	if (ptp_connect_init()) return (void *)1;
 
 	struct PtpDeviceInfo di;
 	ptp_get_device_info(&ptp_runtime, &di);
@@ -160,25 +159,64 @@ static void deviceinfo(GtkWidget *widget, gpointer data)
 	printf("Model ID is %d\n", model_get(di.model));
 
 	ptp_device_close(&ptp_runtime);
+	return (void *)0;
+}
+
+static void deviceinfo(GtkWidget *widget, gpointer data) {
+	pthread_t thread;
+
+	if (pthread_create(&thread, NULL, deviceinfo_thread, NULL)) {
+		return;
+	}
+
+	if (pthread_join(thread, NULL)) {
+		return;
+	}
+}
+
+void *eventproc_thread(void *arg) {
+	logclear();
+	if (ptp_connect_init()) return (void*)1;
+
+	uintptr_t r = (uintptr_t)evproc_run((char *)arg);
+	return (void *)r;
 }
 
 // Run a custom event proc from input
 static void eventproc(GtkWidget *widget, gpointer data)
 {
 	logclear();
-	if (ptpConnect()) return;
+	pthread_t thread;
 
 	const gchar *entry = gtk_entry_get_text(GTK_ENTRY(widget));
-	returnMessage(evproc_run((char *)entry));
+
+	if (pthread_create(&thread, NULL, eventproc_thread, (void *)entry)) {
+		return;
+	}
+
+	int result;
+	if (pthread_join(thread, (void **)&result)) {
+		return;
+	}
+
+	returnMessage(result);
 }
 
 static void enablebootdisk(GtkWidget *widget, gpointer data)
 {
 	logclear();
+	pthread_t thread;
 
-	if (ptpConnect()) return;
+	if (pthread_create(&thread, NULL, eventproc_thread, (void *)"EnableBootDisk")) {
+		return;
+	}
 
-	if (evproc_run("EnableBootDisk")) {
+	int result;
+	if (pthread_join(thread, (void **)&result)) {
+		return;
+	}
+
+	if (result) {
 		logprint("Couldn't enable boot disk.\n");
 	} else {
 		logprint("Enabled boot disk\n");
@@ -188,10 +226,18 @@ static void enablebootdisk(GtkWidget *widget, gpointer data)
 static void disablebootdisk(GtkWidget *widget, gpointer data)
 {
 	logclear();
+	pthread_t thread;
 
-	if (ptpConnect()) return;
+	if (pthread_create(&thread, NULL, eventproc_thread, (void *)"DisableBootDisk")) {
+		return;
+	}
 
-	if (evproc_run("DisableBootDisk")) {
+	int result;
+	if (pthread_join(thread, (void **)&result)) {
+		return;
+	}
+
+	if (result) {
 		logprint("Couldn't disable boot disk.\n");
 	} else {
 		logprint("Disabled boot disk\n");
@@ -209,11 +255,11 @@ static void showdrive(GtkWidget *widget, gpointer data)
 	}
 }
 
-static void oneclick(GtkWidget *widget, gpointer data)
-{
+void *oneclick_thread(void *arg) {
+	int result = 0;
 	logclear();
 
-	if (ptpConnect()) return;
+	if (ptp_connect_init()) pthread_exit(&result);
 
 	struct PtpDeviceInfo di;
 	ptp_get_device_info(&ptp_runtime, &di);
@@ -230,6 +276,12 @@ static void oneclick(GtkWidget *widget, gpointer data)
 			 "Come back in 5 years and check again.");
 		break;
 	}
+
+	pthread_exit(&result);
+}
+
+static void oneclick(GtkWidget *widget, gpointer data)
+{
 }
 
 static int downloadmodule(GtkWidget *widget, gpointer data)
@@ -387,6 +439,7 @@ int main(int argc, char *argv[])
 	g_print("https://www.magiclantern.fm/forum/index.php?topic=26162\n");
 
 	ptp_generic_init(&ptp_runtime);
+	//ptp_backend_init(&ptp_runtime);
 
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(window), "MLinstall");

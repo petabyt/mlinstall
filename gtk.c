@@ -33,13 +33,13 @@ char *driveNotSupported = "Only ExFAT, FAT32, and FAT16\ncards are supported.";
 GtkWidget *logw;
 char logbuf[1000] = "\nLog info will go here.\n";
 
-void logprint(char string[])
+void log_print(char string[])
 {
 	strcat(logbuf, string);
 	gtk_label_set_text(GTK_LABEL(logw), logbuf);
 }
 
-void logclear()
+void log_clear()
 {
 	strcpy(logbuf, "\n");
 	gtk_label_set_text(GTK_LABEL(logw), logbuf);
@@ -52,20 +52,20 @@ int returnMessage(unsigned int code)
 {
 	char buf[128];
 	snprintf(buf, sizeof(buf), "Response Code: %x\n", code);
-	logprint(buf);
+	log_print(buf);
 
 	switch (code) {
 	case PTP_RC_OK:
-		logprint("Return Code OK.\n");
+		log_print("Return Code OK.\n");
 		return 0;
 	case PTP_RC_InvalidParameter:
-		logprint("Return Code INVALID_PARAMETER.\n");
+		log_print("Return Code INVALID_PARAMETER.\n");
 		return 1;
 	case PTP_RC_OperationNotSupported:
-		logprint("Operation not supported. Your camera is probably unsupported.");
+		log_print("Operation not supported. Your camera is probably unsupported.");
 		return 1;
 	case 1:
-		logprint("Parser error. See console.");
+		log_print("Parser error. See console.");
 		return 1;
 	}
 
@@ -74,59 +74,59 @@ int returnMessage(unsigned int code)
 
 #define HANDLE_DRIVE_ERROR() \
 		case DRIVE_BADFS: \
-		logprint(driveNotSupported); \
+		log_print(driveNotSupported); \
 		return; \
 	case DRIVE_NONE: \
-		logprint(driveNotFound); \
+		log_print(driveNotFound); \
 		return; \
 	case DRIVE_ERROR: \
-		logprint(driveError); \
+		log_print(driveError); \
 		return; 
 
 static void writeflag(GtkWidget *widget, gpointer data)
 {
-	logclear();
+	log_clear();
 	switch (drive_write_flag(FLAG_BOOT)) {
 	HANDLE_DRIVE_ERROR()
 	case 0:
-		logprint("Wrote card flags on EOS_DIGITAL");
+		log_print("Wrote card flags on EOS_DIGITAL");
 	}
 }
 
 static void destroyflag(GtkWidget *widget, gpointer data)
 {
-	logclear();
+	log_clear();
 	switch (drive_write_flag(FLAG_DESTROY_BOOT)) {
 	HANDLE_DRIVE_ERROR()
 	case 0:
-		logprint("Overwrote card flags.");
+		log_print("Overwrote card flags.");
 	}
 }
 
 static void scriptflag(GtkWidget *widget, gpointer data)
 {
-	logclear();
+	log_clear();
 	switch (drive_write_flag(FLAG_SCRIPT)) {
 	HANDLE_DRIVE_ERROR()
 	case 0:
-		logprint("Wrote script flags.");
+		log_print("Wrote script flags.");
 	}
 }
 
 static void unscriptflag(GtkWidget *widget, gpointer data)
 {
-	logclear();
+	log_clear();
 	switch (drive_write_flag(FLAG_DESTROY_SCRIPT)) {
 	HANDLE_DRIVE_ERROR()
 	case 0:
-		logprint("Destroyed script flags.");
+		log_print("Destroyed script flags.");
 	}
 }
 
 int ptp_connect_init() {
 	int r = ptp_device_init(&ptp_runtime);
 	if (r) {
-		logprint(deviceNotFound);
+		log_print(deviceNotFound);
 		return r;
 	}
 
@@ -135,15 +135,23 @@ int ptp_connect_init() {
 		return r;
 	}
 
+	ptp_runtime.di = (struct PtpDeviceInfo *)malloc(sizeof(struct PtpDeviceInfo));
+	r = ptp_get_device_info(&ptp_runtime, &ptp_runtime.di);
+	if (r) {
+		return r;
+	}
+
+	if (strcmp(ptp_runtime.di->manufacturer, "Canon Inc.")) {
+		log_print("Not a Canon device!");
+		return -1;
+	}
+
 	return r;
 }
 
 void *deviceinfo_thread(void *arg) {
-	logclear();
+	log_clear();
 	if (ptp_connect_init()) return (void *)1;
-
-	struct PtpDeviceInfo di;
-	ptp_get_device_info(&ptp_runtime, &di);
 
 	char buffer[512];
 	snprintf(buffer, sizeof(buffer),
@@ -151,12 +159,13 @@ void *deviceinfo_thread(void *arg) {
 		"Model: %s\n"
 		"DeviceVersion: %s\n"
 		"SerialNumber: %s\n",
-		di.manufacturer, di.model, di.device_version, di.serial_number);
+		ptp_runtime.di->manufacturer, ptp_runtime.di->model,
+		ptp_runtime.di->device_version, ptp_runtime.di->serial_number);
 
-	logprint(buffer);
+	log_print(buffer);
 
-	// Test model detector
-	printf("Model ID is %d\n", model_get(di.model));
+	// Test Canon model detector
+	printf("Model ID is %d\n", model_get(ptp_runtime.di->model));
 
 	ptp_device_close(&ptp_runtime);
 	return (void *)0;
@@ -175,7 +184,7 @@ static void deviceinfo(GtkWidget *widget, gpointer data) {
 }
 
 void *eventproc_thread(void *arg) {
-	logclear();
+	log_clear();
 	if (ptp_connect_init()) return (void*)1;
 
 	uintptr_t r = (uintptr_t)evproc_run((char *)arg);
@@ -185,7 +194,7 @@ void *eventproc_thread(void *arg) {
 // Run a custom event proc from input
 static void eventproc(GtkWidget *widget, gpointer data)
 {
-	logclear();
+	log_clear();
 	pthread_t thread;
 
 	const gchar *entry = gtk_entry_get_text(GTK_ENTRY(widget));
@@ -204,7 +213,7 @@ static void eventproc(GtkWidget *widget, gpointer data)
 
 static void enablebootdisk(GtkWidget *widget, gpointer data)
 {
-	logclear();
+	log_clear();
 	pthread_t thread;
 
 	if (pthread_create(&thread, NULL, eventproc_thread, (void *)"EnableBootDisk")) {
@@ -217,15 +226,15 @@ static void enablebootdisk(GtkWidget *widget, gpointer data)
 	}
 
 	if (result) {
-		logprint("Couldn't enable boot disk.\n");
+		log_print("Couldn't enable boot disk.\n");
 	} else {
-		logprint("Enabled boot disk\n");
+		log_print("Enabled boot disk\n");
 	}
 }
 
 static void disablebootdisk(GtkWidget *widget, gpointer data)
 {
-	logclear();
+	log_clear();
 	pthread_t thread;
 
 	if (pthread_create(&thread, NULL, eventproc_thread, (void *)"DisableBootDisk")) {
@@ -238,26 +247,26 @@ static void disablebootdisk(GtkWidget *widget, gpointer data)
 	}
 
 	if (result) {
-		logprint("Couldn't disable boot disk.\n");
+		log_print("Couldn't disable boot disk.\n");
 	} else {
-		logprint("Disabled boot disk\n");
+		log_print("Disabled boot disk\n");
 	}
 }
 
 static void showdrive(GtkWidget *widget, gpointer data)
 {
-	logclear();
+	log_clear();
 	char buffer[1024];
 	switch (drive_get_usable(buffer, sizeof(buffer))) {
 		HANDLE_DRIVE_ERROR()
 		case 0:
-			logprint(buffer);
+			log_print(buffer);
 	}
 }
 
 void *oneclick_thread(void *arg) {
 	int result = 0;
-	logclear();
+	log_clear();
 
 	if (ptp_connect_init()) pthread_exit(&result);
 
@@ -268,11 +277,11 @@ void *oneclick_thread(void *arg) {
 
 	switch (installer_start(di.model, di.device_version)) {
 	case NO_AVAILABLE_FIRMWARE:
-		logprint("Your camera model has a working build,\n"
+		log_print("Your camera model has a working build,\n"
 			 "but not for your firmware version.");
 		break;
 	case CAMERA_UNSUPPORTED:
-		logprint("Your camera model is not supported.\n"
+		log_print("Your camera model is not supported.\n"
 			 "Come back in 5 years and check again.");
 		break;
 	}
@@ -286,31 +295,31 @@ static void oneclick(GtkWidget *widget, gpointer data)
 
 static int downloadmodule(GtkWidget *widget, gpointer data)
 {
-	logclear();
+	log_clear();
 
 	char *name = g_object_get_data(G_OBJECT(widget), "name");
 	char *download = g_object_get_data(G_OBJECT(widget), "download");
 
 	if (appstore_download(name, download)) {
-		logprint("Error downloading module.\nIs ML installed?");
+		log_print("Error downloading module.\nIs ML installed?");
 		return 1;
 	} else {
-		logprint("Module downloaded to card.");
+		log_print("Module downloaded to card.");
 		return 0;
 	}
 }
 
 static int removemodule(GtkWidget *widget, gpointer data)
 {
-	logclear();
+	log_clear();
 
 	char *name = g_object_get_data(G_OBJECT(widget), "name");
 
 	if (appstore_remove(name)) {
-		logprint("Error removing module.");
+		log_print("Error removing module.");
 		return 1;
 	} else {
-		logprint("Module removed.");
+		log_print("Module removed.");
 		return 0;
 	}
 }
@@ -331,13 +340,13 @@ static void modulebtn_callback(GtkWidget *widget, gpointer data)
 
 static void appstore(GtkWidget *widget, gpointer data)
 {
-	logclear();
+	log_clear();
 	GtkWidget *grid = gtk_widget_get_parent(widget);
 	gtk_widget_destroy(widget);
 
 	char usableDrive[1024];
 	if (drive_get_usable(usableDrive, sizeof(usableDrive))) {
-		logprint(driveNotFound);
+		log_print(driveNotFound);
 		return;
 	}
 

@@ -7,14 +7,14 @@ FILES=$(patsubst %.c,%.o,$(wildcard src/*.c))
 
 CL_OBJ_=operations.o packet.o enums.o data.o enum_dump.o util.o canon.o liveview.o bind.o
 UNIX_FILES=$(FILES) $(addprefix camlib/src/,$(CL_OBJ_) libusb.o backend.o)
-WIN_FILES=$(FILES) $(addprefix camlib/src/,$(CL_OBJ_)  winapi.o)
+WIN_FILES=$(FILES) $(addprefix camlib/src/,$(CL_OBJ_) winapi.o)
 
 RM=rm -rf
 
 all: unix-gtk
 
 # flags for unix-gtk
-unix-gtk: LDFLAGS=-lusb $(shell pkg-config --libs gtk+-3.0)
+unix-gtk: LDFLAGS=-lusb-1.0 $(shell pkg-config --libs gtk+-3.0)
 unix-gtk: CFLAGS=$(shell pkg-config --cflags gtk+-3.0) -Icamlib/src -DVERBOSE
 
 # Clean incompatible stuff, use between comiling 

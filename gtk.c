@@ -136,7 +136,7 @@ int ptp_connect_init() {
 	}
 
 	ptp_runtime.di = (struct PtpDeviceInfo *)malloc(sizeof(struct PtpDeviceInfo));
-	r = ptp_get_device_info(&ptp_runtime, &ptp_runtime.di);
+	r = ptp_get_device_info(&ptp_runtime, ptp_runtime.di);
 	if (r) {
 		return r;
 	}
@@ -417,7 +417,7 @@ static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data)
 	return FALSE;
 }
 
-#define MENU_ADD_BUTTON(text, function, tip)                                                       \
+#define MENU_ADD_BUTTON(text, function, tip)                                                   \
 	button = gtk_button_new_with_label(text);                                                  \
 	g_signal_connect(button, "clicked", G_CALLBACK(function), NULL);                           \
 	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);                                 \
@@ -448,7 +448,6 @@ int main(int argc, char *argv[])
 	g_print("https://www.magiclantern.fm/forum/index.php?topic=26162\n");
 
 	ptp_generic_init(&ptp_runtime);
-	//ptp_backend_init(&ptp_runtime);
 
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
 	gtk_window_set_title(GTK_WINDOW(window), "MLinstall");
@@ -561,7 +560,7 @@ int main(int argc, char *argv[])
 	label = gtk_label_new("Advanced");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
 
-	if (dev_flag) {
+#if 0
 		grid = gtk_grid_new();
 		gtk_container_set_border_width(GTK_CONTAINER(grid), 10);
 		gtk_widget_show(grid);
@@ -571,8 +570,9 @@ int main(int argc, char *argv[])
 
 		label = gtk_label_new("Quick Install");
 		gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
-	}
+#endif
 
+#if 0
 	GtkWidget *scrollWindow = gtk_scrolled_window_new(NULL, NULL);
 	gtk_widget_show(scrollWindow);
 
@@ -586,6 +586,7 @@ int main(int argc, char *argv[])
 
 	label = gtk_label_new("App Store");
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), scrollWindow, label);
+#endif
 
 	gtk_grid_attach(GTK_GRID(mainGrid), logw, 0, 2, 1, 1);
 

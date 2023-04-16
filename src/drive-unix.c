@@ -91,9 +91,6 @@ int drive_get(char buffer[], int n)
 	if (strncmp(buffer, "/dev/", 5)) {
 		puts("Make sure your EOS_DIGITAL card is mounted.");
 		return DRIVE_NONE;
-	} else if (!strncmp(buffer, "/dev/sda", 8)) {
-		puts("Somehow I got /dev/sda. I'm not writing to it...");
-		return DRIVE_NONE;
 	}
 
 	return 0;
@@ -122,7 +119,7 @@ int drive_get_usable(char buffer[], int n)
 int drive_openfs()
 {
 	if (geteuid() != 0) {
-		puts("This app must be run as superuser to modify filesystems, like: sudo ./mlinstall");
+		puts("mlinstall needs superuser permissions. (sudo ./mlinstall)");
 		return DRIVE_ERROR;
 	}
 
@@ -141,7 +138,7 @@ int drive_openfs()
 		puts("Error unmounting drive.");
 		return DRIVE_ERROR;
 	} else {
-		puts("Unmounted drive for filesystem safety.");
+		puts("Unmounted drive.");
 	}
 
 	return 0;

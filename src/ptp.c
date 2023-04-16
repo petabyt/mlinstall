@@ -2,7 +2,7 @@
 #include <ptp.h>
 
 int ptp_canon_activate_command(struct PtpRuntime *r) {
-	for (int i = 0; i < 3; i++) {
+	for (int i = 0; i < 0; i++) {
 		struct PtpCommand cmd;
 		cmd.code = 0x9050;
 		cmd.param_length = 0;

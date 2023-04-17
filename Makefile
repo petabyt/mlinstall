@@ -7,7 +7,7 @@ FILES=$(patsubst %.c,%.o,$(wildcard src/*.c))
 
 CL_OBJ_=operations.o packet.o enums.o data.o enum_dump.o util.o canon.o liveview.o bind.o
 UNIX_FILES=$(FILES) $(addprefix camlib/src/,$(CL_OBJ_) libusb.o backend.o)
-WIN_FILES=$(FILES) $(addprefix camlib/src/,$(CL_OBJ_) winapi.o)
+WIN_FILES=$(FILES) $(addprefix camlib/src/,$(CL_OBJ_) libwpd.o)
 
 RM=rm -rf
 
@@ -23,7 +23,7 @@ clean-out:
 
 # Clean everything
 clean: clean-out
-	$(RM) -r *.zip *.AppImage unix-gtk unix-cli win64* win32* SD_BACKUP camlib/src/*.o
+	$(RM) -r *.zip *.AppImage unix-gtk unix-cli win64* win32* SD_BACKUP camlib/src/*.o *.dll
 
 unix-gtk: $(UNIX_FILES) gtk.o
 	$(CC) gtk.o $(UNIX_FILES) $(CFLAGS) $(LDFLAGS) -o unix-gtk
@@ -45,8 +45,6 @@ gtk:
 	rm -rf gtk
 	mv win32 gtk
 
-libusb:
-	-wget -4 -nc https://github.com/petabyt/libwpd/releases/download/0.1.1/libwpd_x64.dll -O libwpd_x64.dll
 
 # Contains app info, asset stuff
 win.res: assets/win.rc
@@ -59,7 +57,8 @@ win64-gtk-mlinstall: MINGW=x86_64-w64-mingw32
 win64-gtk-mlinstall: CC=$(MINGW)-gcc
 win64-gtk-mlinstall: CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Icamlib/src -Igtk/include
 win64-gtk-mlinstall: GTK_ZIP=win64-gtk-2021.zip
-win64-gtk-mlinstall: win.res gtk libusb gtk.o $(WIN_FILES)
+win64-gtk-mlinstall: win.res gtk gtk.o $(WIN_FILES)
+	-wget -4 -nc https://github.com/petabyt/libwpd/releases/download/0.1.3/libwpd_64.dll -O libwpd_x64.dll
 	-mkdir win64-gtk-mlinstall
 	$(CC) win.res gtk.o $(WIN_FILES) gtk/lib/* libwpd_x64.dll $(CFLAGS) -o win64-gtk-mlinstall/mlinstall.exe
 	cp libwpd_x64.dll win64-gtk-mlinstall/libwpd.dll
@@ -70,12 +69,12 @@ win64-gtk-mlinstall: win.res gtk libusb gtk.o $(WIN_FILES)
 win32-gtk: win32-gtk-mlinstall
 win32-gtk-mlinstall: MINGW=i686-w64-mingw32
 win32-gtk-mlinstall: CC=$(MINGW)-gcc
-win32-gtk-mlinstall: CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Ilibusb/include -Igtk/include
+win32-gtk-mlinstall: CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Icamlib/src -Igtk/include
 win32-gtk-mlinstall: GTK_ZIP=win32-gtk-2013.zip
-win32-gtk-mlinstall: win.res gtk libusb gtk.o $(FILES)
+win32-gtk-mlinstall: win.res gtk gtk.o $(WIN_FILES)
+	-wget -4 -nc https://github.com/petabyt/libwpd/releases/download/0.1.3/libwpd_32.dll -O libwpd_x86.dll
 	-mkdir win32-gtk-mlinstall
-	$(CC) win.res gtk.o $(FILES) gtk/lib/* libwpd_x86.dll \
-	    $(CFLAGS) -o win32-gtk-mlinstall/mlinstall.exe
+	$(CC) win.res gtk.o $(WIN_FILES) gtk/lib/* libwpd_x86.dll $(CFLAGS) -o win32-gtk-mlinstall/mlinstall.exe
 	cp libwpd_x86.dll win32-gtk-mlinstall/libwpd.dll
 	cp gtk/lib/* win32-gtk-mlinstall/
 	cp assets/README.txt win32-gtk-mlinstall/

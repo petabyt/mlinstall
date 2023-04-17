@@ -26,7 +26,7 @@ char *driveNotSupported = "Only ExFAT, FAT32, and FAT16\ncards are supported.";
 #ifdef WIN32
 	char *driveError = "Error opening drive.";
 #else
-	char *driveError = "Error opening drive. Make sure to\nrun as sudo.";
+	char *driveError = "Error opening drive. Make sure to\nrun as sudo. Make sure drive is mounted.";
 #endif
 
 // Quick, messy, logging mechanism:

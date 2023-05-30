@@ -1,5 +1,6 @@
 #!/bin/python3
 # Standalone Python script for enabling boot flag on Canon cameras
+# Requires ptpy
 
 import ptpy
 from construct import Container

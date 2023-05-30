@@ -10,12 +10,12 @@
 #include <camlib.h>
 #include <ptp.h>
 
-#include "src/drive.h"
-#include "src/model.h"
-#include "src/installer.h"
-#include "src/evproc.h"
-#include "src/appstore.h"
-#include "src/platform.h"
+#include "drive.h"
+#include "model.h"
+#include "installer.h"
+#include "evproc.h"
+#include "appstore.h"
+#include "platform.h"
 
 // Activated with CLI flag -d
 int dev_flag = 0;

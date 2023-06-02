@@ -25,8 +25,8 @@ clean-out:
 clean: clean-out
 	$(RM) -r *.zip *.AppImage unix-gtk unix-cli win64* win32* SD_BACKUP *.dll
 
-unix-gtk: $(UNIX_FILES) gtk.o
-	$(CC) gtk.o $(UNIX_FILES) $(CFLAGS) $(LDFLAGS) -o unix-gtk
+unix-gtk: $(UNIX_FILES)
+	$(CC) $(UNIX_FILES) $(CFLAGS) $(LDFLAGS) -o unix-gtk
 
 style:
 	clang-format -style=file -i src/*.c src/*.h gtk.c
@@ -57,7 +57,7 @@ win-gtk: win64-gtk-mlinstall
 win64-gtk-mlinstall: MINGW=x86_64-w64-mingw32
 win64-gtk-mlinstall: CC=$(MINGW)-gcc
 win64-gtk-mlinstall: CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Icamlib/src -Iwindows-gtk/win64-gtk-2021/win32/include
-win64-gtk-mlinstall: win.res $(WIN_FILES) libwpd_x64.dll windows-gtk/win64-gtk-2021
+win64-gtk-mlinstall: win.res windows-gtk/win64-gtk-2021 $(WIN_FILES) libwpd_x64.dll
 	-mkdir win64-gtk-mlinstall
 	$(CC) win.res $(WIN_FILES) windows-gtk/win64-gtk-2021/win32/lib/*.dll libwpd_x64.dll $(CFLAGS) -o win64-gtk-mlinstall/mlinstall.exe
 	cp libwpd_x64.dll win64-gtk-mlinstall/libwpd.dll
@@ -69,7 +69,7 @@ win32-gtk: win32-gtk-mlinstall
 win32-gtk-mlinstall: MINGW=i686-w64-mingw32
 win32-gtk-mlinstall: CC=$(MINGW)-gcc
 win32-gtk-mlinstall: CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Icamlib/src -Iwindows-gtk/win32-gtk-2013/win32/include
-win32-gtk-mlinstall: win.res $(WIN_FILES) libwpd_x86.dll windows-gtk/win32-gtk-2013
+win32-gtk-mlinstall: win.res windows-gtk/win32-gtk-2013 $(WIN_FILES) libwpd_x86.dll
 	-mkdir win32-gtk-mlinstall
 	$(CC) win.res $(WIN_FILES) windows-gtk/win32-gtk-2013/win32/lib/*.dll libwpd_x86.dll $(CFLAGS) -o win32-gtk-mlinstall/mlinstall.exe
 	cp libwpd_x86.dll win32-gtk-mlinstall/libwpd.dll

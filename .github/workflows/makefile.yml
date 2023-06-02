@@ -12,13 +12,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v2
- 
-    - name: Checkout repository
-      uses: actions/checkout@master
-    
+    - uses: actions/checkout@v3
+      with:
+        submodules: recursive
+      
     - name: Checkout submodules
-      uses: textbook/git-checkout-submodule-action@master
+      run: git submodule update --init --recursive
     
     - name: Install deps
       run: sudo apt install libusb-dev gcc libgtk-3-dev

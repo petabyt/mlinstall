@@ -1,6 +1,6 @@
 #ifndef EVPROC_H
 #define EVPROC_H
 
-int evproc_run(char string[]);
+int canon_evproc_run(struct PtpRuntime *r, char string[]);
 
 #endif

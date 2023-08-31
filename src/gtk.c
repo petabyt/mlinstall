@@ -20,6 +20,7 @@
 // Activated with CLI flag -d
 int dev_flag = 0;
 
+// TODO: localize... somehow...
 char *deviceNotFound = "Couldn't find a PTP/USB device.\n";
 char *driveNotFound = "Couldn't find card. Make sure\nthe EOS_DIGITAL card is mounted.";
 char *driveNotSupported = "Only ExFAT, FAT32, and FAT16\ncards are supported.";
@@ -185,9 +186,9 @@ static void deviceinfo(GtkWidget *widget, gpointer data) {
 
 void *eventproc_thread(void *arg) {
 	log_clear();
-	if (ptp_connect_init()) return (void*)1;
+	if (ptp_connect_init()) return (void *)1;
 
-	uintptr_t r = (uintptr_t)evproc_run((char *)arg);
+	uintptr_t r = (uintptr_t)canon_evproc_run(&ptp_runtime, (char *)arg);
 	return (void *)r;
 }
 
@@ -533,7 +534,7 @@ int main(int argc, char *argv[])
 	gtk_widget_show(grid);
 	order = 0;
 
-	label = gtk_label_new("Execute a custom event procedure:");
+	label = gtk_label_new("Entering the wrong command can brick your\ncamera! Only use with guidance\nfrom a ML developer!");
 	gtk_widget_set_hexpand(label, TRUE);
 	gtk_grid_attach(GTK_GRID(grid), label, 0, order++, 1, 1);
 	gtk_widget_show(label);

@@ -1,6 +1,9 @@
+// PoC for "one click install" - unfinished, don't use
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
+#include <camlib.h>
 
 #include "evproc.h"
 #include "drive.h"
@@ -10,6 +13,8 @@
 
 // Linux: unzip
 // Windows: 7z (optional)
+
+extern struct PtpRuntime ptp_runtime;
 
 struct Release {
 	char name[1024];
@@ -143,7 +148,7 @@ int installer_start(char model[], char version[])
 
 	puts("Running 'EnableBootDisk'...");
 
-	evproc_run("EnableBootDisk");
+	canon_evproc_run(&ptp_runtime, "EnableBootDisk");
 
 	puts("Magic Lantern successfully installed.");
 

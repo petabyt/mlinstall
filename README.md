@@ -2,19 +2,21 @@
 A Windows/Linux app to assist with installing Magic Lantern.  
 Download: https://github.com/petabyt/mlinstall/releases  
 
-![screenshot](https://eggnog.theres.life/f/27-4i8br89x4xfu20tdqrylznyu6stl09.png)
+![screenshot](https://eggnog.danielc.dev/f/27-4i8br89x4xfu20tdqrylznyu6stl09.png)
 
 ## Features
-- Enable/Disable boot disk (hopefully replacing custom encrypted firmware files)
+- Enable/Disable boot disk (replacing custom encrypted firmware files)
 - Basic PTP functionality (get firmware/model/serial info)
-- Write EOS_DEVELOP and BOOTFLAG to card (Windows + Linux)
-- Make card Canon Basic Scriptable
-- Destroy card flags (without reformat)
-- App Store: Downloads and installs modules on SD card
+- SD Card flag writing - all functionality of EOSCard
+- Clear card flags (without reformat)
+- ~~App Store: Downloads and installs modules on SD card~~ deleted
 
-## TODO / HELP NEEDED:
- - Fuzz testing
+## TODO
  - Mac OS port (don't have a mac)
+ - Shutter counter
+ - Diagnostic/error reporting
+ - Install ML over PTP
+ - Add `.mo` files over PTP
 
 All pull requests/issues are welcome.  
 
@@ -22,14 +24,13 @@ All pull requests/issues are welcome.
 Clone with `--recurse-submodules`.
 ```
 # Install required packages:
-libusb-dev gcc libgtk-3-dev
-
+sudo apt install libusb-dev gcc libgtk-3-dev
 # Compile Linux GTK app
 make unix-gtk
 ```
 
 For releases, staticx (`pip3 install staticx`) is used to  
-convert dynamic executables to static. (similar to AppImage)  
+convert dynamic executables to static. (functionally same as AppImage)  
 
 ## MacOS Compilation
 camlib works on MacOS, but mlinstall/GTK hasn't been ported yet.  

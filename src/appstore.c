@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <gtk/gtk.h>
+#include <camlib.h>
 
 #include "app.h"
 #include "appstore.h"
@@ -180,6 +181,8 @@ int appstore_init()
 			return 1;
 		}
 	}
+
+	return 0;
 }
 
 int appstore_next(struct AppstoreFields *fields)
@@ -232,7 +235,7 @@ int appstore_next(struct AppstoreFields *fields)
 int appstore_close()
 {
 	fclose(appstore_f);
-	remove("ML_TEMP");
+	return remove("ML_TEMP");
 }
 
 int appstore_download(char name[], char download[])

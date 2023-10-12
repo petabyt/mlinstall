@@ -6,10 +6,7 @@
 #include <camlib.h>
 
 #include "app.h"
-#include "evproc.h"
 #include "drive.h"
-#include "model.h"
-#include "installer.h"
 
 // Linux: unzip
 // Windows: 7z (optional)

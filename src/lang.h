@@ -3,7 +3,7 @@
 #ifndef ML_LANG_H
 #define ML_LANG_H
 
-#define T_APP_NAME "mlinstall"
+#define T_APP_NAME "MLinstall"
 
 #define T_WELCOME_LOG ("Welcome to " T_APP_NAME)
 

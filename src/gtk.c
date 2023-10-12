@@ -13,9 +13,6 @@
 #include "app.h"
 #include "lang.h"
 #include "drive.h"
-#include "model.h"
-#include "installer.h"
-#include "evproc.h"
 #include "appstore.h"
 
 struct PtpRuntime ptp_runtime;
@@ -28,7 +25,7 @@ int dev_flag = 0;
 #define TURN_OFF_DISPLAY "TurnOffDisplay"
 
 static GtkWidget *logw;
-static char logbuf[1000] = "";
+static char temp_log_buf[1000] = "";
 
 void log_print(char *format, ...)
 {
@@ -38,36 +35,15 @@ void log_print(char *format, ...)
 	vsnprintf(buffer, 1024, format, args);
 	va_end(args);
 
-	strcat(logbuf, buffer);
-	strcat(logbuf, "\n");
-	gtk_label_set_text(GTK_LABEL(logw), logbuf);
+	strcat(temp_log_buf, buffer);
+	strcat(temp_log_buf, "\n");
+	gtk_label_set_text(GTK_LABEL(logw), temp_log_buf);
 }
 
 void log_clear()
 {
-	strcpy(logbuf, "\n");
-	gtk_label_set_text(GTK_LABEL(logw), logbuf);
-}
-
-// Detect PTP return codes
-int returnMessage(unsigned int code)
-{
-	printf("Response Code: %x", code);
-
-	switch (code) {
-	case PTP_RC_OK:
-		log_print(T_RETURN_CODE_OK);
-		return 0;
-	case PTP_RC_InvalidParameter:
-		log_print(T_RETURN_INVALID_PARAM);
-		return -1;
-	case PTP_RC_OperationNotSupported:
-		log_print(T_RETURN_UNSUPPORTED);
-		return -1;
-	default:
-		log_print(T_UNKNOWN_ERROR);
-		return -1;
-	}
+	strcpy(temp_log_buf, "\n");
+	gtk_label_set_text(GTK_LABEL(logw), temp_log_buf);
 }
 
 static int log_drive_error(int rc)
@@ -81,13 +57,17 @@ static int log_drive_error(int rc)
 		return rc;
 	case DRIVE_ERROR:
 		log_print(T_DRIVE_ERROR);
+// #ifndef WIN32
+		// log_print("Make sure you open as sudo.");
+		// log_print("(sudo ./mlinstall)");
+// #endif
 		return rc;
 	}
 
 	return 0;
 }
 
-static void writeflag(GtkWidget *widget, gpointer data)
+static void app_write_flag(GtkWidget *widget, gpointer data)
 {
 	log_clear();
 	int rc = drive_write_flag(FLAG_BOOT);
@@ -96,7 +76,7 @@ static void writeflag(GtkWidget *widget, gpointer data)
 	}
 }
 
-static void destroyflag(GtkWidget *widget, gpointer data)
+static void app_destroy_flag(GtkWidget *widget, gpointer data)
 {
 	log_clear();
 	int rc = drive_write_flag(FLAG_DESTROY_BOOT);
@@ -105,7 +85,7 @@ static void destroyflag(GtkWidget *widget, gpointer data)
 	}
 }
 
-static void scriptflag(GtkWidget *widget, gpointer data)
+static void app_script_flag(GtkWidget *widget, gpointer data)
 {
 	log_clear();
 	int rc = drive_write_flag(FLAG_SCRIPT);
@@ -114,39 +94,13 @@ static void scriptflag(GtkWidget *widget, gpointer data)
 	}
 }
 
-static void unscriptflag(GtkWidget *widget, gpointer data)
+static void app_destroy_script_flag(GtkWidget *widget, gpointer data)
 {
 	log_clear();
 	int rc = drive_write_flag(FLAG_DESTROY_SCRIPT);
 	if (log_drive_error(rc) == 0) {
 		log_print(T_DESTROYED_SCRIPT_FLAGS);
 	}
-}
-
-int ptp_connect_init() {
-	int rc = ptp_device_init(&ptp_runtime);
-	if (rc) {
-		log_print(T_DEV_NOT_FOUND);
-		return rc;
-	}
-
-	rc = ptp_open_session(&ptp_runtime);
-	if (rc) {
-		return rc;
-	}
-
-	ptp_runtime.di = (struct PtpDeviceInfo *)malloc(sizeof(struct PtpDeviceInfo));
-	rc = ptp_get_device_info(&ptp_runtime, ptp_runtime.di);
-	if (rc) {
-		return rc;
-	}
-
-	if (strcmp(ptp_runtime.di->manufacturer, "Canon Inc.")) {
-		log_print(T_NOT_CANON_DEVICE, ptp_runtime.di->model);
-		return -1;
-	}
-
-	return 0;
 }
 
 int ptp_connect_deinit() {
@@ -158,7 +112,61 @@ int ptp_connect_deinit() {
 	return 0;
 }
 
-void *deviceinfo_thread(void *arg) {
+#define USB_VENDOR_CANON 0x4A9
+
+int ptp_connect_init() {
+	int rc;
+#ifdef WIN32
+	// For LibWPD, this will work just fine to detect cameras
+	rc = ptp_device_init(&ptp_runtime);
+	if (rc) {
+		log_print(T_DEV_NOT_FOUND);
+		return rc;
+	}
+#else
+	// TODO: libWPD doesn't have this yet
+	ptp_comm_init(&ptp_runtime);
+
+	struct PtpDeviceEntry *list = ptpusb_device_list(&ptp_runtime);
+
+	struct PtpDeviceEntry *selected = NULL;
+	for (struct PtpDeviceEntry *curr = list; curr != NULL; curr = curr->next) {
+		printf("Device: %s\tVendor: \t%X\n", curr->name, curr->vendor_id);
+		if (curr->vendor_id == USB_VENDOR_CANON) {
+			selected = curr;
+		}
+	}
+
+	if (selected == NULL) {
+		log_print("No Canon device found");
+		return PTP_NO_DEVICE;
+	}
+
+	rc = ptp_device_open(&ptp_runtime, selected);
+#endif
+
+	rc = ptp_open_session(&ptp_runtime);
+	if (rc) {
+		return rc;
+	}
+
+	ptp_runtime.di = (struct PtpDeviceInfo *)malloc(sizeof(struct PtpDeviceInfo));
+	rc = ptp_get_device_info(&ptp_runtime, ptp_runtime.di);
+	if (rc) {
+		ptp_connect_deinit();
+		return rc;
+	}
+
+	if (strcmp(ptp_runtime.di->manufacturer, "Canon Inc.")) {
+		log_print(T_NOT_CANON_DEVICE, ptp_runtime.di->model);
+		ptp_connect_deinit();
+		return -1;
+	}
+
+	return 0;
+}
+
+void *app_device_info_thread(void *arg) {
 	log_clear();
 	if (ptp_connect_init()) return (void *)1;
 
@@ -175,10 +183,10 @@ void *deviceinfo_thread(void *arg) {
 	return (void *)0;
 }
 
-static void deviceinfo(GtkWidget *widget, gpointer data) {
+static void app_device_info(GtkWidget *widget, gpointer data) {
 	pthread_t thread;
 
-	if (pthread_create(&thread, NULL, deviceinfo_thread, NULL)) {
+	if (pthread_create(&thread, NULL, app_device_info_thread, NULL)) {
 		return;
 	}
 
@@ -187,25 +195,25 @@ static void deviceinfo(GtkWidget *widget, gpointer data) {
 	}
 }
 
-static void *eventproc_thread(void *arg) {
+static void *app_run_eventproc_thread(void *arg) {
 	log_clear();
-	if (ptp_connect_init()) return (void *)1;
+	if (ptp_connect_init()) return (void *)(-1);
 
 	uintptr_t rc = (uintptr_t)canon_evproc_run(&ptp_runtime, (char *)arg);
 	if (rc) return (void *)rc;
 
-	rc = (uintptr_t)ptp_connect_deinit();
-	return (void *)rc;
+	ptp_connect_deinit();
+	return (void *)0;
 }
 
 // Run a custom event proc from input
-static void eventproc(GtkWidget *widget, gpointer data) {
+static void app_run_eventproc(GtkWidget *widget, gpointer data) {
 	log_clear();
 	pthread_t thread;
 
 	const gchar *entry = gtk_entry_get_text(GTK_ENTRY(widget));
 
-	if (pthread_create(&thread, NULL, eventproc_thread, (void *)entry)) {
+	if (pthread_create(&thread, NULL, app_run_eventproc_thread, (void *)entry)) {
 		return;
 	}
 
@@ -214,15 +222,32 @@ static void eventproc(GtkWidget *widget, gpointer data) {
 		return;
 	}
 
-	returnMessage(result);
+	printf("Response Code: %x\n", result);
+
+	switch (result) {
+	case PTP_RC_OK:
+		log_print(T_RETURN_CODE_OK);
+		return;
+	case PTP_RC_InvalidParameter:
+		log_print(T_RETURN_INVALID_PARAM);
+		return;
+	case PTP_RC_OperationNotSupported:
+		log_print(T_RETURN_UNSUPPORTED);
+		return;
+	case -1:
+		return;
+	default:
+		log_print(T_UNKNOWN_ERROR);
+		return;
+	}
 }
 
-static void enablebootdisk(GtkWidget *widget, gpointer data)
+static void app_enable_bootdisk(GtkWidget *widget, gpointer data)
 {
 	log_clear();
 	pthread_t thread;
 
-	if (pthread_create(&thread, NULL, eventproc_thread, (void *)ENABLE_BOOT_DISK)) {
+	if (pthread_create(&thread, NULL, app_run_eventproc_thread, (void *)ENABLE_BOOT_DISK)) {
 		return;
 	}
 
@@ -238,12 +263,12 @@ static void enablebootdisk(GtkWidget *widget, gpointer data)
 	}
 }
 
-static void disablebootdisk(GtkWidget *widget, gpointer data)
+static void app_disable_bootdisk(GtkWidget *widget, gpointer data)
 {
 	log_clear();
 	pthread_t thread;
 
-	if (pthread_create(&thread, NULL, eventproc_thread, (void *)DISABLE_BOOT_DISK)) {
+	if (pthread_create(&thread, NULL, app_run_eventproc_thread, (void *)DISABLE_BOOT_DISK)) {
 		return;
 	}
 
@@ -259,7 +284,7 @@ static void disablebootdisk(GtkWidget *widget, gpointer data)
 	}
 }
 
-static void showdrive(GtkWidget *widget, gpointer data)
+static void app_show_drive_info(GtkWidget *widget, gpointer data)
 {
 	log_clear();
 	char buffer[1024];
@@ -269,38 +294,26 @@ static void showdrive(GtkWidget *widget, gpointer data)
 	}
 }
 
-void *oneclick_thread(void *arg) {
-	return NULL;
-}
-
-static void oneclick(GtkWidget *widget, gpointer data) {
-}
-
-static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data) {
+static gboolean delete_event(GtkWidget *widget, GdkEvent *event, gpointer data)
+{
 	gtk_main_quit();
 	return FALSE;
 }
 
 typedef void (*GtkSignalCallback)(GtkWidget *widget, gpointer data);
 
-static GtkWidget *add_big_button(GtkWidget *grid, char *text, char *tip, GtkSignalCallback function, int *order) {
+static GtkWidget *add_big_button(GtkWidget *grid, char *text, char *tip, GtkSignalCallback function, int *order)
+{
 	GtkWidget *button = gtk_button_new_with_label((const char *)text);                       
 	g_signal_connect(button, "clicked", G_CALLBACK(function), NULL);
 	gtk_grid_attach(GTK_GRID(grid), button, 0, (*order)++, 1, 1);
 	gtk_widget_set_tooltip_text(button, (const char *)tip);                       
-	gtk_widget_set_hexpand(button, TRUE);                           
+	gtk_widget_set_hexpand(button, TRUE);
+	gtk_widget_set_margin_bottom(button, 4);
 	gtk_widget_show(button);
 
 	return button;	
 }
-
-#define MENU_ADD_BUTTON(text, function, tip)                                                   \
-	button = gtk_button_new_with_label(text);                                                  \
-	g_signal_connect(button, "clicked", G_CALLBACK(function), NULL);                           \
-	gtk_grid_attach(GTK_GRID(grid), button, 0, order++, 1, 1);                                 \
-	gtk_widget_set_tooltip_text(button, tip);                                                  \
-	gtk_widget_set_hexpand(button, TRUE);                                                      \
-	gtk_widget_show(button);
 
 int main(int argc, char *argv[])
 {
@@ -336,14 +349,10 @@ int main(int argc, char *argv[])
 	mainGrid = gtk_grid_new();
 	gtk_container_add(GTK_CONTAINER(window), mainGrid);
 
-	logw = gtk_label_new(logbuf);
-	gtk_label_set_justify(GTK_LABEL(logw), GTK_JUSTIFY_CENTER);
-	gtk_widget_show(logw);
-
 	label = gtk_label_new(NULL);
 	gtk_widget_set_hexpand(label, TRUE);
 	gtk_label_set_markup(GTK_LABEL(label), T_XML_TITLE_TEXT);
-	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
+	gtk_widget_set_margin_bottom(label, 10);
 	gtk_grid_attach(GTK_GRID(mainGrid), label, 0, 0, 1, 1);
 	gtk_widget_show(label);
 
@@ -361,15 +370,15 @@ int main(int argc, char *argv[])
 	gtk_widget_show(grid);
 
 	label = gtk_label_new(T_USB_STUFF_TITLE);
-	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
 	gtk_grid_attach(GTK_GRID(grid), label, 0, order++, 1, 1);
+	gtk_label_set_line_wrap(GTK_LABEL(label), TRUE);
 	gtk_widget_show(label);
 
-	add_big_button(grid, T_GET_DEVICE_INFO, "Gets info on the camera.", deviceinfo, &order);
+	add_big_button(grid, T_GET_DEVICE_INFO, "Gets info on the camera.", app_device_info, &order);
 
-	add_big_button(grid, T_ENABLE_BOOT_DISK, "Write the bootdisk flag in the\ncamera, not on the card.", enablebootdisk, &order);
+	add_big_button(grid, T_ENABLE_BOOT_DISK, "Write the bootdisk flag in the\ncamera, not on the card.", app_enable_bootdisk, &order);
 
-	add_big_button(grid, T_DISABLE_BOOT_DISK, "Disable the camera's bootdisk flag.", disablebootdisk, &order);
+	add_big_button(grid, T_DISABLE_BOOT_DISK, "Disable the camera's bootdisk flag.", app_disable_bootdisk, &order);
 
 	label = gtk_label_new(T_USB);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
@@ -384,16 +393,16 @@ int main(int argc, char *argv[])
 	gtk_widget_show(label);
 
 	add_big_button(grid, T_WRITE_CARD_BOOT_FLAGS,
-		"Writes EOS_DIGITAL and BOOTDISK to a\nmounted SD/CF card named EOS_DIGITAL.", writeflag, &order);
+		"Writes EOS_DIGITAL and BOOTDISK to a\nmounted SD/CF card named EOS_DIGITAL.", app_write_flag, &order);
 
 	add_big_button(grid, T_DESTROY_CARD_BOOT_FLAGS,
-		"Destroys boot flags by replacing their\nfirst character with an underscore.", destroyflag, &order);
+		"Destroys boot flags by replacing their\nfirst character with an underscore.", app_destroy_flag, &order);
 
 	add_big_button(grid, T_MAKE_CARD_SCRIPTABLE,
-		"Allows SD/CF card to run Canon Basic code.", scriptflag, &order);
+		"Allows SD/CF card to run Canon Basic code.", app_script_flag, &order);
 
 	add_big_button(grid, T_MAKE_CARD_UNSCRIPTABLE,
-		"Destroys script flags, same method as destroy card boot flags.", unscriptflag, &order);
+		"Destroys script flags, same method as destroy card boot flags.", app_destroy_script_flag, &order);
 
 	label = gtk_label_new(T_CARD);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
@@ -411,21 +420,28 @@ int main(int argc, char *argv[])
 	GtkEntryBuffer *buf = gtk_entry_buffer_new(TURN_OFF_DISPLAY, strlen(TURN_OFF_DISPLAY));
 	entry = gtk_entry_new_with_buffer(buf);
 	gtk_grid_attach(GTK_GRID(grid), entry, 0, order++, 1, 1);
-	g_signal_connect(entry, "activate", G_CALLBACK(eventproc), NULL);
+	g_signal_connect(entry, "activate", G_CALLBACK(app_run_eventproc), NULL);
 	gtk_widget_show(entry);
 
-	add_big_button(grid, T_DETECT_CARD, "Try and detect the EOS_DIGITAL drive.", unscriptflag, &order);
+	add_big_button(grid, T_DETECT_CARD, "Try and detect the EOS_DIGITAL drive.", app_destroy_script_flag, &order);
 
 	label = gtk_label_new(NULL);
 	gtk_label_set_markup(GTK_LABEL(label), T_APP_INFO);
-	gtk_label_set_justify(GTK_LABEL(label), GTK_JUSTIFY_CENTER);
 	gtk_grid_attach(GTK_GRID(grid), label, 0, order++, 1, 1);
 	gtk_widget_show(label);
 
 	label = gtk_label_new(T_ADVANCED);
 	gtk_notebook_append_page(GTK_NOTEBOOK(notebook), grid, label);
 
-	gtk_grid_attach(GTK_GRID(mainGrid), logw, 0, 2, 1, 1);
+	GtkWidget *label_box = gtk_box_new(FALSE, 0);
+	gtk_widget_show(label_box);
+
+	logw = gtk_label_new(temp_log_buf);
+	gtk_widget_set_hexpand(logw, TRUE);
+	gtk_container_add(GTK_CONTAINER(label_box), logw);
+	gtk_widget_show(logw);
+
+	gtk_grid_attach(GTK_GRID(mainGrid), label_box, 0, 2, 1, 1);
 
 	log_clear();
 	log_print(T_WELCOME_LOG);

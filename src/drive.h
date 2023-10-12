@@ -1,6 +1,8 @@
 #ifndef DRIVE_H
 #define DRIVE_H
 
+#define TEMP_DUMP_SIZE (512 * 12)
+
 enum FsType { FAT16 = 0, FAT32 = 1, EXFAT = 2 };
 
 enum FlagsMode {
@@ -18,10 +20,6 @@ enum FlagsErr {
 	DRIVE_ERROR = -3
 };
 
-static char flag_develop[] = "EOS_DEVELOP";
-static char flag_bootdisk[] = "BOOTDISK";
-static char flag_script[] = "SCRIPT";
-
 int drive_get_usable(char buffer[], int n);
 int drive_write_flag(int mode);
 int drive_openfs();
@@ -31,6 +29,5 @@ void drive_dump(char name[]);
 
 void flag_write(long offset, char string[]);
 void update_exfat();
-
 
 #endif

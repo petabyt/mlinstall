@@ -1,7 +1,12 @@
 // Platform independent code. Will use functions from
 // either drive-win.c or drive-unix.c
 #include <stdio.h>
+#include "app.h"
 #include "drive.h"
+
+static char flag_develop[] = "EOS_DEVELOP";
+static char flag_bootdisk[] = "BOOTDISK";
+static char flag_script[] = "SCRIPT";
 
 // Detect the filesystem and write the flags
 // in the correct place
@@ -41,6 +46,8 @@ int drive_write_flag(int mode)
 		return DRIVE_BADFS;
 	}
 
+	log_print("Backing up card bootsector...");
+	puts("Creating a backup of your SD card's first few sectors.");
 	drive_dump("SD_BACKUP");
 
 	switch (mode) {

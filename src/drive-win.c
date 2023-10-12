@@ -181,16 +181,13 @@ void update_exfat()
 }
 
 void drive_dump(char name[]) {
-	puts("Creating a backup of your SD card's first few sectors.");
-
-	char *dump = malloc(512 * 12);
+	char *dump = malloc(TEMP_DUMP_SIZE);
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
-	ReadFile(d, dump, 512 * 12, &bytesRead, NULL);
+	ReadFile(d, dump, TEMP_DUMP_SIZE, &bytesRead, NULL);
 
 	FILE *f = fopen(name, "w");
-	fwrite(dump, 1, 512 * 12, f);
+	fwrite(dump, 1, TEMP_DUMP_SIZE, f);
 	fclose(f);
 }
 
 #endif
-

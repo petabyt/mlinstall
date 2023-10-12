@@ -6,7 +6,7 @@
 
 #define EXFAT_VBR_SIZE (512 * 11)
 
-unsigned int VBRChecksum(unsigned char octets[], long NumberOfBytes)
+static unsigned int VBRChecksum(unsigned char octets[], long NumberOfBytes)
 {
 	unsigned int Checksum = 0;
 	int Index;
@@ -19,7 +19,7 @@ unsigned int VBRChecksum(unsigned char octets[], long NumberOfBytes)
 	return Checksum;
 }
 
-unsigned int endian_swap(unsigned int x)
+static unsigned int endian_swap(unsigned int x)
 {
 	return (x << 24) | ((x >> 8) & 0x0000FF00) | ((x << 8) & 0x00FF0000) | (x >> 24);
 }

@@ -17,6 +17,7 @@
 #include <sys/mount.h>
 #include <unistd.h>
 
+#include "app.h"
 #include "exfat.h"
 #include "drive.h"
 
@@ -56,8 +57,13 @@ void flag_write(long int offset, char string[])
 	fseek(d, offset, SEEK_SET);
 	fread(buffer, 1, strlen(string), d);
 
-	printf("Current Flag: %s\n", buffer);
-	printf("New Flag:     %s\n", string);
+	for (int i = 0; i < sizeof(buffer); i++) {
+		if (!(i >= 'A' || i <= 'Z' || i == '_')) {
+			buffer[i] = '\0';
+		}
+	}
+
+	log_print("%s\t-> %s", buffer, string);
 
 	fseek(d, offset, SEEK_SET);
 	if (fwrite(string, 1, strlen(string), d) != strlen(string)) {
@@ -87,9 +93,9 @@ int drive_get(char buffer[], int n)
 
 	strtok(buffer, " "); // Get first token before space
 
-	// Check if not a dev drive
+	// Check if extracted result is valid
 	if (strncmp(buffer, "/dev/", 5)) {
-		puts("Make sure your EOS_DIGITAL card is mounted.");
+		log_print("Make sure your EOS_DIGITAL card is mounted.");
 		return DRIVE_NONE;
 	}
 
@@ -119,7 +125,7 @@ int drive_get_usable(char buffer[], int n)
 int drive_openfs()
 {
 	if (geteuid() != 0) {
-		puts("mlinstall needs superuser permissions. (sudo ./mlinstall)");
+		log_print("We needs sudo permissions. (sudo ./mlinstall)");
 		return DRIVE_ERROR;
 	}
 
@@ -172,14 +178,12 @@ void update_exfat()
 }
 
 void drive_dump(char name[]) {
-	puts("Creating a backup of your SD card's first few sectors.");
-
-	char *dump = malloc(512 * 12);
+	char *dump = malloc(TEMP_DUMP_SIZE);
 	fseek(d, 0, SEEK_SET);
-	fread(dump, 1, 512 * 12, d);
+	fread(dump, 1, TEMP_DUMP_SIZE, d);
 
 	FILE *f = fopen(name, "w");
-	fwrite(dump, 1, 512 * 12, f);
+	fwrite(dump, 1, TEMP_DUMP_SIZE, f);
 	fclose(f);
 }
 

@@ -1,25 +1,27 @@
 # Makefile for Windows XP/7/10, ReactOS, Linux, maybe MacOS
 # Compile from Linux only
 
-# Note: Platform specific files will not be
-# compiled because of "#ifdef WIN32" guards
-FILES=$(patsubst %.c,%.o,$(wildcard src/*.c))
+APP_NAME=mlinstall
 
-CL_OBJ_=operations.o packet.o enums.o data.o enum_dump.o util.o canon.o liveview.o bind.o
-UNIX_FILES=$(FILES) $(addprefix camlib/src/,$(CL_OBJ_) libusb.o backend.o)
-WIN_FILES=$(FILES) $(addprefix camlib/src/,$(CL_OBJ_) libwpd.o)
+FILES=$(addprefix src/,appstore.o drive.o evproc.o gtk.o installer.o model.o platform.o ptp.o)
 
 RM=rm -rf
 
+CAMLIB_CORE=operations.o packet.o enums.o data.o enum_dump.o util.o canon.o ml.o liveview.o bind.o generic.o no_ip.o conv.o
+UNIX_FILES=$(FILES) src/drive-unix.c $(addprefix camlib/src/,$(CAMLIB_CORE) libusb.o backend.o)
+WIN_FILES=$(FILES) src/drive-win.c $(addprefix camlib/src/,$(CAMLIB_CORE) libwpd.o)
+
 all: unix-gtk
 
-# flags for unix-gtk
-unix-gtk: LDFLAGS=$(shell pkg-config --libs gtk+-3.0) $(shell pkg-config --cflags --libs libusb-1.0)
-unix-gtk: CFLAGS=$(shell pkg-config --cflags gtk+-3.0) $(shell pkg-config --cflags --libs libusb-1.0) -Icamlib/src -DVERBOSE
+CFLAGS=-Wall -Wpedantic
 
-# Clean incompatible stuff, use between comiling 
+# flags for unix-gtk
+unix-gtk: LDFLAGS+=$(shell pkg-config --libs gtk+-3.0) $(shell pkg-config --cflags --libs libusb-1.0)
+unix-gtk: CFLAGS+=$(shell pkg-config --cflags gtk+-3.0) $(shell pkg-config --cflags --libs libusb-1.0) -Icamlib/src -DVERBOSE
+
+# Clean incompatible stuff, use between compiling 
 clean-out:
-	$(RM) -r src/*.o mlinstall unix-gtk unix-cli win-gtk win-cli *.o *.out *.exe *.res gtk libusb camlib/src/*.o
+	$(RM) -r src/*.o $(APP_NAME) unix-gtk unix-cli win-gtk win-cli *.o *.out *.exe *.res gtk libusb camlib/src/*.o
 
 # Clean everything
 clean: clean-out
@@ -42,10 +44,10 @@ windows-gtk/win32-gtk-2013:
 	unzip windows-gtk/win32-gtk-2013.zip -d windows-gtk/win32-gtk-2013
 
 libwpd_x64.dll:
-	-wget -4 -nc https://github.com/petabyt/libwpd/releases/download/0.1.3/libwpd_64.dll -O libwpd_x64.dll
+	-wget -4 -nc https://github.com/petabyt/libwpd/releases/download/0.1.4/libwpd_64.dll -O libwpd_x64.dll
 
 libwpd_x86.dll:
-	-wget -4 -nc https://github.com/petabyt/libwpd/releases/download/0.1.3/libwpd_32.dll -O libwpd_x86.dll
+	-wget -4 -nc https://github.com/petabyt/libwpd/releases/download/0.1.4/libwpd_32.dll -O libwpd_x86.dll
 
 # Contains app info, asset stuff
 win.res: assets/win.rc
@@ -53,48 +55,48 @@ win.res: assets/win.rc
 
 # Main windows targets, will compile a complete directory,
 # copy in DLLs, README. Useful for testing in virtualbox and stuff
-win-gtk: win64-gtk-mlinstall
-win64-gtk-mlinstall: MINGW=x86_64-w64-mingw32
-win64-gtk-mlinstall: CC=$(MINGW)-gcc
-win64-gtk-mlinstall: CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Icamlib/src -Iwindows-gtk/win64-gtk-2021/win32/include
-win64-gtk-mlinstall: win.res windows-gtk/win64-gtk-2021 $(WIN_FILES) libwpd_x64.dll
-	-mkdir win64-gtk-mlinstall
-	$(CC) win.res $(WIN_FILES) windows-gtk/win64-gtk-2021/win32/lib/*.dll libwpd_x64.dll $(CFLAGS) -o win64-gtk-mlinstall/mlinstall.exe
-	cp libwpd_x64.dll win64-gtk-mlinstall/libwpd.dll
-	cp windows-gtk/win64-gtk-2021/win32/lib/*.dll win64-gtk-mlinstall/
-	cp assets/README.txt win64-gtk-mlinstall/
+win-gtk: win64-gtk-$(APP_NAME)
+win64-gtk-$(APP_NAME): MINGW=x86_64-w64-mingw32
+win64-gtk-$(APP_NAME): CC=$(MINGW)-gcc
+win64-gtk-$(APP_NAME): CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Icamlib/src -Iwindows-gtk/win64-gtk-2021/win32/include
+win64-gtk-$(APP_NAME): win.res windows-gtk/win64-gtk-2021 $(WIN_FILES) libwpd_x64.dll
+	-mkdir win64-gtk-$(APP_NAME)
+	$(CC) win.res $(WIN_FILES) windows-gtk/win64-gtk-2021/win32/lib/*.dll libwpd_x64.dll $(CFLAGS) -o win64-gtk-$(APP_NAME)/$(APP_NAME).exe
+	cp libwpd_x64.dll win64-gtk-$(APP_NAME)/libwpd.dll
+	cp windows-gtk/win64-gtk-2021/win32/lib/*.dll win64-gtk-$(APP_NAME)/
+	cp assets/README.txt win64-gtk-$(APP_NAME)/
 
 # 32 bit Windows XP, ReactOS
-win32-gtk: win32-gtk-mlinstall
-win32-gtk-mlinstall: MINGW=i686-w64-mingw32
-win32-gtk-mlinstall: CC=$(MINGW)-gcc
-win32-gtk-mlinstall: CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Icamlib/src -Iwindows-gtk/win32-gtk-2013/win32/include
-win32-gtk-mlinstall: win.res windows-gtk/win32-gtk-2013 $(WIN_FILES) libwpd_x86.dll
-	-mkdir win32-gtk-mlinstall
-	$(CC) win.res $(WIN_FILES) windows-gtk/win32-gtk-2013/win32/lib/*.dll libwpd_x86.dll $(CFLAGS) -o win32-gtk-mlinstall/mlinstall.exe
-	cp libwpd_x86.dll win32-gtk-mlinstall/libwpd.dll
-	cp windows-gtk/win32-gtk-2013/win32/lib/* win32-gtk-mlinstall/
-	cp assets/README.txt win32-gtk-mlinstall/
+win32-gtk: win32-gtk-$(APP_NAME)
+win32-gtk-$(APP_NAME): MINGW=i686-w64-mingw32
+win32-gtk-$(APP_NAME): CC=$(MINGW)-gcc
+win32-gtk-$(APP_NAME): CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Icamlib/src -Iwindows-gtk/win32-gtk-2013/win32/include
+win32-gtk-$(APP_NAME): win.res windows-gtk/win32-gtk-2013 $(WIN_FILES) libwpd_x86.dll
+	-mkdir win32-gtk-$(APP_NAME)
+	$(CC) win.res $(WIN_FILES) windows-gtk/win32-gtk-2013/win32/lib/*.dll libwpd_x86.dll $(CFLAGS) -o win32-gtk-$(APP_NAME)/$(APP_NAME).exe
+	cp libwpd_x86.dll win32-gtk-$(APP_NAME)/libwpd.dll
+	cp windows-gtk/win32-gtk-2013/win32/lib/* win32-gtk-$(APP_NAME)/
+	cp assets/README.txt win32-gtk-$(APP_NAME)/
 
 # Main C out, will be used by all targets
 %.o: %.c
 	$(CC) -c $< $(CFLAGS) -o $@
 
 # Release targets:
-win64-gtk-mlinstall.zip: win64-gtk-mlinstall
-	zip -r win64-gtk-mlinstall.zip win64-gtk-mlinstall
+win64-gtk-$(APP_NAME).zip: win64-gtk-$(APP_NAME)
+	zip -r win64-gtk-$(APP_NAME).zip win64-gtk-$(APP_NAME)
 
-win32-gtk-mlinstall.zip: win32-gtk-mlinstall
-	zip -r win32-gtk-mlinstall.zip win32-gtk-mlinstall
+win32-gtk-$(APP_NAME).zip: win32-gtk-$(APP_NAME)
+	zip -r win32-gtk-$(APP_NAME).zip win32-gtk-$(APP_NAME)
 
-linux64-gtk-mlinstall.AppImage: unix-gtk
-	staticx unix-gtk linux64-gtk-mlinstall.AppImage
+linux64-gtk-$(APP_NAME).AppImage: unix-gtk
+	staticx unix-gtk linux64-gtk-$(APP_NAME).AppImage
 
 release:
-	$(MAKE) linux64-gtk-mlinstall.AppImage
+	$(MAKE) linux64-gtk-$(APP_NAME).AppImage
 	$(MAKE) clean-out
-	$(MAKE) win64-gtk-mlinstall.zip
+	$(MAKE) win64-gtk-$(APP_NAME).zip
 	$(MAKE) clean-out
-	$(MAKE) win32-gtk-mlinstall.zip
+	$(MAKE) win32-gtk-$(APP_NAME).zip
 
 .PHONY: clean clean-out release win32-gtk win64-gtk all style

@@ -440,7 +440,7 @@ int app_main_window()
 	g_signal_connect(entry, "activate", G_CALLBACK(app_run_eventproc), NULL);
 	gtk_widget_show(entry);
 
-	add_big_button(grid, T_DETECT_CARD, "Try and detect the EOS_DIGITAL drive.", app_destroy_script_flag, &order);
+	add_big_button(grid, T_DETECT_CARD, "Try and detect the EOS_DIGITAL drive.", app_show_drive_info, &order);
 
 	label = gtk_label_new(NULL);
 	gtk_label_set_markup(GTK_LABEL(label), T_APP_INFO);

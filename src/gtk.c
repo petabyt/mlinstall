@@ -3,6 +3,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <glib.h>
+#include <gdk-pixbuf/gdk-pixbuf.h>
 #include <gtk/gtk.h>
 #include <ctype.h>
 #include <pthread.h>
@@ -15,10 +17,8 @@
 #include "drive.h"
 #include "appstore.h"
 
-struct PtpRuntime ptp_runtime;
-
-// Activated with CLI flag -d
-int dev_flag = 0;
+extern struct PtpRuntime ptp_runtime;
+extern int dev_flag;
 
 #define ENABLE_BOOT_DISK "EnableBootDisk"
 #define DISABLE_BOOT_DISK "DisableBootDisk"
@@ -170,14 +170,28 @@ void *app_device_info_thread(void *arg) {
 	log_clear();
 	if (ptp_connect_init()) return (void *)1;
 
-	log_print(
-		"Manufacturer: %s\n"
-		"Model: %s\n"
-		"DeviceVersion: %s\n"
-		"SerialNumber: %s\n",
-		ptp_runtime.di->manufacturer, ptp_runtime.di->model,
-		ptp_runtime.di->device_version, ptp_runtime.di->serial_number
-	);
+	ptp_eos_set_remote_mode(&ptp_runtime, 1);
+	ptp_eos_set_event_mode(&ptp_runtime, 1);
+
+	int length = 0;
+	struct PtpGenericEvent *s = NULL;
+
+	int rc = ptp_eos_get_event(&ptp_runtime);
+	if (rc) return (void *)1;
+
+	length = ptp_eos_events(&ptp_runtime, &s);
+
+	int shutter_count = 0;
+	for (int i = 0; i < length; i++) {
+		if (s[i].code == 0xD1AC) {
+			shutter_count = s[i].value;
+		}
+	}
+
+	log_print("Model: %s", ptp_runtime.di->model);
+	log_print("Firmware Version: %s", ptp_runtime.di->device_version);
+	log_print("Serial Number: %s", ptp_runtime.di->serial_number);
+	log_print("Shutter count: %d", shutter_count);
 
 	ptp_connect_deinit();
 	return (void *)0;
@@ -315,34 +329,37 @@ static GtkWidget *add_big_button(GtkWidget *grid, char *text, char *tip, GtkSign
 	return button;	
 }
 
-int main(int argc, char *argv[])
+int app_main_window()
 {
 	GtkWidget *window;
-	GtkWidget *button;
 	GtkWidget *notebook;
 	GtkWidget *label;
 	GtkWidget *entry;
 	GtkWidget *grid;
 	GtkWidget *mainGrid;
 
-	for (int i = 1; i < argc; i++) {
-		if (!strcmp(argv[i], "-d")) {
-			dev_flag = 1;
-		}
-	}
-
-	gtk_init(&argc, &argv);
+	gtk_init(NULL, NULL);
 
 	g_print(T_APP_NAME " by Daniel C. Use at your own risk!\n");
 	g_print("https://github.com/petabyt/mlinstall\n");
 	g_print("https://www.magiclantern.fm/forum/index.php?topic=26162\n");
 
+	extern guint8 favicon_ico[];
+	extern gsize favicon_ico_length;
+
+	GdkPixbufLoader *loader = gdk_pixbuf_loader_new();
+	gdk_pixbuf_loader_write(loader, favicon_ico, favicon_ico_length, NULL);
+	gdk_pixbuf_loader_close(loader, NULL);
+	GdkPixbuf *pixbuf = gdk_pixbuf_loader_get_pixbuf(loader);
+
 	ptp_generic_init(&ptp_runtime);
 
 	// What kind of idiot thinks it's a good idea to write a UI in C?
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
+	gtk_window_set_icon(GTK_WINDOW(window), pixbuf);
 	gtk_window_set_title(GTK_WINDOW(window), T_APP_NAME);
 	gtk_window_set_default_size(GTK_WINDOW(window), 375, 500);
+	gtk_window_set_position(GTK_WINDOW(window), GTK_WIN_POS_CENTER_ALWAYS);
 	g_signal_connect(window, "delete-event", G_CALLBACK(delete_event), NULL);
 	gtk_container_set_border_width(GTK_CONTAINER(window), 10);
 

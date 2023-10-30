@@ -1,5 +1,4 @@
-// Evproc parser
-// mlinstall (Apache License)
+// Evproc lexer + parser to EOS structure
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -10,11 +9,8 @@
 int ptp_canon_activate_command(struct PtpRuntime *r);
 int ptp_canon_exec_evproc(struct PtpRuntime *r, void *data, int length);
 
-// TODO:
-//  Parse hex into int
-//  Parse filenames
-//  Seperate parser and packer
-//  don't hardcode parser lengths
+#define EOS_TOK_INT 2
+#define EOS_TOK_STR 4
 
 // Structs are sent in little endian
 struct EvProcFooter {
@@ -75,7 +71,7 @@ int hex(char c) {
 // Parse a formatted command into struct Tokens
 // Should parse:
 //  ThisCommand   123 "A String" 0xabc
-struct Tokens *tokenize_evproc_command(char string[]) {
+struct Tokens *lex_evproc_command(char string[]) {
 	struct Tokens *toks = malloc(sizeof(struct Tokens));
 	memset(toks, 0, sizeof(struct Tokens));
 	int t = 0;
@@ -167,7 +163,7 @@ char *canon_evproc_pack(int *length, char *string) {
 	struct EvProcFooter footer;
 	footer.long_args = 0;
 
-	struct Tokens *toks = tokenize_evproc_command(string);
+	struct Tokens *toks = lex_evproc_command(string);
 
 	char *data = malloc(500);
 
@@ -187,7 +183,7 @@ char *canon_evproc_pack(int *length, char *string) {
 		return NULL;
 	}
 
-	// This will be modified as the structure is built
+	// First token is the number of parameters, will be modified in parser
 	uint32_t *num_args = (uint32_t *)(data + (*length));
 	(*num_args) = 0;
 	(*length) += 4;
@@ -198,7 +194,7 @@ char *canon_evproc_pack(int *length, char *string) {
 		case TOK_INT: {
 			struct EvProcInt integer;
 			memset(&integer, 0, sizeof(struct EvProcInt));
-			integer.type = 2;
+			integer.type = EOS_TOK_INT;
 			integer.number = toks->t[t].integer;
 
 			memcpy(data + (*length), &integer, sizeof(struct EvProcInt));
@@ -210,7 +206,7 @@ char *canon_evproc_pack(int *length, char *string) {
 			struct EvProcStr string;
 			memset(&string, 0, sizeof(struct EvProcStr));
 
-			string.type = 4;
+			string.type = EOS_TOK_STR;
 			string.size = strlen(toks->t[t].string);
 
 			memcpy(data + (*length), &string, sizeof(struct EvProcStr));
@@ -223,6 +219,7 @@ char *canon_evproc_pack(int *length, char *string) {
 			footer.args[0].long_arg_index = (*num_args);
 			footer.args[0].long_arg_length = string.size + 1234;
 			footer.long_args++;
+
 			(*num_args)++;
 		} break;
 		}
@@ -253,8 +250,9 @@ int canon_evproc_run(struct PtpRuntime *r, char string[]) {
 
 	int length = 0;
 	void *data = canon_evproc_pack(&length, string);
+
 	ret = ptp_canon_exec_evproc(r, data, length);
 	free(data);
 
-	return 123;
+	return 0;
 }

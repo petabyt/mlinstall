@@ -6,15 +6,18 @@
 void log_print(char *format, ...);
 void log_clear();
 
-int platform_download(char in[], char out[]);
+int app_main_window();
 
-// Model string evaluator
+// Model string evaluator (doesn't seem to be useful)
 int model_get(char name[]);
 
 int ptp_canon_activate_command(struct PtpRuntime *r, int code, int value);
 int ptp_canon_exec_evproc(struct PtpRuntime *r, void *data, int length);
 
 int canon_evproc_run(struct PtpRuntime *r, char string[]);
+
+// Mostly old deprecated stuff
+int platform_download(char in[], char out[]);
 
 enum InstallerError {
 	NO_AVAILABLE_FIRMWARE = 2,

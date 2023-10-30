@@ -1,13 +1,48 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>mlinstall</title>
-	<meta charset="utf-8">
+	<title>MLinstall</title>
+	<meta charset="UTF-8">
+	<link rel="icon" href="favicon.ico">
+	<link rel="stylesheet" type="text/css" href="lit.css">
+	<meta name="description" content="MLinstall is a free tool that helps with installing Magic Lantern.">
 </head>
 <body>
-	<h1>mlinstall - USB Magic Lantern Installer</h1>
-	<p id="total">JS didn't execute :(</p>
+<div class="c">
+	<h1><img src="https://raw.githubusercontent.com/petabyt/mlinstall/master/assets/mlinstall.jpg" width="30">
+	MLinstall | <a href="#downloads">Downloads</a> | <a href="https://github.com/petabyt/mlinstall">Source code</a></h1>
+
+	<div class="card">
+	<p>MLinstall is a free tool that helps install <a href="https://www.magiclantern.fm/">Magic Lantern</a> on Canon cameras. Currently, it can:</p>
+	<ul>
+		<li>Make a Canon camera bootable over USB - allowing Magic Lantern to run</li>
+		<li>Show camera info - shutter count, serial number, internal build number</li>
+		<li>Prepare the SD/CF card and make it bootable (Write boot and script flags)</li>
+		<li>Restore the card flags to the default state - without reformatting</li>
+	</ul>
+	</div>
+
+	<img src="https://raw.githubusercontent.com/petabyt/mlinstall/master/assets/screenshot.png">
+
+	<h3>How to use MLinstall</h3>
+	<div class="card">
+	<ul>
+		<li><a href="https://wiki.magiclantern.fm/new-install">Guide on using MLinstall to install ML on 1300D / Rebel T6</a></li>
+		<li><a href="https://github.com/petabyt/mlinstall/issues">Report issues with MLinstall</a></li>
+	</ul>
+	</div>
+
+	<h3>Downloads</h3>
+	<p id="total">Loading...<br>
+	<a href="https://github.com/petabyt/mlinstall/releases">If you have JS disabled, then click here to visit the downloads</a></p>
+	Builds are available for x86_64 Windows and Linux.
 	<div id="downloads"></div>
+
+	<hr>
+	<p>Copyright (c) MLinstall 2021-2023 by Daniel Cook and contributors<br>
+	MLinstall is licensed under the GNU General Public License v2.0<br>
+	MLinstall or Magic Lantern is not affiliated with Canon</p>
+</div>
 </body>
 <script>
 var requester = new XMLHttpRequest;
@@ -18,9 +53,6 @@ requester.onreadystatechange = function() {
 		data = JSON.parse(requester.responseText);
 		var total = 0;
 		for (var i = 0; i < data.length; i++) {
-			document.getElementById("downloads").innerHTML +=
-				"<p><h3><a href='" + data[i].html_url + "'>" + data[i].name + "</a></h3>";
-
 			var download = 0;
 			for (var x = 0; x < data[i].assets.length; x++) {
 				download += data[i].assets[x].download_count;
@@ -28,8 +60,16 @@ requester.onreadystatechange = function() {
 
 			total += download;
 
-			document.getElementById("downloads").innerHTML +=
-				"Download count: " + download + "</p>";
+			console.log(data[i]);
+
+			var date = (new Date() - new Date(data[i].published_at)) / (1000 * 60 * 60 * 24);
+
+			date = String(Math.floor(date));
+
+			var stuff = "<div class='card'><p><h3><a href='" + data[i].html_url + "'>" + data[i].name + "</a></h3>" +
+				"Released " + date + " days ago<br>Download count: " + download + "</p></div>";
+
+			document.getElementById("downloads").innerHTML += stuff;
 		}
 
 		document.getElementById("total").innerHTML = "Total downloads: " + total;

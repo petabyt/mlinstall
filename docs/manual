@@ -1,0 +1,7 @@
+====== MLinstall ======
+
+[[MLinstall|https://danielc.dev/mlinstall/]] is a free tool that helps install Magic Lantern on Canon cameras.
+As of 2023, MLinstall is available for x86 Windows and Linux. OS X port might come soon.
+
+When you open MLinstall, you will start in the 'USB' tab.
+{{::mlinstall-2023-usb-tab.png?400|}}

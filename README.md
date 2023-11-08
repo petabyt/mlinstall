@@ -11,11 +11,14 @@ Download: https://github.com/petabyt/mlinstall/releases
 - Clear card flags without reformattting
 - ~~App Store: Downloads and installs modules on SD card~~ removed for now
 
-## TODO
- - Mac OS port (don't have a mac)
- - Diagnostic/error reporting
- - Install ML over PTP
- - Add `.mo` files over PTP
+## Roadmap
+ - [x] Add shutter counter
+ - [ ] Display FW and internal build version
+ - [ ] Automatically connect to camera
+ - [ ] Automatically detect card
+ - [ ] Upload arbritrary files to the card (.bin, .mo, etc)
+ - [ ] MacOS port (help needed)
+ - [ ] Diagnostic + error reporting
 
 All pull requests/issues are welcome.
 
@@ -29,7 +32,7 @@ make unix-gtk && ./unix-gtk
 ```
 
 For releases, staticx (`pip3 install staticx`) is used to  
-convert dynamic executables to static. (functionally same as AppImage)  
+convert dynamic executables to static. (functionally the same as AppImage)  
 
 ## Windows Compilation
 Mingw is required: `apt install gcc-mingw-w64-x86-64`. Other than that, the windows-gtk submodule has everything else needed to compile:

@@ -24,3 +24,14 @@ jobs:
     
     - name: Compile
       run: make unix-gtk
+
+  macOS-build:
+    runs-on: macos-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Install dependencies
+      run: ports install gtk3 libusb
+
+    - name: Build
+      run: make unix-gtk

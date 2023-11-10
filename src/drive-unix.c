@@ -140,7 +140,12 @@ int drive_openfs()
 	// Unmount to prevent other processes from writing to it
 	char drive[128];
 	drive_get_usable(drive, sizeof(drive));
-	if (umount(drive)) {
+#ifdef __APPLE__
+	int rc = 1; // TODO: diskutil unount
+#else
+	int rc = umount(drive);
+#endif
+	if (rc) {
 		puts("Error unmounting drive.");
 		return DRIVE_ERROR;
 	} else {

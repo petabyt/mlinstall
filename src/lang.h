@@ -37,8 +37,8 @@
 #define T_UNKNOWN_ERROR "Unknown error."
 
 #define T_GET_DEVICE_INFO "Show Camera Info"
-#define T_ENABLE_BOOT_DISK "Make Camera Bootable"
-#define T_DISABLE_BOOT_DISK "Restore Boot Settings"
+#define T_ENABLE_BOOT_DISK "Enable Custom Boot"
+#define T_DISABLE_BOOT_DISK "Disable Custom Boot"
 
 #define T_CARD_STUFF_TITLE "This will automatically find and write to\na card named 'EOS_DIGITAL'.\n"
 #define T_WRITE_CARD_BOOT_FLAGS "Enable Card Boot Flags"

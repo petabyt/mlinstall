@@ -188,6 +188,11 @@ void *app_device_info_thread(void *arg) {
 		}
 	}
 
+	char *fw_version = ptp_runtime.di->device_version;
+	if (fw_version[0] == '3' && fw_version[1] == '-') {
+		fw_version += 2;
+	}
+
 	log_print("Model: %s", ptp_runtime.di->model);
 	log_print("Firmware Version: %s", ptp_runtime.di->device_version);
 	log_print("Serial Number: %s", ptp_runtime.di->serial_number);
@@ -344,8 +349,8 @@ int app_main_window()
 	g_print("https://github.com/petabyt/mlinstall\n");
 	g_print("https://www.magiclantern.fm/forum/index.php?topic=26162\n");
 
-	extern guint8 favicon_ico[];
-	extern gsize favicon_ico_length;
+	extern guint8 favicon_ico[] asm("favicon_ico");
+	extern gsize favicon_ico_length asm("favicon_ico_length");
 
 	GdkPixbufLoader *loader = gdk_pixbuf_loader_new();
 	gdk_pixbuf_loader_write(loader, favicon_ico, favicon_ico_length, NULL);

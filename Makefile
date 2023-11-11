@@ -1,9 +1,10 @@
 # Makefile for Windows XP/7/10, ReactOS, Linux, maybe MacOS
 # Compile from Linux only
-
+-include config.mak
 RM=rm -rf
-
 APP_NAME=mlinstall
+HOME?=/home/$(USER)
+DOWNLOADS?=$(HOME)/Downloads
 
 # Main core files
 FILES=$(addprefix src/,main.o appstore.o drive.o evproc.o gtk.o installer.o model.o platform.o ptp.o data.o)
@@ -11,7 +12,6 @@ CAMLIB_CORE=operations.o packet.o enums.o data.o enum_dump.o util.o canon.o ml.o
 
 # Windows and Linux require different impls for the same file
 UNIX_FILES=$(FILES) src/drive-unix.o $(addprefix camlib/src/,$(CAMLIB_CORE) libusb.o backend.o)
-WIN_FILES=$(FILES) src/drive-win.o $(addprefix camlib/src/,$(CAMLIB_CORE) libwpd.o)
 
 # Some manual header deps
 src/gtk.o: src/lang.h
@@ -42,50 +42,7 @@ clean-out:
 clean: clean-out
 	$(RM) -r *.zip *.AppImage unix-gtk unix-cli win64* win32* SD_BACKUP *.dll
 
-#
-#  Windows stuff:
-#
-
-windows-gtk/win64-gtk-2021:
-	unzip windows-gtk/win64-gtk-2021.zip -d windows-gtk/win64-gtk-2021
-
-windows-gtk/win32-gtk-2013:
-	unzip windows-gtk/win32-gtk-2013.zip -d windows-gtk/win32-gtk-2013
-
-libwpd_x64.dll:
-	-wget -4 -nc https://github.com/petabyt/libwpd/releases/download/0.1.4/libwpd_64.dll -O libwpd_x64.dll
-
-libwpd_x86.dll:
-	-wget -4 -nc https://github.com/petabyt/libwpd/releases/download/0.1.4/libwpd_32.dll -O libwpd_x86.dll
-
-# Contains app info, asset stuff
-win.res: assets/win.rc
-	$(MINGW)-windres assets/win.rc -O coff -o win.res
-
-# Main windows targets, will compile a complete directory,
-# copy in DLLs, EXE, README, to a directory. Useful if you have virtualbox, or use WSL.
-win-gtk: win64-gtk-$(APP_NAME)
-win64-gtk-$(APP_NAME): MINGW=x86_64-w64-mingw32
-win64-gtk-$(APP_NAME): CC=$(MINGW)-gcc
-win64-gtk-$(APP_NAME): CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Icamlib/src -Iwindows-gtk/win64-gtk-2021/win32/include
-win64-gtk-$(APP_NAME): win.res windows-gtk/win64-gtk-2021 $(WIN_FILES) libwpd_x64.dll
-	-mkdir win64-gtk-$(APP_NAME)
-	$(CC) win.res $(WIN_FILES) windows-gtk/win64-gtk-2021/win32/lib/*.dll libwpd_x64.dll $(CFLAGS) -o win64-gtk-$(APP_NAME)/$(APP_NAME).exe
-	cp libwpd_x64.dll win64-gtk-$(APP_NAME)/libwpd.dll
-	cp windows-gtk/win64-gtk-2021/win32/lib/*.dll win64-gtk-$(APP_NAME)/
-	cp assets/README.txt win64-gtk-$(APP_NAME)/
-
-# 32 bit for all the ReactOS nerds to try
-win32-gtk: win32-gtk-$(APP_NAME)
-win32-gtk-$(APP_NAME): MINGW=i686-w64-mingw32
-win32-gtk-$(APP_NAME): CC=$(MINGW)-gcc
-win32-gtk-$(APP_NAME): CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -Icamlib/src -Iwindows-gtk/win32-gtk-2013/win32/include
-win32-gtk-$(APP_NAME): win.res windows-gtk/win32-gtk-2013 $(WIN_FILES) libwpd_x86.dll
-	-mkdir win32-gtk-$(APP_NAME)
-	$(CC) win.res $(WIN_FILES) windows-gtk/win32-gtk-2013/win32/lib/*.dll libwpd_x86.dll $(CFLAGS) -o win32-gtk-$(APP_NAME)/$(APP_NAME).exe
-	cp libwpd_x86.dll win32-gtk-$(APP_NAME)/libwpd.dll
-	cp windows-gtk/win32-gtk-2013/win32/lib/* win32-gtk-$(APP_NAME)/
-	cp assets/README.txt win32-gtk-$(APP_NAME)/
+include win.mak
 
 # Main C out, will be used by all targets
 %.o: %.c

@@ -264,7 +264,7 @@ static GtkWidget *add_big_button(GtkWidget *grid, char *text, char *tip, GtkSign
 	GtkWidget *button = gtk_button_new_with_label((const char *)text);                       
 	g_signal_connect(button, "clicked", G_CALLBACK(function), NULL);
 	gtk_grid_attach(GTK_GRID(grid), button, 0, (*order)++, 1, 1);
-	gtk_widget_set_tooltip_text(button, (const char *)tip);                       
+	gtk_widget_set_tooltip_text(button, (const char *)tip);
 	gtk_widget_set_hexpand(button, TRUE);
 	gtk_widget_set_margin_bottom(button, 4);
 	gtk_widget_show(button);

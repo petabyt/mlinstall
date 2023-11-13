@@ -1,30 +1,37 @@
 # Makefile for Windows XP/7/10, ReactOS, Linux, maybe MacOS
 # Compile from Linux only
+all: unix-gtk
 -include config.mak
 RM=rm -rf
 APP_NAME=mlinstall
 HOME?=/home/$(USER)
 DOWNLOADS?=$(HOME)/Downloads
 
-# Main core files
-FILES=$(addprefix src/,main.o appstore.o drive.o evproc.o gtk.o installer.o model.o platform.o ptp.o data.o)
-CAMLIB_CORE=operations.o packet.o enums.o data.o enum_dump.o util.o canon.o ml.o liveview.o bind.o generic.o no_ip.o conv.o
+CAMLIB_SRC=src/cl_sym/src
+
+# Files for each build
+APP_CORE=$(addprefix src/,main.o drive.o installer.o model.o platform.o ptp.o data.o)
+CAMLIB_CORE=operations.o packet.o enums.o canon_adv.o data.o enum_dump.o util.o canon.o ml.o liveview.o bind.o generic.o no_ip.o conv.o
 
 # Windows and Linux require different impls for the same file
-UNIX_FILES=$(FILES) src/drive-unix.o $(addprefix camlib/src/,$(CAMLIB_CORE) libusb.o backend.o)
+UNIX_GTK_FILES=$(APP_CORE) src/gtk.o src/appstore.o src/drive-unix.o $(addprefix $(CAMLIB_SRC)/,$(CAMLIB_CORE) libusb.o backend.o)
+UNIX_TUI_FILES=$(APP_CORE) src/tui.o src/drive-unix.o $(addprefix $(CAMLIB_SRC)/,$(CAMLIB_CORE) libusb.o backend.o)
 
 # Some manual header deps
 src/gtk.o: src/lang.h
 
-CFLAGS=-Wall -Wpedantic
+CFLAGS=-Wall -Wpedantic -I$(CAMLIB_SRC)
 
-all: unix-gtk
-
+# Only have GTK libs for this target
 unix-gtk: LDFLAGS+=$(shell pkg-config --libs gtk+-3.0) $(shell pkg-config --cflags --libs libusb-1.0)
-unix-gtk: CFLAGS+=$(shell pkg-config --cflags gtk+-3.0) $(shell pkg-config --cflags --libs libusb-1.0) -Icamlib/src
+unix-gtk: CFLAGS+=$(shell pkg-config --cflags gtk+-3.0) $(shell pkg-config --cflags --libs libusb-1.0)
+unix-gtk: $(UNIX_GTK_FILES)
+	$(CC) $(UNIX_GTK_FILES) $(CFLAGS) $(LDFLAGS) -o unix-gtk
 
-unix-gtk: $(UNIX_FILES)
-	$(CC) $(UNIX_FILES) $(CFLAGS) $(LDFLAGS) -o unix-gtk
+unix-tui: LDFLAGS+=$(shell pkg-config --cflags --libs libusb-1.0)
+unix-tui: CFLAGS+=$(shell pkg-config --cflags --libs libusb-1.0)
+unix-tui: $(UNIX_TUI_FILES)
+	$(CC) $(UNIX_TUI_FILES) $(CFLAGS) $(LDFLAGS) -o unix-tui
 
 style:
 	clang-format -style=file -i src/*.c src/*.h gtk.c
@@ -36,11 +43,11 @@ arm64-linux: $(UNIX_FILES)
 
 # Clean incompatible stuff, use between compiling for Windows/Linux
 clean-out:
-	$(RM) -r src/*.o $(APP_NAME) unix-gtk unix-cli win-gtk win-cli *.o *.out *.exe *.res gtk libusb camlib/src/*.o
+	$(RM) -r src/*.o $(APP_NAME) unix-gtk unix-cli win-gtk win-cli *.o *.out *.exe *.res gtk libusb $(CAMLIB_SRC)/*.o
 
 # Clean everything
 clean: clean-out
-	$(RM) -r *.zip *.AppImage unix-gtk unix-cli win64* win32* SD_BACKUP *.dll
+	$(RM) -r *.zip *.AppImage unix-gtk unix-tui unix-cli win64* win32* SD_BACKUP *.dll
 
 include win.mak
 

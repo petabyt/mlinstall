@@ -3,8 +3,16 @@
 
 #include <camlib.h>
 
+// EvProcs
+#define ENABLE_BOOT_DISK "EnableBootDisk"
+#define DISABLE_BOOT_DISK "DisableBootDisk"
+#define TURN_OFF_DISPLAY "TurnOffDisplay"
+
 void log_print(char *format, ...);
 void log_clear();
+
+int ptp_connect_deinit();
+int ptp_connect_init();
 
 int app_main_window();
 

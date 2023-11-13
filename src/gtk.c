@@ -10,7 +10,6 @@
 #include <pthread.h>
 
 #include <camlib.h>
-#include <ptp.h>
 
 #include "app.h"
 #include "lang.h"
@@ -20,11 +19,7 @@
 extern struct PtpRuntime ptp_runtime;
 extern int dev_flag;
 
-#define ENABLE_BOOT_DISK "EnableBootDisk"
-#define DISABLE_BOOT_DISK "DisableBootDisk"
-#define TURN_OFF_DISPLAY "TurnOffDisplay"
-
-static GtkWidget *logw;
+static GtkWidget *logw = NULL;
 static char temp_log_buf[1000] = "";
 
 void log_print(char *format, ...)
@@ -35,6 +30,11 @@ void log_print(char *format, ...)
 	vsnprintf(buffer, 1024, format, args);
 	va_end(args);
 
+	if (logw == NULL) {
+		printf("LOG: %s\n", buffer);
+		return;
+	}
+
 	strcat(temp_log_buf, buffer);
 	strcat(temp_log_buf, "\n");
 	gtk_label_set_text(GTK_LABEL(logw), temp_log_buf);
@@ -42,6 +42,7 @@ void log_print(char *format, ...)
 
 void log_clear()
 {
+	if (logw == NULL) return;
 	strcpy(temp_log_buf, "\n");
 	gtk_label_set_text(GTK_LABEL(logw), temp_log_buf);
 }
@@ -57,10 +58,6 @@ static int log_drive_error(int rc)
 		return rc;
 	case DRIVE_ERROR:
 		log_print(T_DRIVE_ERROR);
-// #ifndef WIN32
-		// log_print("Make sure you open as sudo.");
-		// log_print("(sudo ./mlinstall)");
-// #endif
 		return rc;
 	}
 
@@ -103,69 +100,6 @@ static void app_destroy_script_flag(GtkWidget *widget, gpointer data)
 	}
 }
 
-int ptp_connect_deinit() {
-	int rc = ptp_close_session(&ptp_runtime);
-	if (rc) return rc;
-
-	ptp_device_close(&ptp_runtime);
-
-	return 0;
-}
-
-#define USB_VENDOR_CANON 0x4A9
-
-int ptp_connect_init() {
-	int rc;
-#ifdef WIN32
-	// For LibWPD, this will work just fine to detect cameras
-	rc = ptp_device_init(&ptp_runtime);
-	if (rc) {
-		log_print(T_DEV_NOT_FOUND);
-		return rc;
-	}
-#else
-	// TODO: libWPD doesn't have this yet
-	ptp_comm_init(&ptp_runtime);
-
-	struct PtpDeviceEntry *list = ptpusb_device_list(&ptp_runtime);
-
-	struct PtpDeviceEntry *selected = NULL;
-	for (struct PtpDeviceEntry *curr = list; curr != NULL; curr = curr->next) {
-		printf("Device: %s\tVendor: \t%X\n", curr->name, curr->vendor_id);
-		if (curr->vendor_id == USB_VENDOR_CANON) {
-			selected = curr;
-		}
-	}
-
-	if (selected == NULL) {
-		log_print("No Canon device found");
-		return PTP_NO_DEVICE;
-	}
-
-	rc = ptp_device_open(&ptp_runtime, selected);
-#endif
-
-	rc = ptp_open_session(&ptp_runtime);
-	if (rc) {
-		return rc;
-	}
-
-	ptp_runtime.di = (struct PtpDeviceInfo *)malloc(sizeof(struct PtpDeviceInfo));
-	rc = ptp_get_device_info(&ptp_runtime, ptp_runtime.di);
-	if (rc) {
-		ptp_connect_deinit();
-		return rc;
-	}
-
-	if (strcmp(ptp_runtime.di->manufacturer, "Canon Inc.")) {
-		log_print(T_NOT_CANON_DEVICE, ptp_runtime.di->model);
-		ptp_connect_deinit();
-		return -1;
-	}
-
-	return 0;
-}
-
 void *app_device_info_thread(void *arg) {
 	log_clear();
 	if (ptp_connect_init()) return (void *)1;
@@ -179,15 +113,16 @@ void *app_device_info_thread(void *arg) {
 	int rc = ptp_eos_get_event(&ptp_runtime);
 	if (rc) return (void *)1;
 
-	length = ptp_eos_events(&ptp_runtime, &s);
-
 	int shutter_count = 0;
+
+	length = ptp_eos_events(&ptp_runtime, &s);
 	for (int i = 0; i < length; i++) {
-		if (s[i].code == 0xD1AC) {
+		if (s[i].code == PTP_PC_EOS_ShutterCounter) {
 			shutter_count = s[i].value;
 		}
 	}
 
+	// Remove the EOS '3-' prefix
 	char *fw_version = ptp_runtime.di->device_version;
 	if (fw_version[0] == '3' && fw_version[1] == '-') {
 		fw_version += 2;
@@ -218,8 +153,11 @@ static void *app_run_eventproc_thread(void *arg) {
 	log_clear();
 	if (ptp_connect_init()) return (void *)(-1);
 
-	uintptr_t rc = (uintptr_t)canon_evproc_run(&ptp_runtime, (char *)arg);
-	if (rc) return (void *)rc;
+	int rc = ptp_eos_activate_command(&ptp_runtime);
+	if (rc) return (void *)-1;
+
+	rc = ptp_eos_evproc_run(&ptp_runtime, (char *)arg);
+	if (rc) return (void *)-1;
 
 	ptp_connect_deinit();
 	return (void *)0;
@@ -347,7 +285,6 @@ int app_main_window()
 
 	g_print(T_APP_NAME " by Daniel C. Use at your own risk!\n");
 	g_print("https://github.com/petabyt/mlinstall\n");
-	g_print("https://www.magiclantern.fm/forum/index.php?topic=26162\n");
 
 	extern guint8 favicon_ico[] asm("favicon_ico");
 	extern gsize favicon_ico_length asm("favicon_ico_length");
@@ -356,8 +293,6 @@ int app_main_window()
 	gdk_pixbuf_loader_write(loader, favicon_ico, favicon_ico_length, NULL);
 	gdk_pixbuf_loader_close(loader, NULL);
 	GdkPixbuf *pixbuf = gdk_pixbuf_loader_get_pixbuf(loader);
-
-	ptp_generic_init(&ptp_runtime);
 
 	// What kind of idiot thinks it's a good idea to write a UI in C?
 	window = gtk_window_new(GTK_WINDOW_TOPLEVEL);
@@ -434,16 +369,18 @@ int app_main_window()
 	gtk_widget_show(grid);
 	order = 0;
 
-	label = gtk_label_new(T_DEV_MODE_WARNING);
-	gtk_widget_set_hexpand(label, TRUE);
-	gtk_grid_attach(GTK_GRID(grid), label, 0, order++, 1, 1);
-	gtk_widget_show(label);
+	if (dev_flag) {
+		label = gtk_label_new(T_DEV_MODE_WARNING);
+		gtk_widget_set_hexpand(label, TRUE);
+		gtk_grid_attach(GTK_GRID(grid), label, 0, order++, 1, 1);
+		gtk_widget_show(label);
 
-	GtkEntryBuffer *buf = gtk_entry_buffer_new(TURN_OFF_DISPLAY, strlen(TURN_OFF_DISPLAY));
-	entry = gtk_entry_new_with_buffer(buf);
-	gtk_grid_attach(GTK_GRID(grid), entry, 0, order++, 1, 1);
-	g_signal_connect(entry, "activate", G_CALLBACK(app_run_eventproc), NULL);
-	gtk_widget_show(entry);
+		GtkEntryBuffer *buf = gtk_entry_buffer_new(TURN_OFF_DISPLAY, strlen(TURN_OFF_DISPLAY));
+		entry = gtk_entry_new_with_buffer(buf);
+		gtk_grid_attach(GTK_GRID(grid), entry, 0, order++, 1, 1);
+		g_signal_connect(entry, "activate", G_CALLBACK(app_run_eventproc), NULL);
+		gtk_widget_show(entry);
+	}
 
 	add_big_button(grid, T_DETECT_CARD, "Try and detect the EOS_DIGITAL drive.", app_show_drive_info, &order);
 

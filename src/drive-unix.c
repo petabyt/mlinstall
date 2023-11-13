@@ -122,6 +122,13 @@ int drive_get_usable(char buffer[], int n)
 	return 0;
 }
 
+int darwin_unmount(char *path)
+{
+	char buffer[64];
+	snprintf(buffer, sizeof(buffer), "diskutil unmount %s", path);
+	return system(buffer);
+}
+
 int drive_openfs()
 {
 	if (geteuid() != 0) {
@@ -141,7 +148,7 @@ int drive_openfs()
 	char drive[128];
 	drive_get_usable(drive, sizeof(drive));
 #ifdef __APPLE__
-	int rc = 1; // TODO: diskutil unount
+	int rc = darwin_unmount(drive);
 #else
 	int rc = umount(drive);
 #endif

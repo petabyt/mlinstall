@@ -1,4 +1,4 @@
-// PoC for "one click install" - unfinished, don't use
+// PoC for "one click install" - PoC, unfinished, don't use
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -145,7 +145,7 @@ int installer_start(char model[], char version[])
 
 	puts("Running 'EnableBootDisk'...");
 
-	canon_evproc_run(&ptp_runtime, "EnableBootDisk");
+	//canon_evproc_run(&ptp_runtime, "EnableBootDisk");
 
 	puts("Magic Lantern successfully installed.");
 

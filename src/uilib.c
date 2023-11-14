@@ -1,4 +1,11 @@
 // Stub for eventual UI migration to generic uilib
+/*
+Required to use https://github.com/libui-ng/libui-ng
+widget/button tooltips
+jpeg images
+window icons
+button sizes?
+*/
 #include <string.h>
 #include <stdlib.h>
 #include <time.h>

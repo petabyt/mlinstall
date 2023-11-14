@@ -8,10 +8,11 @@ HOME?=/home/$(USER)
 DOWNLOADS?=$(HOME)/Downloads
 
 CAMLIB_SRC=src/cl_sym/src
+#CAMLIB_SRC=camlib/src
 
 # Files for each build
 APP_CORE=$(addprefix src/,main.o drive.o installer.o model.o platform.o ptp.o data.o)
-CAMLIB_CORE=operations.o packet.o enums.o canon_adv.o data.o enum_dump.o util.o canon.o ml.o liveview.o bind.o generic.o no_ip.o conv.o
+CAMLIB_CORE=operations.o packet.o enums.o canon_adv.o data.o enum_dump.o lib.o canon.o ml.o liveview.o bind.o generic.o no_ip.o conv.o
 
 # Windows and Linux require different impls for the same file
 UNIX_GTK_FILES=$(APP_CORE) src/gtk.o src/appstore.o src/drive-unix.o $(addprefix $(CAMLIB_SRC)/,$(CAMLIB_CORE) libusb.o backend.o)

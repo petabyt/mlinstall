@@ -330,7 +330,7 @@ static void app_show_drive_info(uiButton *b, void *data)
 	}
 }
 
-static void app_disconnect() {
+static void *app_disconnect(void *arg) {
 	ptp_mutex_keep_locked(&ptp_runtime);
 
 	ptp_close_session(&ptp_runtime);
@@ -350,9 +350,17 @@ int on_closing(uiWindow *w, void *data)
 	return 1;
 }
 
+static void app_disconnect_thread(uiButton *b, void *data)
+{
+	pthread_t thread;
+	if (pthread_create(&thread, NULL, app_disconnect, NULL)) {
+		return;
+	}
+}
+
 void ui_connected_state() {
 	uiButtonSetText(app.connect_button, T_DISCONNECT);
-	uiButtonOnClicked(app.connect_button, app_disconnect, NULL);
+	uiButtonOnClicked(app.connect_button, app_disconnect_thread, NULL);
 	usb_enable_all();
 }
 

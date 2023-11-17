@@ -4,8 +4,8 @@ APP_NAME=mlinstall
 HOME?=/home/$(USER)
 DOWNLOADS?=$(HOME)/Downloads
 
-CAMLIB_SRC=src/cl_sym/src
-#CAMLIB_SRC=camlib/src
+#CAMLIB_SRC=src/cl_sym/src
+CAMLIB_SRC=camlib/src
 
 # Files for each build
 APP_CORE=$(addprefix src/,main.o drive.o installer.o model.o platform.o ptp.o data.o)

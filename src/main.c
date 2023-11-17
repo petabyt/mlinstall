@@ -8,6 +8,51 @@ struct PtpRuntime ptp_runtime;
 int dev_flag = 0;
 static int attempts = 0;
 
+int main (int argc, char ** argv) {
+	ptp_generic_init(&ptp_runtime);
+
+#ifdef _WIN32
+	// Redirect stdout
+	AttachConsole(-1);
+	//freopen("CONIN$", "r", stdin);
+	freopen("CONOUT$", "w", stdout);
+	freopen("CONOUT$", "w", stderr);
+#endif
+
+	for (int i = 1; i < argc; i++) {
+		if (!strcmp(argv[i], "-d")) {
+			dev_flag = 1;
+		} else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
+			printf(
+				T_APP_NAME " version " T_APP_VERSION " - Use at your own risk!\n"
+				"https://github.com/petabyt/mlinstall\n"
+				"Command line flags:\n"
+				"-d              Enable developer features\n"
+				"-h              Show this message\n"
+				"-l              List connected devices\n"
+				"--upload <filename> <target_location>       Upload file to SD card through filewrite evproc\n"
+				"\n"
+			);
+
+			return 0;
+		} else if (!strcmp(argv[i], "--upload")) {
+			if (argc - i < 3) {
+				puts("Not enough args");
+				return -1;
+			}
+			if (ptp_connect_init()) return -1;
+
+			int rc = ptp_chdk_upload_file(&ptp_runtime, argv[i + 1], argv[i + 2]);
+			if (rc) return rc;
+
+			return ptp_connect_deinit();
+		}
+	}
+
+	puts("Starting main window...");
+	return app_main_window();
+}
+
 int ptp_connect_deinit() {
 	int rc = ptp_close_session(&ptp_runtime);
 	if (rc) return rc;
@@ -69,41 +114,4 @@ int ptp_connect_init() {
 	}
 
 	return 0;
-}
-
-int main(int argc, char *argv[]) {
-	ptp_generic_init(&ptp_runtime);
-
-	for (int i = 1; i < argc; i++) {
-		if (!strcmp(argv[i], "-d")) {
-			dev_flag = 1;
-		} else if (!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
-			printf(
-				T_APP_NAME " version " T_APP_VERSION " - Use at your own risk!\n"
-				"https://github.com/petabyt/mlinstall\n"
-				"Command line flags:\n"
-				"-d              Enable developer features\n"
-				"-h              Show this message\n"
-				"-l              List connected devices\n"
-				"--upload <filename> <target_location>       Upload file to SD card through filewrite evproc\n"
-				"\n"
-			);
-
-			return 0;
-		} else if (!strcmp(argv[i], "--upload")) {
-			if (argc - i < 3) {
-				puts("Not enough args");
-				return -1;
-			}
-			if (ptp_connect_init()) return -1;
-
-			int rc = ptp_chdk_upload_file(&ptp_runtime, argv[i + 1], argv[i + 2]);
-			if (rc) return rc;
-
-			return ptp_connect_deinit();
-		}
-	}
-
-	puts("Starting main window...");
-	return app_main_window();
 }

@@ -4,10 +4,10 @@ WIN_FILES=$(addsuffix .win.o,$(_WIN_FILES))
 MINGW=x86_64-w64-mingw32
 CC=$(MINGW)-gcc
 CPP=$(MINGW)-c++
-CFLAGS+=-I/home/daniel/Pulled/libui-ng
+CFLAGS+=-I../libui-ng
 CFLAGS+=-I$(CAMLIB_SRC)/
 
-LIBUI_A=/home/daniel/Pulled/libuiex/libui.a
+LIBUI_A=../libuiex/libui.a
 
 windows-gtk/win64-gtk-2021:
 	unzip windows-gtk/win64-gtk-2021.zip -d windows-gtk/win64-gtk-2021
@@ -32,11 +32,11 @@ LIBS+=-lstdc++ -lgcc -static -s -lpthread -lssp
 LIBS+=-lurlmon
 
 # Remove cmd window from startup
-LIBS+=-mwindows
+#LIBS+=-Wl,-subsystem,windows
 
 win-gtk: $(APP_NAME).exe
 
-LIBWPD_A=/home/daniel/Documents/libwpd/libwpd_64.a
+LIBWPD_A=../libwpd/libwpd_64.a
 
 $(APP_NAME).exe: $(WIN_FILES) win.res win.mak
 	$(CC) win.res $(WIN_FILES) $(LIBUI_A) $(LIBWPD_A) $(LIBS) -o $(APP_NAME).exe

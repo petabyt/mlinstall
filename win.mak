@@ -25,7 +25,7 @@ $(DOWNLOADS)/libwpd_x86-$(LIBWPD_VER).dll:
 
 # Contains app info, asset stuff
 win.res: assets/win.rc
-	$(MINGW)-windres assets/win.rc -O coff -o win.res
+	$(MINGW)-windres -v assets/win.rc -O coff -o win.res
 
 LIBS=-luser32 -lkernel32 -lgdi32 -lcomctl32 -luxtheme -lmsimg32 -lcomdlg32 -ld2d1 -ldwrite -lole32 -loleaut32 -loleacc
 LIBS+=-lstdc++ -lgcc -static -s -lpthread -lssp

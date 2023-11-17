@@ -8,6 +8,8 @@ static char flag_develop[] = "EOS_DEVELOP";
 static char flag_bootdisk[] = "BOOTDISK";
 static char flag_script[] = "SCRIPT";
 
+// TODO: drive_check_permissions()
+
 // Detect the filesystem and write the flags
 // in the correct place
 int drive_write_flag(int mode)
@@ -47,7 +49,7 @@ int drive_write_flag(int mode)
 	}
 
 	log_print("Backing up card bootsector...");
-	puts("Creating a backup of your SD card's first few sectors.");
+	log_print("Creating a small backup just in case...");
 	drive_dump("SD_BACKUP");
 
 	switch (mode) {

@@ -6,6 +6,7 @@
 
 struct PtpRuntime ptp_runtime;
 int dev_flag = 0;
+static int attempts = 0;
 
 int ptp_connect_deinit() {
 	int rc = ptp_close_session(&ptp_runtime);
@@ -17,6 +18,8 @@ int ptp_connect_deinit() {
 }
 
 int ptp_connect_init() {
+	attempts++;
+
 	int rc;
 #ifdef WIN32
 	// For LibWPD, this will work just fine to detect cameras
@@ -40,7 +43,7 @@ int ptp_connect_init() {
 	}
 
 	if (selected == NULL) {
-		log_print("No Canon device found");
+		log_print("No Canon device found (%d)", attempts - 1);
 		return PTP_NO_DEVICE;
 	}
 
@@ -95,7 +98,7 @@ int main(int argc, char *argv[]) {
 			if (ptp_connect_init()) return -1;
 
 			int rc = ptp_chdk_upload_file(&ptp_runtime, argv[i + 1], argv[i + 2]);
-			if (rc) return (void *)rc;
+			if (rc) return rc;
 
 			return ptp_connect_deinit();
 		}

@@ -3,6 +3,10 @@
 
 #include <camlib.h>
 
+// Defined in main.c
+extern struct PtpRuntime ptp_runtime;
+extern int dev_flag;
+
 // EvProcs
 #define ENABLE_BOOT_DISK "EnableBootDisk"
 #define DISABLE_BOOT_DISK "DisableBootDisk"

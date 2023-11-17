@@ -1,4 +1,4 @@
-// This is the GTK based app for Windows / Linux
+#error "Deprecated GTK3 UI, use libui"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -14,7 +14,6 @@
 #include "app.h"
 #include "lang.h"
 #include "drive.h"
-#include "appstore.h"
 
 extern struct PtpRuntime ptp_runtime;
 extern int dev_flag;

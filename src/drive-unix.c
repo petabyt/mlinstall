@@ -3,9 +3,9 @@
 // just but won't write to the drive, so we
 // have to rewrite everything :)
 
-// This is for non-windows. I think it should
-// work on Linux and MacOS (?)
-#ifndef WIN32
+#ifdef WIN32
+	#error "not windows code"
+#endif
 
 // Uses shell commands: mount cat grep awk
 // It's technically not bad practice, some GNU coreutils
@@ -198,5 +198,3 @@ void drive_dump(char name[]) {
 	fwrite(dump, 1, TEMP_DUMP_SIZE, f);
 	fclose(f);
 }
-
-#endif

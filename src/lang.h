@@ -8,11 +8,13 @@
 #endif
 
 #define T_APP_NAME "MLinstall"
+#define T_APP_SUBTITLE "Tool to help install Magic Lantern"
 
 #define T_WELCOME_LOG ("Welcome to " T_APP_NAME)
 
 #define T_USB "USB"
 #define T_ADVANCED "Advanced"
+#define T_ABOUT "About"
 #define T_CARD "Card"
 #define T_DEV_NOT_FOUND "Couldn't find a PTP/USB device."
 #define T_DRIVE_NOT_FOUND "Couldn't find card. Make sure\nthe EOS_DIGITAL card is mounted."
@@ -36,11 +38,13 @@
 #define T_RETURN_UNSUPPORTED "Error: operation not supported."
 #define T_UNKNOWN_ERROR "Unknown error."
 
+#define T_CONNECT "Connect to Camera"
+#define T_DISCONNECT "Disconnect"
 #define T_GET_DEVICE_INFO "Show Camera Info"
 #define T_ENABLE_BOOT_DISK "Enable Custom Boot"
 #define T_DISABLE_BOOT_DISK "Disable Custom Boot"
 
-#define T_CARD_STUFF_TITLE "This will automatically find and write to\na card named 'EOS_DIGITAL'.\n"
+#define T_CARD_STUFF_TITLE "This will automatically find and write to\na card named 'EOS_DIGITAL'."
 #define T_WRITE_CARD_BOOT_FLAGS "Enable Card Boot Flags"
 #define T_DESTROY_CARD_BOOT_FLAGS "Disable Card Boot Flags"
 #define T_MAKE_CARD_SCRIPTABLE "Enable Card Scripting Flags"

@@ -1,6 +1,13 @@
-# Makefile stuff for windows, included by Makefile
+_WIN_FILES=$(APP_CORE) src/libui.o src/drive-win.o $(addprefix $(CAMLIB_SRC)/,$(CAMLIB_CORE) libwpd.o)
+WIN_FILES=$(addsuffix .win.o,$(_WIN_FILES))
 
-WIN_FILES=$(APP_CORE) src/gtk.o src/appstore.o src/drive-win.o $(addprefix $(CAMLIB_SRC)/,$(CAMLIB_CORE) libwpd.o)
+MINGW=x86_64-w64-mingw32
+CC=$(MINGW)-gcc
+CPP=$(MINGW)-c++
+CFLAGS+=-I/home/daniel/Pulled/libui-ng
+CFLAGS+=-I$(CAMLIB_SRC)/
+
+LIBUI_A=/home/daniel/Pulled/libuiex/libui.a
 
 windows-gtk/win64-gtk-2021:
 	unzip windows-gtk/win64-gtk-2021.zip -d windows-gtk/win64-gtk-2021
@@ -20,29 +27,26 @@ $(DOWNLOADS)/libwpd_x86-$(LIBWPD_VER).dll:
 win.res: assets/win.rc
 	$(MINGW)-windres assets/win.rc -O coff -o win.res
 
-# Main windows targets, will compile a complete directory,
-# copy in DLLs, EXE, README, to a directory. Useful if you have virtualbox, or use WSL.
-win-gtk: win64-gtk-$(APP_NAME)
-win64-gtk-$(APP_NAME): MINGW=x86_64-w64-mingw32
-win64-gtk-$(APP_NAME): CC=$(MINGW)-gcc
-win64-gtk-$(APP_NAME): CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -I$(CAMLIB_SRC)/ -Iwindows-gtk/win64-gtk-2021/win32/include
-win64-gtk-$(APP_NAME): win.res windows-gtk/win64-gtk-2021 $(WIN_FILES) $(DOWNLOADS)/libwpd_x64-$(LIBWPD_VER).dll
-	rm -rf win64-gtk-$(APP_NAME)/
-	cp $(DOWNLOADS)/libwpd_x64-$(LIBWPD_VER).dll libwpd_x64.dll
-	-mkdir win64-gtk-$(APP_NAME)
-	$(CC) win.res $(WIN_FILES) windows-gtk/win64-gtk-2021/win32/lib/*.dll libwpd_x64.dll $(CFLAGS) -o win64-gtk-$(APP_NAME)/$(APP_NAME).exe
-	cp libwpd_x64.dll win64-gtk-$(APP_NAME)/libwpd.dll
-	cp windows-gtk/win64-gtk-2021/win32/lib/*.dll win64-gtk-$(APP_NAME)/
-	cp assets/README.txt win64-gtk-$(APP_NAME)/
+LIBS=-luser32 -lkernel32 -lgdi32 -lcomctl32 -luxtheme -lmsimg32 -lcomdlg32 -ld2d1 -ldwrite -lole32 -loleaut32 -loleacc
+LIBS+=-lstdc++ -lgcc -static -s -lpthread -lssp
+LIBS+=-lurlmon
 
-# 32 bit for all the ReactOS nerds to try
-win32-gtk: win32-gtk-$(APP_NAME)
-win32-gtk-$(APP_NAME): MINGW=i686-w64-mingw32
-win32-gtk-$(APP_NAME): CC=$(MINGW)-gcc
-win32-gtk-$(APP_NAME): CFLAGS=-s -lws2_32 -lkernel32 -lurlmon -I$(CAMLIB_SRC)/ -Iwindows-gtk/win32-gtk-2013/win32/include
-win32-gtk-$(APP_NAME): win.res windows-gtk/win32-gtk-2013 $(WIN_FILES) libwpd_x86.dll
-	-mkdir win32-gtk-$(APP_NAME)
-	$(CC) win.res $(WIN_FILES) windows-gtk/win32-gtk-2013/win32/lib/*.dll libwpd_x86.dll $(CFLAGS) -o win32-gtk-$(APP_NAME)/$(APP_NAME).exe
-	cp libwpd_x86.dll win32-gtk-$(APP_NAME)/libwpd.dll
-	cp windows-gtk/win32-gtk-2013/win32/lib/* win32-gtk-$(APP_NAME)/
-	cp assets/README.txt win32-gtk-$(APP_NAME)/
+# Remove cmd window from startup
+LIBS+=-mwindows
+
+win-gtk: $(APP_NAME).exe
+
+LIBWPD_A=/home/daniel/Documents/libwpd/libwpd_64.a
+
+$(APP_NAME).exe: $(WIN_FILES) win.res win.mak
+	$(CC) win.res $(WIN_FILES) $(LIBUI_A) $(LIBWPD_A) $(LIBS) -o $(APP_NAME).exe
+
+# Release targets:
+win64-gtk-$(APP_NAME).zip: win64-gtk-$(APP_NAME)
+	zip -r win64-gtk-$(APP_NAME).zip win64-gtk-$(APP_NAME)
+
+%.o.win.o: %.c
+	$(CC) -c $< $(CFLAGS) -o $@
+
+%.o.win.o: %.S
+	$(CC) -c $< $(CFLAGS) -o $@

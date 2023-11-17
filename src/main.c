@@ -104,5 +104,6 @@ int main(int argc, char *argv[]) {
 		}
 	}
 
+	puts("Starting main window...");
 	return app_main_window();
 }

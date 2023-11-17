@@ -1,6 +1,3 @@
 [submodule "camlib"]
 	path = camlib
 	url = https://github.com/petabyt/camlib
-[submodule "windows-gtk"]
-	path = windows-gtk
-	url = https://github.com/petabyt/windows-gtk

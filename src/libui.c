@@ -404,7 +404,7 @@ static uiControl *page_usb(void)
 
 		button = uiNewButton("Run command");
 		uiBoxAppend(vbox, uiControl(button), 0);
-		uiButtonOnClicked(button, app_disable_bootdisk, app_run_eventproc);
+		uiButtonOnClicked(button, app_run_eventproc, NULL);
 
 		app.usb_widgets[4] = label;
 		app.usb_widgets[5] = entry;
@@ -475,8 +475,10 @@ int app_main_window() {
 	uiBox *hbox;
 
 	memset(&o, 0, sizeof(uiInitOptions));
-	if (uiInit(&o) != NULL)
+	if (uiInit(&o) != NULL) {
+		puts("uiInit(&o) != NULL, abort");
 		abort();
+	}
 
 	w = uiNewWindow("MLinstall", 800, 500, 0);
 	uiWindowSetMargined(w, 1);

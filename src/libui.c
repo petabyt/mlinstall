@@ -25,17 +25,17 @@ struct AppGlobalState {
 
 static uiMultilineEntry *log_widget = NULL;
 
-void ui_connected_state();
-void ui_disconnected_state();
+void ui_connected_state(void *arg);
+void ui_disconnected_state(void *arg);
 
-void usb_disable_all() {
+void usb_disable_all(void *arg) {
 	for (int i = 0; i < (int)(sizeof(app.usb_widgets) / sizeof(void *)); i++) {
 		if (app.usb_widgets[i] == NULL) continue;
 		uiControlDisable(uiControl(app.usb_widgets[i]));
 	}
 }
 
-void usb_enable_all() {
+void usb_enable_all(void *arg) {
 	for (int i = 0; i < (int)(sizeof(app.usb_widgets) / sizeof(void *)); i++) {
 		if (app.usb_widgets[i] == NULL) continue;
 		uiControlEnable(uiControl(app.usb_widgets[i]));
@@ -157,7 +157,7 @@ void *app_connect_start_thread(void *arg) {
 	log_print("Connected to a camera");
 
 	app.is_connected = 1;
-	ui_connected_state();
+	uiQueueMain(ui_connected_state, NULL);
 
 	ptp_eos_set_remote_mode(r, 1);
 	ptp_eos_set_event_mode(r, 1);
@@ -218,6 +218,7 @@ void *app_connect_start_thread(void *arg) {
 
 		app.ticks++;
 
+		// TODO: don't run ui code in ptp thread
 		uiLabelSetText(app.title_text, buffer);
 
 		usleep(1000 * 200);
@@ -341,7 +342,7 @@ static void *app_disconnect(void *arg) {
 
 	ptp_mutex_unlock(&ptp_runtime);
 
-	ui_disconnected_state();
+	uiQueueMain(ui_disconnected_state, NULL);
 }
 
 int on_closing(uiWindow *w, void *data)
@@ -358,16 +359,16 @@ static void app_disconnect_thread(uiButton *b, void *data)
 	}
 }
 
-void ui_connected_state() {
+void ui_connected_state(void *arg) {
 	uiButtonSetText(app.connect_button, T_DISCONNECT);
 	uiButtonOnClicked(app.connect_button, app_disconnect_thread, NULL);
-	usb_enable_all();
+	usb_enable_all(NULL);
 }
 
-void ui_disconnected_state() {
+void ui_disconnected_state(void *arg) {
 	uiButtonSetText(app.connect_button, T_CONNECT);
 	uiButtonOnClicked(app.connect_button, app_connect_start, NULL);
-	usb_disable_all();	
+	usb_disable_all(NULL);
 }
 
 static uiControl *page_usb(void)
@@ -419,7 +420,7 @@ static uiControl *page_usb(void)
 		app.usb_widgets[6] = button;
 	}
 
-	ui_disconnected_state();
+	ui_disconnected_state(NULL);
 
 	return uiControl(vbox);
 }
@@ -529,7 +530,7 @@ int app_main_window() {
 
 	uiControlShow(uiControl(tab));
 
-	usb_disable_all();
+	usb_disable_all(NULL);
 
 	uiWindowOnClosing(w, on_closing, NULL);
 	uiControlShow(uiControl(w));

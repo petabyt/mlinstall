@@ -4,7 +4,6 @@ WIN_FILES=$(addsuffix .win.o,$(_WIN_FILES))
 MINGW=x86_64-w64-mingw32
 CC=$(MINGW)-gcc
 CPP=$(MINGW)-c++
-CFLAGS+=-I$(CAMLIB_SRC)/
 
 # External dependencies
 LIBWPD_A?=../libwpd/libwpd_64.a
@@ -47,3 +46,6 @@ win64-gtk-$(APP_NAME).zip: win64-gtk-$(APP_NAME)
 
 %.o.win.o: %.S
 	$(CC) -c $< $(CFLAGS) -o $@
+
+copy:
+	cp mlinstall.exe /mnt/c/Users/brikb/OneDrive/Desktop/

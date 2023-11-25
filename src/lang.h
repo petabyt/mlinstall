@@ -43,6 +43,7 @@
 #define T_GET_DEVICE_INFO "Show Camera Info"
 #define T_ENABLE_BOOT_DISK "Enable Custom Boot"
 #define T_DISABLE_BOOT_DISK "Disable Custom Boot"
+#define T_ABOUT_BOOTDISK "This will toggle a switch in your camera that\nallows it to boot custom software like Magic Lantern."
 
 #define T_CARD_STUFF_TITLE "This will automatically find and write to\na card named 'EOS_DIGITAL'."
 #define T_WRITE_CARD_BOOT_FLAGS "Enable Card Boot Flags"

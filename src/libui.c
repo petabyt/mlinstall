@@ -386,7 +386,7 @@ static uiControl *page_usb(void)
 	app.connect_button = button;
 	uiBoxAppend(vbox, uiControl(button), 0);
 
-	label = uiNewLabel("Lorem ipsum dolor sit amet, consectetur\nadipiscing elit.");
+	label = uiNewLabel(T_ABOUT_BOOTDISK);
 	uiBoxAppend(vbox, uiControl(label), 0);
 	button = uiNewButton(T_ENABLE_BOOT_DISK);
 	uiButtonOnClicked(button, app_enable_bootdisk, NULL);
@@ -394,8 +394,8 @@ static uiControl *page_usb(void)
 	app.usb_widgets[0] = button;
 	app.usb_widgets[1] = label;
 
-	label = uiNewLabel("Lorem ipsum dolor sit amet,consectetur\nadipiscing elit.");
-	uiBoxAppend(vbox, uiControl(label), 0);
+	//label = uiNewLabel("This will reset the camera to the factory state.");
+	//uiBoxAppend(vbox, uiControl(label), 0);
 	button = uiNewButton(T_DISABLE_BOOT_DISK);
 	uiButtonOnClicked(button, app_disable_bootdisk, NULL);
 	uiBoxAppend(vbox, uiControl(button), 0);
@@ -489,7 +489,7 @@ int app_main_window() {
 		abort();
 	}
 
-	w = uiNewWindow("MLinstall", 800, 500, 0);
+	w = uiNewWindow(T_APP_NAME, 800, 500, 0);
 	uiWindowSetMargined(w, 1);
 
 	hbox = uiNewHorizontalBox();

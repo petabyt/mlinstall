@@ -10,10 +10,6 @@
 #include "lang.h"
 #include "drive.h"
 
-/*
-malloc_consolidate(): unaligned fastbin chunk detected
-*/
-
 struct AppGlobalState {
 	void *connect_button;
 	void *usb_widgets[7];
@@ -188,14 +184,19 @@ void *app_connect_start_thread(void *arg) {
 		fw_version += 2;
 	}
 
-	log_print("Model:				%s", r->di->model);
-	log_print("Firmware Version:	%s", r->di->device_version);
-	log_print("Serial Number:		%s", r->di->serial_number);
+	log_print("Model: %s", r->di->model);
+	log_print("Firmware Version: %s", fw_version);
+	log_print("Serial Number: %s", r->di->serial_number);
 	if (shutter_count) {
-		log_print("Shutter count:		%d", shutter_count);
+		log_print("Shutter count: %d", shutter_count);
 	} else {
-		log_print("Shutter count:		??");
+		log_print("Shutter count: ??");
 	}
+
+	char build_version[16];
+	ptp_eos_fa_get_build_version(r, build_version, sizeof(build_version));
+
+	log_print("Build version: %s", build_version);
 
 	while (1) {
 		int rc = ptp_eos_get_event(r);
@@ -213,8 +214,11 @@ void *app_connect_start_thread(void *arg) {
 
 		if (length != 0) free(s);
 
+		// ASCII loading wheel - just like Minecraft!
+		char status_char = "-\\|/"[app.ticks % 4];
+
 		char buffer[32];
-		sprintf(buffer, T_APP_NAME " %c", "-\\|/"[app.ticks % 4]);
+		sprintf(buffer, T_APP_NAME " %c", status_char);
 
 		app.ticks++;
 
@@ -302,7 +306,7 @@ static void app_run_eventproc(uiButton *b, void *data) {
 		return;
 	}
 
-	// 'entry' will be leaked
+	// 'entry' will be leaked :)
 }
 
 static void app_enable_bootdisk(uiButton *b, void *data)
@@ -343,6 +347,8 @@ static void *app_disconnect(void *arg) {
 	ptp_mutex_unlock(&ptp_runtime);
 
 	uiQueueMain(ui_disconnected_state, NULL);
+
+	return NULL;
 }
 
 int on_closing(uiWindow *w, void *data)
@@ -475,6 +481,8 @@ static uiControl *page_about(void) {
 	return uiControl(vbox);
 }
 
+_UI_EXTERN void uiWindowSetIcon(uiWindow *w, const void *data, size_t length);
+
 int app_main_window() {
 	uiInitOptions o;
 	uiWindow *w;
@@ -491,6 +499,11 @@ int app_main_window() {
 
 	w = uiNewWindow(T_APP_NAME, 800, 500, 0);
 	uiWindowSetMargined(w, 1);
+
+	extern const char favicon_ico[] asm("favicon_ico");
+	extern size_t favicon_ico_length asm("favicon_ico_length");
+
+	uiWindowSetIcon(w, favicon_ico, favicon_ico_length);
 
 	hbox = uiNewHorizontalBox();
 	uiBoxSetPadded(hbox, 1);

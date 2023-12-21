@@ -1,0 +1,7 @@
+[Desktop Entry]
+Name=mlinstall
+Exec=mlinstall
+Icon=mlinstall
+Type=Application
+Categories=Utility
+StartupNotify=true

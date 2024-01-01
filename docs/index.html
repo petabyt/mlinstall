@@ -3,46 +3,47 @@
 <head>
 	<title>MLinstall</title>
 	<meta charset="UTF-8">
-	<link rel="icon" href="favicon.ico">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="icon" href="https://raw.githubusercontent.com/petabyt/mlinstall/master/assets/favicon.ico">
 	<link rel="stylesheet" type="text/css" href="lit.css">
 	<meta name="description" content="MLinstall is a free tool that helps with installing Magic Lantern.">
 </head>
 <body>
-<div class="c">
-	<h1>
-		<img src="https://raw.githubusercontent.com/petabyt/mlinstall/master/assets/mlinstall.png" width="30">
-		MLinstall | <a href="#downloads">Downloads</a> | <a href="https://github.com/petabyt/mlinstall">Source code</a>
-		| <a href="https://wiki.magiclantern.fm/mlinstall">Docs</a>
-	</h1>
+<div class="bg-dark">
+	<div class="c">
+	<div class="pv2 row nav">
+		<a href="."><img class="middle" src="https://raw.githubusercontent.com/petabyt/mlinstall/master/assets/mlinstall.png" width="30"></a>
+		<a href="#downloads">Downloads</a>
+		<a href="https://github.com/petabyt/mlinstall">Source code</a>
+		<a href="https://wiki.magiclantern.fm/mlinstall">Docs</a>
+	</div>
 
 	<div class="card">
 	<p>MLinstall is a free tool that helps install <a href="https://www.magiclantern.fm/">Magic Lantern</a> on Canon cameras. Currently, it can:</p>
 	<ul>
-		<li>Make a Canon camera bootable over USB - allowing Magic Lantern to run</li>
-		<li>Show camera info - shutter count, serial number, internal build number</li>
+		<li>Make a Canon camera <i>bootable</i> - allowing Magic Lantern to run</li>
+		<li>Show camera info - shutter count, serial number, internal build version</li>
 		<li>Prepare the SD/CF card and make it bootable (Write boot and script flags)</li>
-		<li>Restore the card flags to the default state - without reformatting</li>
+		<li>Restore the card flags to the default state, without reformatting</li>
 	</ul>
+	<p>All over USB, plug and play. Available for Windows, Linux, and MacOS.</p>
 	</div>
 
 	<img src="https://raw.githubusercontent.com/petabyt/mlinstall/master/assets/screenshot.png">
 
-	<h3>How to use MLinstall</h3>
-	<div class="card">
+	<h3>Guides</h3>
 	<ul>
 		<li><a href="https://wiki.magiclantern.fm/new-install">Guide on using MLinstall to install ML on 1300D / Rebel T6</a></li>
 		<li><a href="https://github.com/petabyt/mlinstall/issues">Report issues with MLinstall</a></li>
 	</ul>
-	</div>
 
 	<h3>Downloads</h3>
 	<p id="total">Loading...<br>
-	<a href="https://github.com/petabyt/mlinstall/releases">If you have JS disabled, then click here to visit the downloads</a></p>
-	Builds are available for x86_64 Windows and Linux.
+	<a href="https://github.com/petabyt/mlinstall/releases">Click here to visit the downloads</a></p>
 	<div id="downloads"></div>
 
 	<hr>
-	<p>Copyright (c) MLinstall 2021-2023 by Daniel Cook and contributors<br>
+	<p>Copyright (c) MLinstall 2021-2024 by Daniel Cook and contributors<br>
 	MLinstall is licensed under the GNU General Public License v2.0<br>
 	MLinstall is not affiliated with Canon</p>
 </div>
@@ -56,14 +57,13 @@ requester.onreadystatechange = function() {
 		data = JSON.parse(requester.responseText);
 		var total = 0;
 		for (var i = 0; i < data.length; i++) {
+			if (data[i].prerelease) continue;
 			var download = 0;
 			for (var x = 0; x < data[i].assets.length; x++) {
 				download += data[i].assets[x].download_count;
 			}
 
 			total += download;
-
-			console.log(data[i]);
 
 			var date = (new Date() - new Date(data[i].published_at)) / (1000 * 60 * 60 * 24);
 

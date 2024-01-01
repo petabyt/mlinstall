@@ -1,5 +1,23 @@
-body{font-family:sans-serif;background:#242424;color:white;}
-*{box-sizing:border-box}*+*{margin:.5em 0}pre{overflow:auto}@media(min-width:35em){.col{display:table-cell}.\31{width:5%}.\33{width:22%}.\34{width:30%}.\35{width:40%}.\32{width:15%}.\36{width:50%}.row{display:table;border-spacing:1em 0}}.row,.w-100{width:100%}.card:focus,hr{outline:0;border:solid #585858}.card,pre{padding:1em;border:solid #8f8f8f}.btn:hover,a:hover{opacity:.6}.c{max-width:60em;padding:1em;margin:auto;font:1em/1.6 sans-serif}h6{font:100 1em sans-serif}h5{font:100 1.2em sans-serif}h3{font:100 2em sans-serif}h4{font:100 1.5em sans-serif}h2{font:100 2.2em sans-serif}h1{font:100 2.5em sans-serif}a{color:#82bba8;text-decoration:none}.btn.primary{color:#fff;background:#262626;border:solid #233c91}td,th{padding:1em;text-align:left;border-bottom:solid #eee}.btn{padding:1em;text-transform:uppercase;background:#282828;border:solid;font:.7em sans-serif}
+html,body{
+background:#242424;
+}
+body{font-family:sans-serif;color:white;margin:0px;}
+*{box-sizing:border-box}*+*{margin:.5em 0}pre{overflow:auto}@media(min-width:35em){.col{display:table-cell}.\31{width:5%}.\33{width:22%}.\34{width:30%}.\35{width:40%}.\32{width:15%}.\36{width:50%}.row{display:table;border-spacing:1em 0}}.row,.w-100{width:100%}.card:focus,hr{outline:0;border:solid #585858}.card,pre{padding:1em;border:solid #8f8f8f}.btn:hover,a:hover{opacity:.6}.c{max-width:60em;padding:1em;margin:auto;font:1em/1.6 sans-serif}h6{font:100 1em sans-serif}h5{font:100 1.2em sans-serif}h3{font:100 2em sans-serif}h4{font:100 1.5em sans-serif}h2{font:100 2.2em sans-serif}h1{font:100 2.5em sans-serif}a{color:#82bba8;}.btn.primary{color:#fff;background:#262626;border:solid #233c91}td,th{padding:1em;text-align:left;border-bottom:solid #eee}.btn{padding:1em;text-transform:uppercase;background:#282828;border:solid;font:.7em sans-serif}
+.pv1{padding-top:.5em;padding-bottom:.5em}.pv2{padding-top:1em;padding-bottom:1em}.pv3{padding-top:2em;padding-bottom:2em;}
+.bg-dark{background:#242424;}
 .tc{text-align:center;}
 .card{background:#424242;}
-.t{margin-top:5px;margin-bottom:5px;}
+.btn,.nav a{text-decoration:none;}
+.vc{position:relative;top:40%;transform:perspective(1px) translateY(-45%)}.pill{border-radius:9999px;}
+img{max-width: 100%;}
+.vh-100{height:100vh;}
+.middle{vertical-align: middle;}
+.nav a {
+	color: white;
+	padding: 10px 16px;
+	text-decoration: none;
+}
+
+.nav img {
+	background: white;
+}

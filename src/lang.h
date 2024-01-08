@@ -4,7 +4,7 @@
 #define ML_LANG_H
 
 #ifndef T_APP_VERSION
-#define T_APP_VERSION "v0.1.1"
+#define T_APP_VERSION "v1.1.0"
 #endif
 
 #define T_APP_NAME "MLinstall"
@@ -58,6 +58,5 @@
 		"Source code: <a href='https://github.com/petabyt/mlinstall'>github.com/petabyt/mlinstall</a>\n\n" \
 		"Licenced under GNU General Public License v2.0\n" \
 		"If it breaks, you get to keep both pieces!"
-
 
 #endif

@@ -13,31 +13,34 @@ Download: https://github.com/petabyt/mlinstall/releases
 
 ## Roadmap
  - [x] Add shutter counter
- - [ ] Display FW and internal build version
+ - [x] Display FW and internal build version
  - [ ] Automatically connect to camera
  - [ ] Automatically detect card
  - [ ] Upload arbritrary files to the card (.bin, .mo, etc)
- - [ ] MacOS port (help needed)
+ - [x] MacOS port
  - [ ] Diagnostic + error reporting
 
 All pull requests/issues are welcome.
 
 ## Linux Compilation
-Clone with `--recurse-submodules`.
+- Clone with `--recurse-submodules`.
+- libui-cross is required - you can install it through https://github.com/petabyt/libui-cross
+- Required packages: `sudo apt install libusb-dev gcc libgtk-3-dev`
 ```
-# Install required packages:
-sudo apt install libusb-dev gcc libgtk-3-dev
-# Compile Linux GTK app
-make unix-gtk && ./unix-gtk
+make linux
 ```
-
-For releases, staticx (`pip3 install staticx`) is used to  
-convert dynamic executables to static. (functionally the same as AppImage)  
 
 ## Windows Compilation
-Mingw is required: `apt install gcc-mingw-w64-x86-64`. Other than that, the windows-gtk submodule has everything else needed to compile:
+- Mingw is required: `apt install gcc-mingw-w64-x86-64`.
+- libui-cross can be compiled and installed for cross-compilation on WSL/Linux
 ```
-make win64-gtk-mlinstall.zip
+make TARGET=w mlinstall.exe
 ```
+
+## MacOS Compilation
+- Can be compiled in [darling](https://darlinghq.org) for x86_64
+- libs: https://s1.danielc.dev/filedump/libs.tar.gz
+- TODO: more info
+- Does it work on M1?
 
 Licensed under GNU General Public License v2.0.  

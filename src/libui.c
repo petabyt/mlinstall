@@ -10,6 +10,8 @@
 #include "lang.h"
 #include "drive.h"
 
+#define EVENT_THREAD_INTERVAL_US (1000 * 200)
+
 struct AppGlobalState {
 	void *connect_button;
 	void *usb_widgets[7];
@@ -52,7 +54,7 @@ void log_print(char *format, ...)
 	va_list args;
 	va_start(args, format);
 	char buffer[1024];
-	vsnprintf(buffer, 1024, format, args);
+	vsnprintf(buffer, sizeof(buffer), format, args);
 	va_end(args);
 
 	if (log_widget == NULL) {
@@ -72,9 +74,11 @@ void log_clear()
 }
 
 void ptp_report_error(struct PtpRuntime *r, char *reason, int code) {
-	puts("Reported error");
+	printf("Reported error: %d", code);
+
 	if (r->io_kill_switch) return;
 	r->io_kill_switch = 1;
+
 	if (reason == NULL) {
 		if (code == PTP_IO_ERR) {
 			log_print("Disconnected: IO Error");
@@ -225,7 +229,7 @@ void *app_connect_start_thread(void *arg) {
 		// TODO: don't run ui code in ptp thread
 		uiLabelSetText(app.title_text, buffer);
 
-		usleep(1000 * 200);
+		usleep(EVENT_THREAD_INTERVAL_US);
 	}
 }
 
@@ -240,26 +244,24 @@ static void app_connect_start(uiButton *b, void *data) {
 static void *app_run_eventproc_thread(void *arg) {
 	log_clear();
 
-	const char *evproc = (const char *)(arg);
-
-	log_print("Running '%s'...", evproc);
+	log_print("Running '%s'...", arg);
 
 	int rc = ptp_eos_activate_command(&ptp_runtime);
 	if (rc) goto err;
 
-	rc = ptp_eos_evproc_run(&ptp_runtime, evproc);
+	rc = ptp_eos_evproc_run(&ptp_runtime, arg);
 	if (rc == PTP_IO_ERR) goto err;
 	int resp = ptp_get_return_code(&ptp_runtime);
 
 	log_print(T_RETURN_CODE_OK);
 
-	if (!strcmp(evproc, ENABLE_BOOT_DISK)) {
+	if (!strcmp(arg, ENABLE_BOOT_DISK)) {
 		if (rc) {
 			log_print(T_BOOT_DISK_ENABLE_FAIL);
 		} else {
 			log_print(T_BOOT_DISK_ENABLE_SUCCESS);
 		}
-	} else if (!strcmp(evproc, DISABLE_BOOT_DISK)) {
+	} else if (!strcmp(arg, DISABLE_BOOT_DISK)) {
 		if (rc) {
 			log_print(T_DISABLE_BOOT_DISK_FAIL);
 		} else {
@@ -283,8 +285,9 @@ static void *app_run_eventproc_thread(void *arg) {
 			log_print(T_UNKNOWN_ERROR);
 			break;
 		}
-
 	}
+
+	uiFreeText((char *)arg);
 
 	return (void *)0;
 
@@ -305,8 +308,6 @@ static void app_run_eventproc(uiButton *b, void *data) {
 	if (pthread_create(&thread, NULL, app_run_eventproc_thread, (void *)entry)) {
 		return;
 	}
-
-	// 'entry' will be leaked :)
 }
 
 static void app_enable_bootdisk(uiButton *b, void *data)
@@ -386,8 +387,8 @@ static uiControl *page_usb(void)
 	vbox = uiNewVerticalBox();
 	uiBoxSetPadded(vbox, 1);
 
-	// label = uiNewLabel("Camera not connected");
-	// uiBoxAppend(vbox, uiControl(label), 0);
+	label = uiNewLabel("Camera not connected");
+	uiBoxAppend(vbox, uiControl(label), 0);
 	button = uiNewButton(T_CONNECT);
 	app.connect_button = button;
 	uiBoxAppend(vbox, uiControl(button), 0);
@@ -439,6 +440,10 @@ static uiControl *page_card(void) {
 	vbox = uiNewVerticalBox();
 	uiBoxSetPadded(vbox, 1);
 
+#ifdef __APPLE__
+	uiBoxAppend(vbox, uiControl(uiNewLabel("MacOS drive formatting is\ncurrently not tested.")), 0);
+#else
+
 	label = uiNewLabel(T_CARD_STUFF_TITLE);
 	uiBoxAppend(vbox, uiControl(label), 0);
 	button = uiNewButton(T_WRITE_CARD_BOOT_FLAGS);
@@ -457,6 +462,8 @@ static uiControl *page_card(void) {
 	uiButtonOnClicked(button, app_destroy_script_flag, NULL);
 	uiBoxAppend(vbox, uiControl(button), 0);
 
+#endif
+
 	return uiControl(vbox);
 }
 
@@ -471,6 +478,7 @@ static uiControl *page_about(void) {
 	uiBoxAppend(vbox, uiControl(entry), 1);
 
 	uiMultilineEntryAppend(entry, "Written by Daniel Cook (https://danielc.dev/)\n");
+	uiMultilineEntryAppend(entry, "Version: " T_APP_VERSION "\nCompile date: " __DATE__ "\n");
 	uiMultilineEntryAppend(entry, T_APP_NAME " is licensed under the GPL2.0\n");
 	uiMultilineEntryAppend(entry, "https://github.com/petabyt/mlinstall\n");
 	uiMultilineEntryAppend(entry, "\nOpen Source Libraries:\n");
@@ -497,7 +505,7 @@ int app_main_window() {
 		abort();
 	}
 
-	w = uiNewWindow(T_APP_NAME, 800, 500, 0);
+	w = uiNewWindow(T_APP_NAME " " T_APP_VERSION, 800, 500, 0);
 	uiWindowSetMargined(w, 1);
 
 	extern const char favicon_ico[] asm("favicon_ico");

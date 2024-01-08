@@ -1,5 +1,5 @@
-_WIN_FILES=$(APP_CORE) src/libui.o src/drive-win.o $(addprefix $(CAMLIB_SRC)/,$(CAMLIB_CORE) libwpd.o)
-WIN_FILES=$(addsuffix .win.o,$(_WIN_FILES))
+WIN_FILES:=$(APP_CORE) src/libui.o src/drive-win.o $(addprefix $(CAMLIB_SRC)/,$(CAMLIB_CORE) libwpd.o)
+WIN_FILES:=$(call convert_target,$(WIN_FILES))
 
 MINGW=x86_64-w64-mingw32
 CC=$(MINGW)-gcc
@@ -7,8 +7,7 @@ CPP=$(MINGW)-c++
 
 # External dependencies
 LIBWPD_A?=../libwpd/libwpd_64.a
-LIBUI_A?=../libui-cross/libui.a
-CFLAGS+=-I../libui-cross -I.
+LIBUI_A?=/usr/x86_64-w64-mingw32/lib/libui.a
 
 LIBWPD_VER=0.1.4
 
@@ -32,20 +31,13 @@ LIBS+=-lurlmon
 # Remove cmd window from startup
 LIBS+=-Wl,-subsystem,windows
 
-windows: $(APP_NAME).exe
+windows: mlinstall.exe
 
-$(APP_NAME).exe: $(WIN_FILES) win.res win.mak $(DOWNLOADS)/libui_win64.a
-	$(CC) win.res $(WIN_FILES) $(DOWNLOADS)/libui_win64.a $(LIBWPD_A) $(LIBS) -o $(APP_NAME).exe
+mlinstall.exe: $(WIN_FILES) win.res win.mak $(DOWNLOADS)/libui_win64.a
+	$(CC) win.res $(WIN_FILES) $(LIBUI_A) $(LIBWPD_A) $(LIBS) -o $(APP_NAME).exe
 
-# Release targets:
-win64-gtk-$(APP_NAME).zip: win64-gtk-$(APP_NAME)
-	zip -r win64-gtk-$(APP_NAME).zip win64-gtk-$(APP_NAME)
-
-%.o.win.o: %.c
-	$(CC) -c $< $(CFLAGS) -o $@
-
-%.o.win.o: %.S
-	$(CC) -c $< $(CFLAGS) -o $@
+mlinstall_x86_64.exe: mlinstall.exe
+	cp mlinstall.exe mlinstall_x86_64.exe
 
 copy:
 	cp mlinstall.exe /mnt/c/Users/brikb/OneDrive/Desktop/

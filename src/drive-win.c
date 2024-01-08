@@ -69,7 +69,7 @@ void flag_write(long offset, char string[])
 
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
 	if (!WriteFile(d, bootsector, SIZE, &bytesRead, NULL)) {
-		printf("Error writing to drive: %d\n", GetLastError());
+		printf("Error writing to drive: %ld\n", GetLastError());
 		return;
 	}
 

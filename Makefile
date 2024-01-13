@@ -3,8 +3,7 @@ APP_NAME=mlinstall
 HOME?=/home/$(USER)
 DOWNLOADS?=$(HOME)/Downloads
 
-CAMLIB_SRC=src/cl_sym/src
-#CAMLIB_SRC=camlib/src
+CAMLIB_SRC?=camlib/src
 
 ifndef TARGET
 $(warning TARGET not defined, assuming Linux)
@@ -31,18 +30,19 @@ else
 $(info Unknown target $(TARGET))
 endif
 
+-include src/*.d camlib/src/*.d
+
 %.$(TARGET).o: %.c
-	$(CC) -c $< $(CFLAGS) -o $@
+	$(CC) -MMD -c $< $(CFLAGS) -o $@
 
 %.$(TARGET).o: %.S
 	$(CC) -c $< $(CFLAGS) -o $@
 
 distclean:
-	$(RM) -r src/*.o unix-gtk unix-cli win-gtk win-cli *.o *.out *.exe *.res gtk libusb $(CAMLIB_SRC)/*.o
+	$(RM) -r src/*.o camlib/src/*.o src/*.d camlib/src/*.d *.out *.exe *.res libusb $(CAMLIB_SRC)/*.o
 
-# Clean everything
 clean: distclean
-	rm -rf *.zip *.AppImage unix-gtk unix-tui unix-cli win64* win32* SD_BACKUP *.dll linux *.dylib AppDir *.tar.gz *.app
+	rm -rf *.zip *.AppImage win64* win32* SD_BACKUP *.dll linux *.dylib AppDir *.tar.gz *.app
 
 release:
 	make TARGET=w mlinstall_x86_64.exe

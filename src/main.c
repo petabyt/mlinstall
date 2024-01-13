@@ -16,9 +16,7 @@ int main (int argc, char ** argv) {
 	ptp_generic_init(&ptp_runtime);
 
 #ifdef _WIN32
-	// Redirect stdout
 	AttachConsole(-1);
-	//freopen("CONIN$", "r", stdin);
 	freopen("CONOUT$", "w", stdout);
 	freopen("CONOUT$", "w", stderr);
 #endif
@@ -41,10 +39,16 @@ int main (int argc, char ** argv) {
 			return 0;
 		} else if (!strcmp(argv[i], "--upload")) {
 			if (argc - i < 3) {
-				puts("Not enough args");
-				return -1;
+				puts("Invalid usage");
+				return 1;
 			}
-			if (ptp_connect_init()) return -1;
+
+			if (ptp_connect_init()) {
+				printf("%s\n", T_DEV_NOT_FOUND);
+				return 1;
+			}
+
+			printf("Uploading '%s' to cam as '%s'", argv[i + 1], argv[i + 2]);
 
 			int rc = ptp_chdk_upload_file(&ptp_runtime, argv[i + 1], argv[i + 2]);
 			if (rc) return rc;

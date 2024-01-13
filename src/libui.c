@@ -441,7 +441,7 @@ static uiControl *page_card(void) {
 	uiBoxSetPadded(vbox, 1);
 
 #ifdef __APPLE__
-	uiBoxAppend(vbox, uiControl(uiNewLabel("MacOS drive formatting is\ncurrently not tested.")), 0);
+	uiBoxAppend(vbox, uiControl(uiNewLabel("MacOS card editing is\ncurrently not tested.")), 0);
 #else
 
 	label = uiNewLabel(T_CARD_STUFF_TITLE);
@@ -485,6 +485,7 @@ static uiControl *page_about(void) {
 	uiMultilineEntryAppend(entry, "- camlib (Apache License)\n");
 	uiMultilineEntryAppend(entry, "- libwpd (MIT License)\n");
 	uiMultilineEntryAppend(entry, "- libui-ng (MIT License)\n");
+	uiMultilineEntryAppend(entry, "- libusb (LGPL v2.1)\n");
 
 	return uiControl(vbox);
 }

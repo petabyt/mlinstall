@@ -11,15 +11,6 @@ LIBUI_A?=/usr/x86_64-w64-mingw32/lib/libui.a
 
 LIBWPD_VER=0.1.4
 
-$(DOWNLOADS)/libwpd_x64-$(LIBWPD_VER).dll:
-	-wget -4 -nc https://github.com/petabyt/libwpd/releases/download/$(LIBWPD_VER)/libwpd_64.dll -O $(DOWNLOADS)/libwpd_x64-$(LIBWPD_VER).dll
-
-$(DOWNLOADS)/libwpd_x86-$(LIBWPD_VER).dll:
-	-wget -4 -nc https://github.com/petabyt/libwpd/releases/download/$(LIBWPD_VER)/libwpd_32.dll -O $(DOWNLOADS)/libwpd_x86-$(LIBWPD_VER).dll
-
-$(DOWNLOADS)/libui_win64.a:
-	-wget -4 -nc https://github.com/petabyt/libui-cross/raw/master/libui.a -O $(DOWNLOADS)/libui_win64.a
-
 # Contains app info, asset stuff
 win.res: assets/win.rc
 	$(MINGW)-windres assets/win.rc -O coff -o win.res
@@ -33,7 +24,7 @@ LIBS+=-Wl,-subsystem,windows
 
 windows: mlinstall.exe
 
-mlinstall.exe: $(WIN_FILES) win.res win.mak $(DOWNLOADS)/libui_win64.a
+mlinstall.exe: $(WIN_FILES) win.res win.mak $(LIBWPD_A) $(LIBUI_A)
 	$(CC) $(WIN_FILES) $(LIBUI_A) $(LIBWPD_A) win.res $(LIBS) -o $(APP_NAME).exe
 
 mlinstall_x86_64.exe: mlinstall.exe

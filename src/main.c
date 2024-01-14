@@ -8,6 +8,8 @@
 #include "app.h"
 #include "lang.h"
 
+int app_test();
+
 struct PtpRuntime ptp_runtime;
 int dev_flag = 0;
 static int attempts = 0;
@@ -54,11 +56,28 @@ int main (int argc, char ** argv) {
 			if (rc) return rc;
 
 			return ptp_connect_deinit();
+		} else if (!strcmp(argv[i], "--test")) {
+			if (app_test()) return 1;
+			if (app_test()) return 1;
+			if (app_test()) return 1;
+			return 1;
 		}
 	}
 
 	puts("Starting main window...");
 	return app_main_window();
+}
+
+int app_test() {
+	if (ptp_connect_init()) {
+		printf("%s\n", T_DEV_NOT_FOUND);
+		return 1;
+	}
+
+	// TODO: .. do some stress test 
+	puts("Connected");
+
+	return ptp_connect_deinit();
 }
 
 int ptp_connect_deinit() {

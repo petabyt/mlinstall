@@ -17,8 +17,8 @@
 #define T_ABOUT "About"
 #define T_CARD "Card"
 #define T_DEV_NOT_FOUND "Couldn't find a PTP/USB device."
-#define T_DRIVE_NOT_FOUND "Couldn't find card. Make sure\nthe EOS_DIGITAL card is mounted."
-#define T_DRIVE_NOT_SUPPORTED "Only ExFAT, FAT32, and FAT16\ncards are supported."
+#define T_DRIVE_NOT_FOUND "Couldn't find card. Make sure the EOS_DIGITAL card is mounted."
+#define T_DRIVE_NOT_SUPPORTED "Only ExFAT, FAT32, and FAT16 cards are supported."
 #define T_DRIVE_ERROR "Error opening drive."
 #define T_DRIVE_ERROR_LINUX "Make sure to run with sudo."
 #define T_WROTE_CARD_FLAGS "Wrote card flags on EOS_DIGITAL"
@@ -31,7 +31,7 @@
 #define T_DISABLE_BOOT_DISK_FAIL "Couldn't disable boot disk."
 #define T_DISABLE_BOOT_DISK_SUCCESS "Disabled boot disk"
 #define T_XML_TITLE_TEXT "<span size=\"large\">" T_APP_NAME "</span>\nTool to help install Magic Lantern"
-#define T_USB_STUFF_TITLE "This will run commands on your camera\nvia PTP/USB.\n"
+#define T_USB_STUFF_TITLE "This will run commands on your camera\nvia PTP/USB."
 
 #define T_RETURN_CODE_OK "Success!"
 #define T_RETURN_INVALID_PARAM "Error: invalid parameter."
@@ -50,6 +50,7 @@
 #define T_DESTROY_CARD_BOOT_FLAGS "Disable Card Boot Flags"
 #define T_MAKE_CARD_SCRIPTABLE "Enable Card Scripting Flags"
 #define T_MAKE_CARD_UNSCRIPTABLE "Disable Card Scripting Flags"
+#define T_DETECT_CARD_TITLE "Check for the EOS_DIGITAL card."
 #define T_DETECT_CARD "Detect EOS_DIGITAL"
 
 #define T_DEV_MODE_WARNING "Entering the wrong command can brick your\ncamera! Only use with guidance\nfrom a ML developer!"

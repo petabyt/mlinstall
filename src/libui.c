@@ -143,6 +143,19 @@ static void app_destroy_script_flag(uiButton *b, void *data)
 	}
 }
 
+static void ui_flip_status(void *data) {
+	// ASCII loading wheel - just like Minecraft!
+	char status_char = "-\\|/"[app.ticks % 4];
+
+	char buffer[32];
+	sprintf(buffer, T_APP_NAME " %c", status_char);
+
+	app.ticks++;
+
+	// TODO: don't run ui code in ptp thread
+	uiLabelSetText(app.title_text, buffer);
+}
+
 void *app_connect_start_thread(void *arg) {
 	log_clear();
 
@@ -218,16 +231,7 @@ void *app_connect_start_thread(void *arg) {
 
 		if (length != 0) free(s);
 
-		// ASCII loading wheel - just like Minecraft!
-		char status_char = "-\\|/"[app.ticks % 4];
-
-		char buffer[32];
-		sprintf(buffer, T_APP_NAME " %c", status_char);
-
-		app.ticks++;
-
-		// TODO: don't run ui code in ptp thread
-		uiLabelSetText(app.title_text, buffer);
+		uiQueueMain(ui_flip_status, NULL);
 
 		usleep(EVENT_THREAD_INTERVAL_US);
 	}
@@ -445,7 +449,6 @@ static uiControl *page_card(void) {
 #ifdef __APPLE__
 	uiBoxAppend(vbox, uiControl(uiNewLabel("MacOS card editing is\ncurrently not tested.")), 0);
 #else
-
 	label = uiNewLabel(T_CARD_STUFF_TITLE);
 	uiBoxAppend(vbox, uiControl(label), 0);
 	button = uiNewButton(T_WRITE_CARD_BOOT_FLAGS);
@@ -464,6 +467,10 @@ static uiControl *page_card(void) {
 	uiButtonOnClicked(button, app_destroy_script_flag, NULL);
 	uiBoxAppend(vbox, uiControl(button), 0);
 
+	uiBoxAppend(vbox, uiControl(uiNewLabel(T_DETECT_CARD_TITLE)), 0);
+	button = uiNewButton(T_DETECT_CARD);
+	uiButtonOnClicked(button, app_show_drive_info, NULL);
+	uiBoxAppend(vbox, uiControl(button), 0);
 #endif
 
 	return uiControl(vbox);

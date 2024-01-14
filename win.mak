@@ -6,7 +6,7 @@ CC=$(MINGW)-gcc
 CPP=$(MINGW)-c++
 
 # External dependencies
-LIBWPD_A?=../libwpd/libwpd_64.a
+LIBWPD_A?=/usr/x86_64-w64-mingw32/lib/libwpd.a
 LIBUI_A?=/usr/x86_64-w64-mingw32/lib/libui.a
 
 LIBWPD_VER=0.1.4
@@ -34,7 +34,7 @@ LIBS+=-Wl,-subsystem,windows
 windows: mlinstall.exe
 
 mlinstall.exe: $(WIN_FILES) win.res win.mak $(DOWNLOADS)/libui_win64.a
-	$(CC) win.res $(WIN_FILES) $(LIBUI_A) $(LIBWPD_A) $(LIBS) -o $(APP_NAME).exe
+	$(CC) $(WIN_FILES) $(LIBUI_A) $(LIBWPD_A) win.res $(LIBS) -o $(APP_NAME).exe
 
 mlinstall_x86_64.exe: mlinstall.exe
 	cp mlinstall.exe mlinstall_x86_64.exe

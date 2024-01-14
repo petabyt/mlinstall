@@ -103,6 +103,8 @@ int ptp_connect_init() {
 	rc = ptp_device_open(&ptp_runtime, selected);
 #endif
 
+	attempts = 0;
+
 	rc = ptp_open_session(&ptp_runtime);
 	if (rc) {
 		return rc;

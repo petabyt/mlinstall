@@ -15,7 +15,7 @@ convert_target=$(patsubst %.o,%.$(TARGET).o,$1)
 APP_CORE=$(addprefix src/,main.o drive.o installer.o model.o platform.o ptp.o data.o)
 CAMLIB_CORE=operations.o packet.o enums.o canon_adv.o data.o enum_dump.o lib.o canon.o ml.o liveview.o bind.o generic.o no_ip.o conv.o
 
-CFLAGS=-Wall -Wpedantic -I$(CAMLIB_SRC) -I../libui-cross/
+CFLAGS=-Wall -Wpedantic -I$(CAMLIB_SRC) -I../libui-cross/ -O2 -g
 
 ifeq ($(TARGET),l)
 $(info Running Linux build)

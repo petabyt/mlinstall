@@ -74,7 +74,7 @@ void log_clear()
 }
 
 void ptp_report_error(struct PtpRuntime *r, char *reason, int code) {
-	printf("Reported error: %d", code);
+	printf("Reported error: %d\n", code);
 
 	if (r->io_kill_switch) return;
 	r->io_kill_switch = 1;
@@ -337,6 +337,7 @@ static void app_show_drive_info(uiButton *b, void *data)
 }
 
 static void *app_disconnect(void *arg) {
+	// Block PTP operations while closing down
 	ptp_mutex_keep_locked(&ptp_runtime);
 
 	ptp_close_session(&ptp_runtime);
@@ -345,6 +346,7 @@ static void *app_disconnect(void *arg) {
 
 	ptp_device_close(&ptp_runtime);
 
+	// killswitch is back on, we can unlock now
 	ptp_mutex_unlock(&ptp_runtime);
 
 	uiQueueMain(ui_disconnected_state, NULL);
@@ -500,6 +502,7 @@ int app_main_window() {
 	uiTab *tab;
 	uiBox *hbox;
 
+	// libui sets this thread as "single-thread apartment"
 	memset(&o, 0, sizeof(uiInitOptions));
 	if (uiInit(&o) != NULL) {
 		puts("uiInit(&o) != NULL, abort");

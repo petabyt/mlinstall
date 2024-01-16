@@ -28,7 +28,6 @@ mac.out: $(FILES)
 mlinstall-x86_64.AppImage: linux.out
 	linuxdeploy --appdir=AppDir --executable=linux.out -d assets/mlinstall.desktop -i assets/mlinstall.png
 	appimagetool AppDir
-	rm mlinstall
 
 .PHONY: pkg
 pkg: mac.out

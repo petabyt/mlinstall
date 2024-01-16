@@ -1,7 +1,4 @@
-// Common filesystem drive code for Unix
-// fopen/fwrite/fseek Works on Windows,
-// just but won't write to the drive, so we
-// have to rewrite everything :)
+// Common filesystem drive code for Linux/Darwin
 
 #ifdef WIN32
 	#error "not windows code"

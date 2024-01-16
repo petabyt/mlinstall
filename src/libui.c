@@ -10,6 +10,7 @@
 #include "lang.h"
 #include "drive.h"
 
+// 200ms event thread loop
 #define EVENT_THREAD_INTERVAL_US (1000 * 200)
 
 struct AppGlobalState {
@@ -152,7 +153,6 @@ static void ui_flip_status(void *data) {
 
 	app.ticks++;
 
-	// TODO: don't run ui code in ptp thread
 	uiLabelSetText(app.title_text, buffer);
 }
 
@@ -360,6 +360,7 @@ static void *app_disconnect(void *arg) {
 
 int on_closing(uiWindow *w, void *data)
 {
+	// TODO: close down threads
 	uiQuit();
 	return 1;
 }
@@ -393,8 +394,8 @@ static uiControl *page_usb(void)
 	vbox = uiNewVerticalBox();
 	uiBoxSetPadded(vbox, 1);
 
-	label = uiNewLabel("Camera not connected");
-	uiBoxAppend(vbox, uiControl(label), 0);
+	//label = uiNewLabel("Camera not connected");
+	//uiBoxAppend(vbox, uiControl(label), 0);
 	button = uiNewButton(T_CONNECT);
 	app.connect_button = button;
 	uiBoxAppend(vbox, uiControl(button), 0);

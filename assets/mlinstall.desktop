@@ -1,6 +1,6 @@
 [Desktop Entry]
 Name=mlinstall
-Exec=mlinstall
+Exec=linux.out
 Icon=mlinstall
 Type=Application
 Categories=Utility

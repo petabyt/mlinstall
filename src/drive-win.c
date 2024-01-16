@@ -1,26 +1,23 @@
-// Windows fileapi based code
-#ifdef WIN32
+// fopen/fwrite/fseek works on Windows, just but won't write to the drive, so this
+// is a separate implementation
 
 #include <stdio.h>
 #include <windows.h>
 
-BOOL IsUserAnAdmin();
-
 #include "drive.h"
 #include "exfat.h"
 
-// Bootsector size
-#define SIZE 512
+#define BOOTSECTOR_SIZE 512
 
-char bootsector[SIZE];
-DWORD bytesRead = 0;
+static char bootsector[BOOTSECTOR_SIZE];
+static DWORD bytesRead = 0;
 
-HANDLE d;
+static HANDLE d;
 
 int drive_getfs()
 {
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
-	ReadFile(d, bootsector, SIZE, &bytesRead, NULL);
+	ReadFile(d, bootsector, BOOTSECTOR_SIZE, &bytesRead, NULL);
 
 	if (!strncmp(bootsector + 54, "FAT16   ", 8)) {
 		return FAT16;
@@ -47,7 +44,7 @@ static int exfat_write(int location, int length, void *bytes)
 
 	// Write to specific spot in 
 	SetFilePointer(d, sector, NULL, FILE_BEGIN);
-	ReadFile(d, bootsector, SIZE, &bytesRead, NULL);
+	ReadFile(d, bootsector, BOOTSECTOR_SIZE, &bytesRead, NULL);
 	memcpy(bootsector + (offset % 512), bytes, length);
 	SetFilePointer(d, sector, NULL, FILE_BEGIN);
 	WriteFile(d, bootsector, 512, &bytesRead, NULL);
@@ -60,7 +57,7 @@ void flag_write(long offset, char string[])
 	char old_flag[16] = { 0 };
 
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
-	ReadFile(d, bootsector, SIZE, &bytesRead, NULL);
+	ReadFile(d, bootsector, BOOTSECTOR_SIZE, &bytesRead, NULL);
 
 	memcpy(old_flag, bootsector + offset, strlen(string) % sizeof(old_flag));
 	printf("Current Flag: %s\n", old_flag);
@@ -68,7 +65,7 @@ void flag_write(long offset, char string[])
 	printf("New Flag:     %s\n", string);
 
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
-	if (!WriteFile(d, bootsector, SIZE, &bytesRead, NULL)) {
+	if (!WriteFile(d, bootsector, BOOTSECTOR_SIZE, &bytesRead, NULL)) {
 		printf("Error writing to drive: %ld\n", GetLastError());
 		return;
 	}
@@ -189,5 +186,3 @@ void drive_dump(char name[]) {
 	fwrite(dump, 1, TEMP_DUMP_SIZE, f);
 	fclose(f);
 }
-
-#endif

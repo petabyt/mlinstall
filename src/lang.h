@@ -17,6 +17,7 @@
 #define T_ABOUT "About"
 #define T_CARD "Card"
 #define T_DEV_NOT_FOUND "Couldn't find a PTP/USB device."
+#define T_CANON_NOT_FOUND_FMT "No Canon device found (%d)"
 #define T_DRIVE_NOT_FOUND "Couldn't find card. Make sure the EOS_DIGITAL card is mounted."
 #define T_DRIVE_NOT_SUPPORTED "Only ExFAT, FAT32, and FAT16 cards are supported."
 #define T_DRIVE_ERROR "Error opening drive."

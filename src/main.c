@@ -50,17 +50,20 @@ int main (int argc, char ** argv) {
 				return 1;
 			}
 
-			printf("Uploading '%s' to cam as '%s'", argv[i + 1], argv[i + 2]);
+			printf("Uploading '%s' to cam as '%s'\n", argv[i + 1], argv[i + 2]);
 
 			int rc = ptp_chdk_upload_file(&ptp_runtime, argv[i + 1], argv[i + 2]);
 			if (rc) return rc;
 
+			printf("File uploaded\n");
+
 			return ptp_connect_deinit();
 		} else if (!strcmp(argv[i], "--test")) {
-			if (app_test()) return 1;
-			if (app_test()) return 1;
-			if (app_test()) return 1;
-			return 1;
+			if (app_test()) {
+				puts("Test failed\n");
+				return 1;
+			}
+			return 0;
 		}
 	}
 
@@ -69,15 +72,19 @@ int main (int argc, char ** argv) {
 }
 
 int app_test() {
-	if (ptp_connect_init()) {
-		printf("%s\n", T_DEV_NOT_FOUND);
-		return 1;
+	for (int i = 0; i < 3; i++) {
+		if (ptp_connect_init()) {
+			printf("%s\n", T_DEV_NOT_FOUND);
+			return 1;
+		}
+
+		// TODO: .. do some stress test 
+		puts("Connected");
+
+		if (ptp_connect_deinit()) return 1;
 	}
 
-	// TODO: .. do some stress test 
-	puts("Connected");
-
-	return ptp_connect_deinit();
+	return 0;
 }
 
 int ptp_connect_deinit() {
@@ -97,8 +104,8 @@ int ptp_connect_init() {
 	// For LibWPD, this will work just fine to detect cameras
 	rc = ptp_device_init(&ptp_runtime);
 	if (rc) {
-		log_print(T_DEV_NOT_FOUND);
-		return rc;
+		log_print(T_CANON_NOT_FOUND_FMT, attempts - 1);
+		return PTP_NO_DEVICE;
 	}
 #else
 	// TODO: libWPD doesn't have this yet
@@ -115,7 +122,7 @@ int ptp_connect_init() {
 	}
 
 	if (selected == NULL) {
-		log_print("No Canon device found (%d)", attempts - 1);
+		log_print(T_CANON_NOT_FOUND_FMT, attempts - 1);
 		return PTP_NO_DEVICE;
 	}
 

@@ -46,5 +46,7 @@ clean: distclean
 
 release:
 	make TARGET=w mlinstall_x86_64.exe
+	make TARGET=l mlinstall-x86_64.AppImage
+	darling shell -c "make TARGET=m pkg" && tar -czf mlinstall-mac-x86_64.app.tar.gz mlinstall.app
 
 .PHONY: clean clean-out release win32-gtk win64-gtk all style

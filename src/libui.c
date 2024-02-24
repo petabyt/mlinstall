@@ -291,7 +291,8 @@ static void *app_run_eventproc_thread(void *arg) {
 		}
 	}
 
-	uiFreeText((char *)arg);
+	// TODO: Will leak only in developer mode
+	//uiFreeText((char *)arg);
 
 	return (void *)0;
 
@@ -448,7 +449,7 @@ static uiControl *page_card(void) {
 	uiBoxSetPadded(vbox, 1);
 
 #ifdef __APPLE__
-	uiBoxAppend(vbox, uiControl(uiNewLabel("MacOS card editing is\ncurrently not tested.")), 0);
+	uiBoxAppend(vbox, uiControl(uiNewLabel("MacOS card editing is\ncurrently not supported.")), 0);
 #else
 	label = uiNewLabel(T_CARD_STUFF_TITLE);
 	uiBoxAppend(vbox, uiControl(label), 0);

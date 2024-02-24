@@ -1,12 +1,12 @@
 // Common filesystem drive code for Linux/Darwin
+// Untested on Mac OS
 
 #ifdef WIN32
 	#error "not windows code"
 #endif
 
 // Uses shell commands: mount cat grep awk
-// It's technically not bad practice, some GNU coreutils
-// do the same thing I think.
+// some GNU coreutils seem to do the same thing
 
 #include <stdio.h>
 #include <stdlib.h>
@@ -141,7 +141,6 @@ int drive_openfs()
 		return DRIVE_ERROR;
 	}
 
-	// Unmount to prevent other processes from writing to it
 	char drive[128];
 	drive_get_usable(drive, sizeof(drive));
 #ifdef __APPLE__

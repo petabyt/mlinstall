@@ -13,6 +13,11 @@ jobs:
     - uses: actions/checkout@v3
       with:
         submodules: recursive
+
+    - name: Quick install libui-ng
+      run: |
+        sudo wget https://github.com/petabyt/libui-cross/releases/download/2/libui.so -O /usr/local/lib/x86_64-linux-gnu/libui.so
+        sudo wget https://raw.githubusercontent.com/libui-ng/libui-ng/master/ui.h -O /usr/local/include/ui.h  
       
     - name: Checkout submodules
       run: git submodule update --init --recursive

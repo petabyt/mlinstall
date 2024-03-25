@@ -1,22 +1,18 @@
-# mlinstall
+# MLinstall
 A Windows/Linux app to assist with installing Magic Lantern.  
 Download: https://github.com/petabyt/mlinstall/releases  
 
 ![screenshot](assets/screenshot.png)
 
 ## Features
-- Make camera bootable over USB (replacing custom signed firmware files)
+- Make camera bootable over USB (alternative to Magic Lantern's custom .FW files)
 - Get firmware & build version, get shutter actuation count, other info
-- Write memory card boot and script flags - all existing functionality of EOSCard
+- Write memory card boot and script flags (FAT16/32/ExFAT)
 - Clear card flags without reformattting
-- ~~App Store: Downloads and installs modules on SD card~~ removed for now
 
-## Roadmap
+## Long-term roadmap
  - [x] Add shutter counter
  - [x] Display FW and internal build version
- - [ ] Automatically connect to camera
- - [ ] Automatically detect card
- - [ ] Upload arbritrary files to the card (.bin, .mo, etc)
  - [x] MacOS port
  - [ ] Diagnostic + error reporting
 
@@ -24,10 +20,10 @@ All pull requests/issues are welcome.
 
 ## Linux Compilation
 - Clone with `--recurse-submodules`.
-- libui-cross is required - you can install it through https://github.com/petabyt/libui-cross
+- libui-ng is required - you can install it through https://github.com/petabyt/libui-cross
 - Required packages: `sudo apt install libusb-dev gcc libgtk-3-dev`
 ```
-make linux
+make TARGET=l linux.out
 ```
 
 ## Windows Compilation

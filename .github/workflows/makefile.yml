@@ -21,22 +21,22 @@ jobs:
       run: sudo apt install libusb-1.0-0-dev gcc libgtk-3-dev
     
     - name: Compile
-      run: make unix-gtk
+      run: make TARGET=l linux.out
 
-  macOS-build:
-    runs-on: macos-latest
-    steps:
-    - uses: actions/checkout@v3
-      with:
-        submodules: recursive
-      
-    - name: Checkout submodules
-      run: git submodule update --init --recursive
-
-    - uses: actions/checkout@v3
-
-    - name: Install dependencies
-      run: brew install gtk+3 libusb
-
-    - name: Build
-      run: make unix-gtk
+#  macOS-build:
+#    runs-on: macos-latest
+#    steps:
+#    - uses: actions/checkout@v3
+#      with:
+#        submodules: recursive
+#      
+#    - name: Checkout submodules
+#      run: git submodule update --init --recursive
+#
+#    - uses: actions/checkout@v3
+#
+#    - name: Install dependencies
+#      run: brew install gtk+3 libusb
+#
+#    - name: Build
+#      run: make unix-gtk

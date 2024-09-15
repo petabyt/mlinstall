@@ -108,7 +108,7 @@ int ptp_connect_init() {
 		return PTP_NO_DEVICE;
 	}
 #else
-	// TODO: libWPD doesn't have this yet
+	// TODO: libWPD doesn't have ptpusb_device_list yet
 	ptp_comm_init(&ptp_runtime);
 
 	struct PtpDeviceEntry *list = ptpusb_device_list(&ptp_runtime);

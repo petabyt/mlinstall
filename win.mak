@@ -16,8 +16,7 @@ win.res: assets/win.rc
 	$(MINGW)-windres assets/win.rc -O coff -o win.res
 
 LIBS=-luser32 -lkernel32 -lgdi32 -lcomctl32 -luxtheme -lmsimg32 -lcomdlg32 -ld2d1 -ldwrite -lole32 -loleaut32 -loleacc
-LIBS+=-lstdc++ -lgcc -static -s -lpthread -lssp
-LIBS+=-lurlmon
+LIBS+=-lstdc++ -lgcc -static -lpthread -lssp -lurlmon -luuid
 
 # Remove cmd window from startup
 LIBS+=-Wl,-subsystem,windows
@@ -25,7 +24,7 @@ LIBS+=-Wl,-subsystem,windows
 windows: mlinstall.exe
 
 mlinstall.exe: $(WIN_FILES) win.res win.mak $(LIBWPD_A) $(LIBUI_A)
-	$(CC) $(WIN_FILES) $(LIBUI_A) $(LIBWPD_A) win.res $(LIBS) -o $(APP_NAME).exe
+	$(CC) $(WIN_FILES) $(LIBUI_A) $(LIBWPD_A) win.res $(LIBS) -s -o $(APP_NAME).exe
 
 mlinstall_x86_64.exe: mlinstall.exe
 	cp mlinstall.exe mlinstall_x86_64.exe

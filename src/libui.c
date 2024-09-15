@@ -361,7 +361,7 @@ static void *app_disconnect(void *arg) {
 
 int on_closing(uiWindow *w, void *data)
 {
-	// TODO: close down threads
+	// TODO: close down threads and connection
 	uiQuit();
 	return 1;
 }

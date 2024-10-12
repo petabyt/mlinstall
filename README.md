@@ -1,5 +1,5 @@
 # MLinstall
-A Windows/Linux app to assist with installing Magic Lantern.  
+A Windows/Linux/Mac app to assist with installing Magic Lantern.  
 Download: https://github.com/petabyt/mlinstall/releases  
 
 ![screenshot](assets/screenshot.png)
@@ -9,14 +9,8 @@ Download: https://github.com/petabyt/mlinstall/releases
 - Get firmware & build version, get shutter actuation count, other info
 - Write memory card boot and script flags (FAT16/32/ExFAT)
 - Clear card flags without reformattting
-
-## Long-term roadmap
- - [x] Add shutter counter
- - [x] Display FW and internal build version
- - [x] MacOS port
- - [ ] Diagnostic + error reporting
-
-All pull requests/issues are welcome.
+- Shutter counter
+- Shows internal FW build version
 
 ## Linux Compilation
 - Clone with `--recurse-submodules`.
@@ -36,7 +30,5 @@ make TARGET=w mlinstall.exe
 ## MacOS Compilation
 - Can be compiled in [darling](https://darlinghq.org) for x86_64
 - libs: https://s1.danielc.dev/filedump/libs.tar.gz
-- TODO: more info
-- Does it work on M1?
 
 Licensed under GNU General Public License v2.0.  

@@ -1,4 +1,4 @@
-// Cheap i18n until we need it
+// All the ui strings if we ever need i18n
 
 #ifndef ML_LANG_H
 #define ML_LANG_H
@@ -31,7 +31,6 @@
 #define T_BOOT_DISK_ENABLE_SUCCESS "Enabled boot disk"
 #define T_DISABLE_BOOT_DISK_FAIL "Couldn't disable boot disk."
 #define T_DISABLE_BOOT_DISK_SUCCESS "Disabled boot disk"
-#define T_XML_TITLE_TEXT "<span size=\"large\">" T_APP_NAME "</span>\nTool to help install Magic Lantern"
 #define T_USB_STUFF_TITLE "This will run commands on your camera\nvia PTP/USB."
 
 #define T_RETURN_CODE_OK "Success!"

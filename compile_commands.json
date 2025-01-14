@@ -1,0 +1,439 @@
+[
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "src/main.x86_64-linux-gnu.o",
+      "src/main.c"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/src/main.c",
+    "output": "/home/daniel/Documents/mlinstall/src/main.x86_64-linux-gnu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "src/drive.x86_64-linux-gnu.o",
+      "src/drive.c"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/src/drive.c",
+    "output": "/home/daniel/Documents/mlinstall/src/drive.x86_64-linux-gnu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "src/model.x86_64-linux-gnu.o",
+      "src/model.c"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/src/model.c",
+    "output": "/home/daniel/Documents/mlinstall/src/model.x86_64-linux-gnu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "src/ptp.x86_64-linux-gnu.o",
+      "src/ptp.c"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/src/ptp.c",
+    "output": "/home/daniel/Documents/mlinstall/src/ptp.x86_64-linux-gnu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "src/data.x86_64-linux-gnu.o",
+      "src/data.S"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/src/data.S",
+    "output": "/home/daniel/Documents/mlinstall/src/data.x86_64-linux-gnu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "src/libui.x86_64-linux-gnu.o",
+      "src/libui.c"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/src/libui.c",
+    "output": "/home/daniel/Documents/mlinstall/src/libui.x86_64-linux-gnu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "src/drive-unix.x86_64-linux-gnu.o",
+      "src/drive-unix.c"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/src/drive-unix.c",
+    "output": "/home/daniel/Documents/mlinstall/src/drive-unix.x86_64-linux-gnu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "camlib/src/transport.x86_64-linux-gnu.o",
+      "camlib/src/transport.c"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/camlib/src/transport.c",
+    "output": "/home/daniel/Documents/mlinstall/camlib/src/transport.x86_64-linux-gnu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "camlib/src/operations.x86_64-linux-gnu.o",
+      "camlib/src/operations.c"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/camlib/src/operations.c",
+    "output": "/home/daniel/Documents/mlinstall/camlib/src/operations.x86_64-linux-gnu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "camlib/src/packet.x86_64-linux-gnu.o",
+      "camlib/src/packet.c"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/camlib/src/packet.c",
+    "output": "/home/daniel/Documents/mlinstall/camlib/src/packet.x86_64-linux-gnu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "camlib/src/enums.x86_64-linux-gnu.o",
+      "camlib/src/enums.c"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/camlib/src/enums.c",
+    "output": "/home/daniel/Documents/mlinstall/camlib/src/enums.x86_64-linux-gnu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "camlib/src/data.x86_64-linux-gnu.o",
+      "camlib/src/data.c"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/camlib/src/data.c",
+    "output": "/home/daniel/Documents/mlinstall/camlib/src/data.x86_64-linux-gnu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "camlib/src/enum_dump.x86_64-linux-gnu.o",
+      "camlib/src/enum_dump.c"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/camlib/src/enum_dump.c",
+    "output": "/home/daniel/Documents/mlinstall/camlib/src/enum_dump.x86_64-linux-gnu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "camlib/src/lib.x86_64-linux-gnu.o",
+      "camlib/src/lib.c"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/camlib/src/lib.c",
+    "output": "/home/daniel/Documents/mlinstall/camlib/src/lib.x86_64-linux-gnu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "camlib/src/canon.x86_64-linux-gnu.o",
+      "camlib/src/canon.c"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/camlib/src/canon.c",
+    "output": "/home/daniel/Documents/mlinstall/camlib/src/canon.x86_64-linux-gnu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "camlib/src/liveview.x86_64-linux-gnu.o",
+      "camlib/src/liveview.c"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/camlib/src/liveview.c",
+    "output": "/home/daniel/Documents/mlinstall/camlib/src/liveview.x86_64-linux-gnu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "camlib/src/bind.x86_64-linux-gnu.o",
+      "camlib/src/bind.c"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/camlib/src/bind.c",
+    "output": "/home/daniel/Documents/mlinstall/camlib/src/bind.x86_64-linux-gnu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "camlib/src/ml.x86_64-linux-gnu.o",
+      "camlib/src/ml.c"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/camlib/src/ml.c",
+    "output": "/home/daniel/Documents/mlinstall/camlib/src/ml.x86_64-linux-gnu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "camlib/src/conv.x86_64-linux-gnu.o",
+      "camlib/src/conv.c"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/camlib/src/conv.c",
+    "output": "/home/daniel/Documents/mlinstall/camlib/src/conv.x86_64-linux-gnu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "camlib/src/generic.x86_64-linux-gnu.o",
+      "camlib/src/generic.c"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/camlib/src/generic.c",
+    "output": "/home/daniel/Documents/mlinstall/camlib/src/generic.x86_64-linux-gnu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "camlib/src/canon_adv.x86_64-linux-gnu.o",
+      "camlib/src/canon_adv.c"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/camlib/src/canon_adv.c",
+    "output": "/home/daniel/Documents/mlinstall/camlib/src/canon_adv.x86_64-linux-gnu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "camlib/src/no_ip.x86_64-linux-gnu.o",
+      "camlib/src/no_ip.c"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/camlib/src/no_ip.c",
+    "output": "/home/daniel/Documents/mlinstall/camlib/src/no_ip.x86_64-linux-gnu.o"
+  },
+  {
+    "arguments": [
+      "/usr/bin/x86_64-linux-gnu-gcc",
+      "-c",
+      "-Wall",
+      "-Wpedantic",
+      "-Icamlib/src",
+      "-I../libui-cross/",
+      "-O2",
+      "-g",
+      "-I/usr/include/libusb-1.0",
+      "-o",
+      "camlib/src/libusb.x86_64-linux-gnu.o",
+      "camlib/src/libusb.c"
+    ],
+    "directory": "/home/daniel/Documents/mlinstall",
+    "file": "/home/daniel/Documents/mlinstall/camlib/src/libusb.c",
+    "output": "/home/daniel/Documents/mlinstall/camlib/src/libusb.x86_64-linux-gnu.o"
+  }
+]

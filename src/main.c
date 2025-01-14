@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-
+#include <camlib.h>
 #ifdef _WIN32
 #include <windows.h>
 #endif
@@ -100,16 +100,15 @@ int ptp_connect_init() {
 	attempts++;
 
 	int rc;
-#ifdef WIN32
+#if 0
 	// For LibWPD, this will work just fine to detect cameras
 	rc = ptp_device_init(&ptp_runtime);
 	if (rc) {
 		log_print(T_CANON_NOT_FOUND_FMT, attempts - 1);
 		return PTP_NO_DEVICE;
 	}
-#else
+#endif
 	// TODO: libWPD doesn't have ptpusb_device_list yet
-	ptp_comm_init(&ptp_runtime);
 
 	struct PtpDeviceEntry *list = ptpusb_device_list(&ptp_runtime);
 
@@ -127,7 +126,6 @@ int ptp_connect_init() {
 	}
 
 	rc = ptp_device_open(&ptp_runtime, selected);
-#endif
 
 	attempts = 0;
 

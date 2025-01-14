@@ -3,15 +3,12 @@
 #include <stdlib.h>
 #include <time.h>
 #include <stdarg.h>
-
+#include <pthread.h>
 #include <ui.h>
 #include <camlib.h>
 #include "app.h"
 #include "lang.h"
 #include "drive.h"
-
-// 200ms event thread loop
-#define EVENT_THREAD_INTERVAL_US (1000 * 200)
 
 struct AppGlobalState {
 	void *connect_button;
@@ -188,7 +185,7 @@ void *app_connect_start_thread(void *arg) {
 
 	length = ptp_eos_events(r, &s);
 	for (int i = 0; i < length; i++) {
-		if (s[i].code == PTP_PC_EOS_ShutterCounter) {
+		if (s[i].code == PTP_DPC_EOS_ShutterCounter) {
 			shutter_count = s[i].value;
 		}
 	}
@@ -233,7 +230,7 @@ void *app_connect_start_thread(void *arg) {
 
 		uiQueueMain(ui_flip_status, NULL);
 
-		usleep(EVENT_THREAD_INTERVAL_US);
+		usleep(1000 * 200);
 	}
 }
 
@@ -343,7 +340,7 @@ static void app_show_drive_info(uiButton *b, void *data)
 
 static void *app_disconnect(void *arg) {
 	// Block PTP operations while closing down
-	ptp_mutex_keep_locked(&ptp_runtime);
+	ptp_mutex_lock(&ptp_runtime);
 
 	ptp_close_session(&ptp_runtime);
 
@@ -398,6 +395,7 @@ static uiControl *page_usb(void)
 	//label = uiNewLabel("Camera not connected");
 	//uiBoxAppend(vbox, uiControl(label), 0);
 	button = uiNewButton(T_CONNECT);
+	uiControlSetTooltip(uiControl(button), "Connect to the first Canon camera available");
 	app.connect_button = button;
 	uiBoxAppend(vbox, uiControl(button), 0);
 
@@ -451,28 +449,79 @@ static uiControl *page_card(void) {
 #ifdef __APPLE__
 	uiBoxAppend(vbox, uiControl(uiNewLabel("MacOS card editing is\ncurrently not supported.")), 0);
 #else
-	label = uiNewLabel(T_CARD_STUFF_TITLE);
-	uiBoxAppend(vbox, uiControl(label), 0);
-	button = uiNewButton(T_WRITE_CARD_BOOT_FLAGS);
-	uiButtonOnClicked(button, app_write_flag, NULL);
-	uiBoxAppend(vbox, uiControl(button), 0);
-	button = uiNewButton(T_DESTROY_CARD_BOOT_FLAGS);
-	uiButtonOnClicked(button, app_destroy_flag, NULL);
-	uiBoxAppend(vbox, uiControl(button), 0);
 
-	label = uiNewLabel(T_CARD_STUFF_TITLE);
-	uiBoxAppend(vbox, uiControl(label), 0);
-	button = uiNewButton(T_MAKE_CARD_SCRIPTABLE);
-	uiButtonOnClicked(button, app_script_flag, NULL);
-	uiBoxAppend(vbox, uiControl(button), 0);
-	button = uiNewButton(T_MAKE_CARD_UNSCRIPTABLE);
-	uiButtonOnClicked(button, app_destroy_script_flag, NULL);
-	uiBoxAppend(vbox, uiControl(button), 0);
+#if 0
+	{
+		uiBox *hbox = uiNewHorizontalBox();
+		uiBoxSetPadded(hbox, 1);
 
-	uiBoxAppend(vbox, uiControl(uiNewLabel(T_DETECT_CARD_TITLE)), 0);
-	button = uiNewButton(T_DETECT_CARD);
-	uiButtonOnClicked(button, app_show_drive_info, NULL);
-	uiBoxAppend(vbox, uiControl(button), 0);
+		uiCombobox *cbox = uiNewCombobox();
+		uiComboboxAppend(cbox, "EOS_DIGITAL (59.4GiB)");
+		uiComboboxSetSelected(cbox, 0);
+		uiBoxAppend(hbox, uiControl(cbox), 1);
+		button = uiNewButton("Refresh");
+		uiBoxAppend(hbox, uiControl(button), 0);
+
+		uiBoxAppend(vbox, uiControl(hbox), 0);
+	}
+
+	uiForm *form = uiNewForm();
+	uiFormSetPadded(form, 1);
+	uiFormAppend(form,
+			"Boot flag",
+			uiControl(uiNewCombobox()),
+			1);
+
+	uiFormAppend(form,
+			"Scriptable flag",
+			uiControl(uiNewCombobox()),
+			1);
+
+	uiBoxAppend(vbox, uiControl(form), 0);
+#endif
+
+#if 1
+	{
+		uiBox *hbox = uiNewHorizontalBox();
+		uiBoxSetPadded(hbox, 1);
+
+		label = uiNewLabel("Allow card to be bootable");
+		uiBoxAppend(vbox, uiControl(label), 0);
+		
+		button = uiNewButton("Enable"); // T_WRITE_CARD_BOOT_FLAGS
+		uiButtonOnClicked(button, app_write_flag, NULL);
+		uiBoxAppend(hbox, uiControl(button), 1);
+		button = uiNewButton("Disable"); // T_DESTROY_CARD_BOOT_FLAGS
+uiControlDisable(uiControl(button));
+		uiButtonOnClicked(button, app_destroy_flag, NULL);
+		uiBoxAppend(hbox, uiControl(button), 1);
+	
+		uiBoxAppend(vbox, uiControl(hbox), 0);
+	}
+
+	{
+		uiBox *hbox = uiNewHorizontalBox();
+		uiBoxSetPadded(hbox, 1);
+
+		label = uiNewLabel("Card scriptable flags");
+		uiBoxAppend(vbox, uiControl(label), 0);
+		
+		button = uiNewButton("Enable"); // T_MAKE_CARD_SCRIPTABLE
+		uiButtonOnClicked(button, app_script_flag, NULL);
+		uiBoxAppend(hbox, uiControl(button), 1);
+		button = uiNewButton("Disable"); // T_MAKE_CARD_UNSCRIPTABLE
+uiControlDisable(uiControl(button));
+		uiButtonOnClicked(button, app_destroy_script_flag, NULL);
+		uiBoxAppend(hbox, uiControl(button), 1);
+	
+		uiBoxAppend(vbox, uiControl(hbox), 0);
+	}
+#endif
+
+//	uiBoxAppend(vbox, uiControl(uiNewLabel(T_DETECT_CARD_TITLE)), 0);
+//	button = uiNewButton(T_DETECT_CARD);
+//	uiButtonOnClicked(button, app_show_drive_info, NULL);
+//	uiBoxAppend(vbox, uiControl(button), 0);
 #endif
 
 	return uiControl(vbox);

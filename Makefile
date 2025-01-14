@@ -4,7 +4,7 @@ APP_NAME := mlinstall
 
 CAMLIB_SRC ?= camlib/src
 
-APP_CORE := $(addprefix src/,main.o drive.o installer.o model.o platform.o ptp.o data.o)
+APP_CORE := $(addprefix src/,main.o drive.o model.o ptp.o data.o)
 CAMLIB_CORE := transport.o operations.o packet.o enums.o data.o enum_dump.o lib.o canon.o liveview.o bind.o ml.o conv.o generic.o canon_adv.o no_ip.o
 
 CFLAGS := -Wall -Wpedantic -I$(CAMLIB_SRC) -I../libui-cross/ -O2 -g
@@ -12,8 +12,8 @@ CFLAGS := -Wall -Wpedantic -I$(CAMLIB_SRC) -I../libui-cross/ -O2 -g
 UNIX_FILES := $(APP_CORE) src/libui.o src/drive-unix.o $(addprefix $(CAMLIB_SRC)/,$(CAMLIB_CORE) libusb.o)
 
 ifeq ($(TARGET),l) # ++++++++++++++++
-CFLAGS += $(shell pkg-config --cflags libusb-1.0)
-LDFLAGS += $(shell pkg-config --libs libusb-1.0) -lui
+CFLAGS += $(shell $(PKG_CONFIG) --cflags libusb-1.0)
+LDFLAGS += $(shell $(PKG_CONFIG) --libs libusb-1.0) -lui -lpthread
 FILES := $(call convert_target,$(UNIX_FILES))
 
 linux.out: $(FILES)
@@ -24,6 +24,11 @@ install: linux.out
 
 APPIMAGE_VARS := UPDATE_INFORMATION="gh-releases-zsync|petabyt|mlinstall|latest|mlinstall-x86_64.AppImage"
 mlinstall-x86_64.AppImage: linux.out
+	$(APPIMAGE_VARS) linuxdeploy --appdir=AppDir --executable=linux.out -d assets/mlinstall.desktop -i assets/mlinstall.png
+	appimagetool AppDir
+
+APPIMAGE_VARS := UPDATE_INFORMATION="gh-releases-zsync|petabyt|mlinstall|latest|mlinstall-x86_64.AppImage"
+mlinstall-aarch64.AppImage: linux.out
 	$(APPIMAGE_VARS) linuxdeploy --appdir=AppDir --executable=linux.out -d assets/mlinstall.desktop -i assets/mlinstall.png
 	appimagetool AppDir
 
@@ -57,7 +62,7 @@ LIBS+=-Wl,-subsystem,windows
 
 windows: mlinstall.exe
 
-mlinstall.exe: $(WIN_FILES) assets/win.res win.mak $(LIBWPD_A) $(LIBUI_A)
+mlinstall.exe: $(WIN_FILES) assets/win.res $(LIBWPD_A) $(LIBUI_A)
 	$(CC) $(WIN_FILES) $(LIBUI_A) $(LIBWPD_A) assets/win.res $(LIBS) -s -o mlinstall.exe
 
 mlinstall_x86_64.exe: mlinstall.exe

@@ -9,13 +9,15 @@
 #include "lang.h"
 
 int app_test();
-
-struct PtpRuntime ptp_runtime;
+struct PtpRuntime *ptp_runtime;
+struct PtpRuntime *ptp_get(void) {
+	return ptp_runtime;
+}
 int dev_flag = 0;
 static int attempts = 0;
 
 int main (int argc, char ** argv) {
-	ptp_generic_init(&ptp_runtime);
+	ptp_runtime = ptp_new(PTP_USB);
 
 #ifdef _WIN32
 	AttachConsole(-1);
@@ -52,7 +54,7 @@ int main (int argc, char ** argv) {
 
 			printf("Uploading '%s' to cam as '%s'\n", argv[i + 1], argv[i + 2]);
 
-			int rc = ptp_chdk_upload_file(&ptp_runtime, argv[i + 1], argv[i + 2]);
+			int rc = ptp_chdk_upload_file(ptp_runtime, argv[i + 1], argv[i + 2]);
 			if (rc) return rc;
 
 			printf("File uploaded\n");
@@ -88,10 +90,10 @@ int app_test() {
 }
 
 int ptp_connect_deinit() {
-	int rc = ptp_close_session(&ptp_runtime);
+	int rc = ptp_close_session(ptp_runtime);
 	if (rc) return rc;
 
-	ptp_device_close(&ptp_runtime);
+	ptp_device_close(ptp_runtime);
 
 	return 0;
 }
@@ -102,7 +104,7 @@ int ptp_connect_init() {
 	int rc;
 #if 0
 	// For LibWPD, this will work just fine to detect cameras
-	rc = ptp_device_init(&ptp_runtime);
+	rc = ptp_device_init(ptp_runtime);
 	if (rc) {
 		log_print(T_CANON_NOT_FOUND_FMT, attempts - 1);
 		return PTP_NO_DEVICE;
@@ -110,7 +112,7 @@ int ptp_connect_init() {
 #endif
 	// TODO: libWPD doesn't have ptpusb_device_list yet
 
-	struct PtpDeviceEntry *list = ptpusb_device_list(&ptp_runtime);
+	struct PtpDeviceEntry *list = ptpusb_device_list(ptp_runtime);
 
 	struct PtpDeviceEntry *selected = NULL;
 	for (struct PtpDeviceEntry *curr = list; curr != NULL; curr = curr->next) {
@@ -125,24 +127,24 @@ int ptp_connect_init() {
 		return PTP_NO_DEVICE;
 	}
 
-	rc = ptp_device_open(&ptp_runtime, selected);
+	rc = ptp_device_open(ptp_runtime, selected);
 
 	attempts = 0;
 
-	rc = ptp_open_session(&ptp_runtime);
+	rc = ptp_open_session(ptp_runtime);
 	if (rc) {
 		return rc;
 	}
 
-	ptp_runtime.di = (struct PtpDeviceInfo *)malloc(sizeof(struct PtpDeviceInfo));
-	rc = ptp_get_device_info(&ptp_runtime, ptp_runtime.di);
+	ptp_runtime->di = (struct PtpDeviceInfo *)malloc(sizeof(struct PtpDeviceInfo));
+	rc = ptp_get_device_info(ptp_runtime, ptp_runtime->di);
 	if (rc) {
 		ptp_connect_deinit();
 		return rc;
 	}
 
-	if (strcmp(ptp_runtime.di->manufacturer, "Canon Inc.")) {
-		log_print(T_NOT_CANON_DEVICE, ptp_runtime.di->model);
+	if (strcmp(ptp_runtime->di->manufacturer, "Canon Inc.")) {
+		log_print(T_NOT_CANON_DEVICE, ptp_runtime->di->model);
 		ptp_connect_deinit();
 		return -1;
 	}

@@ -12,23 +12,10 @@ Download: https://github.com/petabyt/mlinstall/releases
 - Shutter counter
 - Shows internal FW build version
 
-## Linux Compilation
+## Compiling
 - Clone with `--recurse-submodules`.
-- libui-ng is required - you can install it through https://github.com/petabyt/libui-cross
 - Required packages: `sudo apt install libusb-dev gcc libgtk-3-dev`
 ```
-make TARGET=l linux.out
+cmake -G Ninja -B build && cmake --build build
 ```
-
-## Windows Compilation
-- Mingw is required: `apt install gcc-mingw-w64-x86-64`.
-- libui-cross can be compiled and installed for cross-compilation on WSL/Linux
-```
-make TARGET=w mlinstall.exe
-```
-
-## MacOS Compilation
-- Can be compiled in [darling](https://darlinghq.org) for x86_64
-- libs: https://s1.danielc.dev/filedump/libs.tar.gz
-
 Licensed under GNU General Public License v2.0.  

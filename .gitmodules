@@ -1,3 +1,6 @@
 [submodule "camlib"]
-	path = camlib
+	path = libs/libpict
 	url = https://github.com/petabyt/camlib
+[submodule "libs/libwpd"]
+	path = libs/libwpd
+	url = https://github.com/petabyt/libwpd

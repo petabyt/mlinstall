@@ -156,7 +156,7 @@ static void ui_flip_status(void *data) {
 void *app_connect_start_thread(void *arg) {
 	log_clear();
 
-	struct PtpRuntime *r = &ptp_runtime;
+	struct PtpRuntime *r = ptp_get();
 
 	int rc = ptp_connect_init();
 	if (rc) {
@@ -243,16 +243,17 @@ static void app_connect_start(uiButton *b, void *data) {
 }
 
 static void *app_run_eventproc_thread(void *arg) {
+	struct PtpRuntime *r = ptp_get();
 	log_clear();
 
 	log_print("Running '%s'...", arg);
 
-	int rc = ptp_eos_activate_command(&ptp_runtime);
+	int rc = ptp_eos_activate_command(r);
 	if (rc) goto err;
 
-	rc = ptp_eos_evproc_run(&ptp_runtime, arg);
+	rc = ptp_eos_evproc_run(r, arg);
 	if (rc == PTP_IO_ERR) goto err;
-	int resp = ptp_get_return_code(&ptp_runtime);
+	int resp = ptp_get_return_code(r);
 
 	log_print(T_RETURN_CODE_OK);
 
@@ -296,7 +297,7 @@ static void *app_run_eventproc_thread(void *arg) {
 	err:;
 	log_print("Error completing operation");
 	if (rc == PTP_IO_ERR) {
-		ptp_report_error(&ptp_runtime, NULL, rc);
+		ptp_report_error(r, NULL, rc);
 	}
 	return (void *)(-1);	
 }
@@ -339,17 +340,19 @@ static void app_show_drive_info(uiButton *b, void *data)
 }
 
 static void *app_disconnect(void *arg) {
+	struct PtpRuntime *r = ptp_get();
+
 	// Block PTP operations while closing down
-	ptp_mutex_lock(&ptp_runtime);
+	ptp_mutex_lock(r);
 
-	ptp_close_session(&ptp_runtime);
+	ptp_close_session(r);
 
-	ptp_report_error(&ptp_runtime, "Intentional", 0);
+	ptp_report_error(r, "Intentional", 0);
 
-	ptp_device_close(&ptp_runtime);
+	ptp_device_close(r);
 
 	// killswitch is back on, we can unlock now
-	ptp_mutex_unlock(&ptp_runtime);
+	ptp_mutex_unlock(r);
 
 	uiQueueMain(ui_disconnected_state, NULL);
 

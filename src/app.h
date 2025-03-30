@@ -4,7 +4,7 @@
 #include <camlib.h>
 
 // Defined in main.c
-extern struct PtpRuntime ptp_runtime;
+struct PtpRuntime *ptp_get(void);
 extern int dev_flag;
 
 // EvProcs

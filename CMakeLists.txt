@@ -19,7 +19,7 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/../libui-dev")
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../libui-dev/ ${CMAKE_CURRENT_BINARY_DIR}/libui-dev)
 else()
     include(FetchContent)
-    FetchContent_Declare(libwpd GIT_REPOSITORY https://github.com/petabyt/libui-dev.git GIT_TAG master GIT_SHALLOW 1)
+    FetchContent_Declare(libui GIT_REPOSITORY https://github.com/petabyt/libui-dev.git GIT_TAG master GIT_SHALLOW 1)
     FetchContent_MakeAvailable(libui)
 endif()
 

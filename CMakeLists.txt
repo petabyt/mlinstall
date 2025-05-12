@@ -10,22 +10,16 @@ set(FILES
 	src/ptp.c
 	src/data.S
 	src/libui.c
+	src/ui.c
 )
 
 option(PTP_DEFAULT_LOGGING "" OFF)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/libpict ${CMAKE_CURRENT_BINARY_DIR}/libpict)
-
-if(EXISTS "${CMAKE_SOURCE_DIR}/../libui-dev")
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../libui-dev/ ${CMAKE_CURRENT_BINARY_DIR}/libui-dev)
-else()
-    include(FetchContent)
-    FetchContent_Declare(libui GIT_REPOSITORY https://github.com/petabyt/libui-dev.git GIT_TAG master GIT_SHALLOW 1)
-    FetchContent_MakeAvailable(libui)
-endif()
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/rim ${CMAKE_CURRENT_BINARY_DIR}/rim)
 
 if(UNIX)
 	list(APPEND FILES src/drive-unix.c)
-	set(LIBS LibUI::LibUI)
+	set(LIBS Rim:Rim)
 elseif(WIN32)
 	list(APPEND FILES src/drive-win.c assets/win.rc)
 	set(LIBS LibUI::LibUI)

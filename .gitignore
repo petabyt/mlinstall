@@ -13,3 +13,5 @@ gtk/*
 *.res
 *.zip
 *.dll
+.cache/
+build/

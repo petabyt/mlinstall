@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <camlib.h>
+#include <rim.h>
 #ifdef _WIN32
 #include <windows.h>
 #endif
@@ -70,7 +71,9 @@ int main (int argc, char ** argv) {
 	}
 
 	puts("Starting main window...");
-	return app_main_window();
+	int app_main(struct RimContext *ctx, void *arg);
+	return rim_start(app_main, NULL);
+	//return app_main_window();
 }
 
 int app_test() {

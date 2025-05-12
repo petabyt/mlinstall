@@ -555,7 +555,7 @@ static uiControl *page_about(void) {
 
 _UI_EXTERN void uiWindowSetIcon(uiWindow *w, const void *data, size_t length);
 
-int app_main_window() {
+int app_main_window(void) {
 	uiInitOptions o;
 	uiWindow *w;
 	uiBox *b;

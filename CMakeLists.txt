@@ -3,6 +3,13 @@ cmake_minimum_required(VERSION 3.14)
 project(mlinstall)
 enable_language(C ASM)
 
+if (CMAKE_BUILD_TYPE STREQUAL "Release")
+    set(CMAKE_C_FLAGS_RELEASE "-O2")
+else()
+    set(CMAKE_C_FLAGS_DEBUG "-g")
+    set(CMAKE_CPP_FLAGS_DEBUG "-g")
+endif()
+
 set(FILES
 	src/main.c
 	src/drive.c
@@ -15,6 +22,8 @@ set(FILES
 option(PTP_DEFAULT_LOGGING "" OFF)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/libpict ${CMAKE_CURRENT_BINARY_DIR}/libpict)
 
+option(LIBUI_COMPILE_EXAMPLES "" OFF)
+option(LIBUI_INCLUDE_INSTALL "" OFF)
 if(EXISTS "${CMAKE_SOURCE_DIR}/../libui-dev")
     add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../libui-dev/ ${CMAKE_CURRENT_BINARY_DIR}/libui-dev)
 else()
@@ -40,7 +49,10 @@ add_executable(mlinstall ${FILES})
 target_link_libraries(mlinstall libpict ${LIBS})
 target_include_directories(mlinstall PRIVATE src)
 target_compile_options(mlinstall PRIVATE -Wshadow -Wcast-qual -Wpedantic -Werror=incompatible-pointer-types -O2)
-set_target_properties(mlinstall PROPERTIES LINK_FLAGS_RELEASE "-s -static")
+
+if(WIN32)
+    set_target_properties(mlinstall PROPERTIES LINK_FLAGS_RELEASE "-s -static")
+endif()
 
 # TODO: UPDATE_INFORMATION="gh-releases-zsync|petabyt|mlinstall|latest|mlinstall-x86_64.AppImage"
 if(MLINSTALL_CREATE_APPIMAGE)

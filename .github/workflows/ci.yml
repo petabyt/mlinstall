@@ -49,4 +49,4 @@ jobs:
       run: brew install libusb
 
     - name: Build
-      run: make unix-gtk
+      run: cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release && cmake --build build

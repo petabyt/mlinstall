@@ -4,3 +4,6 @@
 [submodule "libs/libwpd"]
 	path = libs/libwpd
 	url = https://github.com/petabyt/libwpd
+[submodule "libs/libui-dev"]
+	path = libs/libui-dev
+	url = https://github.com/petabyt/libui-dev

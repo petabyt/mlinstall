@@ -29,7 +29,7 @@ if(UNIX)
 elseif(WIN32)
 	list(APPEND FILES src/drive-win.c assets/win.rc)
 	set(LIBS LibUI::LibUI)
-	list(APPEND LIBS -luser32 -lkernel32 -lgdi32 -lcomctl32 -luxtheme -lmsimg32 -lcomdlg32 -ld2d1 -ldwrite -lole32 -loleaut32 -loleacc)
+	list(APPEND LIBS -luser32 -lkernel32 -lgdi32 -lcomctl32 -luxtheme -lmsimg32 -lcomdlg32 -ld2d1 -ldwrite -lole32 -loleaut32 -loleacc -lws2_32)
 	list(APPEND LIBS -lstdc++ -lgcc -static -lpthread -lssp -lurlmon -luuid)
 	list(APPEND LIBS -Wl,-subsystem,windows) # Disable cmd.exe window on open
 elseif(APPLE)

@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <camlib.h>
+#include <libpict.h>
 
 #include "app.h"
 #include "drive.h"

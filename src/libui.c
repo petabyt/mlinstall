@@ -5,7 +5,7 @@
 #include <stdarg.h>
 #include <pthread.h>
 #include <ui.h>
-#include <camlib.h>
+#include <libpict.h>
 #include "app.h"
 #include "lang.h"
 #include "drive.h"
@@ -453,49 +453,18 @@ static uiControl *page_card(void) {
 	uiBoxAppend(vbox, uiControl(uiNewLabel("MacOS card editing is\ncurrently not supported.")), 0);
 #else
 
-#if 0
 	{
 		uiBox *hbox = uiNewHorizontalBox();
 		uiBoxSetPadded(hbox, 1);
 
-		uiCombobox *cbox = uiNewCombobox();
-		uiComboboxAppend(cbox, "EOS_DIGITAL (59.4GiB)");
-		uiComboboxSetSelected(cbox, 0);
-		uiBoxAppend(hbox, uiControl(cbox), 1);
-		button = uiNewButton("Refresh");
-		uiBoxAppend(hbox, uiControl(button), 0);
-
-		uiBoxAppend(vbox, uiControl(hbox), 0);
-	}
-
-	uiForm *form = uiNewForm();
-	uiFormSetPadded(form, 1);
-	uiFormAppend(form,
-			"Boot flag",
-			uiControl(uiNewCombobox()),
-			1);
-
-	uiFormAppend(form,
-			"Scriptable flag",
-			uiControl(uiNewCombobox()),
-			1);
-
-	uiBoxAppend(vbox, uiControl(form), 0);
-#endif
-
-#if 1
-	{
-		uiBox *hbox = uiNewHorizontalBox();
-		uiBoxSetPadded(hbox, 1);
-
-		label = uiNewLabel("Allow card to be bootable");
+		label = uiNewLabel("Card Boot Flags");
 		uiBoxAppend(vbox, uiControl(label), 0);
 		
 		button = uiNewButton("Enable"); // T_WRITE_CARD_BOOT_FLAGS
 		uiButtonOnClicked(button, app_write_flag, NULL);
 		uiBoxAppend(hbox, uiControl(button), 1);
 		button = uiNewButton("Disable"); // T_DESTROY_CARD_BOOT_FLAGS
-uiControlDisable(uiControl(button));
+		uiControlDisable(uiControl(button));
 		uiButtonOnClicked(button, app_destroy_flag, NULL);
 		uiBoxAppend(hbox, uiControl(button), 1);
 	
@@ -513,18 +482,17 @@ uiControlDisable(uiControl(button));
 		uiButtonOnClicked(button, app_script_flag, NULL);
 		uiBoxAppend(hbox, uiControl(button), 1);
 		button = uiNewButton("Disable"); // T_MAKE_CARD_UNSCRIPTABLE
-uiControlDisable(uiControl(button));
+		uiControlDisable(uiControl(button));
 		uiButtonOnClicked(button, app_destroy_script_flag, NULL);
 		uiBoxAppend(hbox, uiControl(button), 1);
 	
 		uiBoxAppend(vbox, uiControl(hbox), 0);
 	}
-#endif
 
-//	uiBoxAppend(vbox, uiControl(uiNewLabel(T_DETECT_CARD_TITLE)), 0);
-//	button = uiNewButton(T_DETECT_CARD);
-//	uiButtonOnClicked(button, app_show_drive_info, NULL);
-//	uiBoxAppend(vbox, uiControl(button), 0);
+	uiBoxAppend(vbox, uiControl(uiNewLabel(T_DETECT_CARD_TITLE)), 0);
+	button = uiNewButton(T_DETECT_CARD);
+	uiButtonOnClicked(button, app_show_drive_info, NULL);
+	uiBoxAppend(vbox, uiControl(button), 0);
 #endif
 
 	return uiControl(vbox);
@@ -545,7 +513,7 @@ static uiControl *page_about(void) {
 	uiMultilineEntryAppend(entry, T_APP_NAME " is licensed under the GPL2.0\n");
 	uiMultilineEntryAppend(entry, "https://github.com/petabyt/mlinstall\n");
 	uiMultilineEntryAppend(entry, "\nOpen Source Libraries:\n");
-	uiMultilineEntryAppend(entry, "- camlib (Apache License)\n");
+	uiMultilineEntryAppend(entry, "- libpict (Apache License)\n");
 	uiMultilineEntryAppend(entry, "- libwpd (MIT License)\n");
 	uiMultilineEntryAppend(entry, "- libui-ng (MIT License)\n");
 	uiMultilineEntryAppend(entry, "- libusb (LGPL v2.1)\n");

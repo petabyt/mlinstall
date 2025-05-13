@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <stdlib.h>
-#include <camlib.h>
+#include <libpict.h>
 
 void ptp_verbose_log(char *fmt, ...) {
 	//va_list args;

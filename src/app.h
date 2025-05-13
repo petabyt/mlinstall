@@ -1,7 +1,7 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
-#include <camlib.h>
+#include <libpict.h>
 
 // Defined in main.c
 struct PtpRuntime *ptp_get(void);

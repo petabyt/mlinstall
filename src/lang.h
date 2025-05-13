@@ -4,7 +4,7 @@
 #define ML_LANG_H
 
 #ifndef T_APP_VERSION
-#define T_APP_VERSION "v1.1.0"
+#define T_APP_VERSION "v1.1.2"
 #endif
 
 #define T_APP_NAME "MLinstall"

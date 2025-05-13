@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-#include <camlib.h>
+#include <libpict.h>
 #ifdef _WIN32
 #include <windows.h>
 #endif

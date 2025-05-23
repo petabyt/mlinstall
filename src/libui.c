@@ -153,32 +153,17 @@ static void ui_flip_status(void *data) {
 	uiLabelSetText(app.title_text, buffer);
 }
 
-void *app_connect_start_thread(void *arg) {
-	log_clear();
-
-	struct PtpRuntime *r = ptp_get();
-
-	int rc = ptp_connect_init();
-	if (rc) {
-		ptp_report_error(r, NULL, rc);
-		return (void *)1;
-	}
-
-	log_print("Connected to a camera");
-
-	app.is_connected = 1;
-	uiQueueMain(ui_connected_state, NULL);
-
+int mlinstall_setup_session(struct PtpRuntime *r) {
 	ptp_eos_set_remote_mode(r, 1);
 	ptp_eos_set_event_mode(r, 1);
 
 	int length = 0;
 	struct PtpGenericEvent *s = NULL;
 
-	rc = ptp_eos_get_event(r);
+	int rc = ptp_eos_get_event(r);
 	if (rc) {
 		ptp_report_error(r, NULL, rc);
-		return (void *)1;
+		return rc;
 	}
 
 	int shutter_count = 0;
@@ -211,17 +196,39 @@ void *app_connect_start_thread(void *arg) {
 	ptp_eos_fa_get_build_version(r, build_version, sizeof(build_version));
 
 	log_print("Build version: %s", build_version);
+	return 0;
+}
+
+void *app_connect_start_thread(void *arg) {
+	log_clear();
+
+	struct PtpRuntime *r = ptp_get();
+
+	int rc = ptp_connect_init();
+	if (rc) {
+		ptp_report_error(r, NULL, rc);
+		pthread_exit(NULL);
+	}
+
+	log_print("Connected to a camera");
+
+	app.is_connected = 1;
+	uiQueueMain(ui_connected_state, NULL);
+
+	rc = mlinstall_setup_session(r);
+	if (rc) pthread_exit(NULL);
 
 	while (1) {
-		int rc = ptp_eos_get_event(r);
+		rc = ptp_eos_get_event(r);
 		if (rc) {
 			ptp_report_error(r, NULL, rc);
-			return (void *)1;
+			pthread_exit(NULL);
 		}
 
-		if (!app.is_connected) return (void *)1;
+		if (!app.is_connected) pthread_exit(NULL);
 
-		length = ptp_eos_events(r, &s);
+		struct PtpGenericEvent *s = NULL;
+		int length = ptp_eos_events(r, &s);
 		for (int i = 0; i < length; i++) {
 			// TODO...
 		}

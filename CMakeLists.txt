@@ -2,6 +2,7 @@
 cmake_minimum_required(VERSION 3.14)
 project(mlinstall)
 enable_language(C ASM)
+set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     set(CMAKE_C_FLAGS_RELEASE "-O2")

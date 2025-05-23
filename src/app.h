@@ -13,12 +13,14 @@ extern int dev_flag;
 #define TURN_OFF_DISPLAY "TurnOffDisplay"
 
 void log_print(char *format, ...);
-void log_clear();
+void log_clear(void);
 
-int ptp_connect_deinit();
-int ptp_connect_init();
+int ptp_connect_deinit(void);
+int ptp_connect_init(void);
 
-int app_main_window();
+int app_main_window(void);
+
+int mlinstall_setup_session(struct PtpRuntime *r);
 
 // Model string evaluator (doesn't seem to be useful)
 int model_get(char name[]);
@@ -37,6 +39,6 @@ enum InstallerError {
 };
 
 int installer_start(char model[], char version[]);
-int installer_remove();
+int installer_remove(void);
 
 #endif

@@ -8,7 +8,7 @@
 #include "app.h"
 #include "lang.h"
 
-int app_test();
+int app_test(struct PtpRuntime *r);
 struct PtpRuntime *ptp_runtime;
 struct PtpRuntime *ptp_get(void) {
 	return ptp_runtime;
@@ -20,6 +20,7 @@ int main (int argc, char ** argv) {
 	ptp_runtime = ptp_new(PTP_USB);
 
 #ifdef _WIN32
+	// Route stdout to console
 	AttachConsole(-1);
 	freopen("CONOUT$", "w", stdout);
 	freopen("CONOUT$", "w", stderr);
@@ -61,7 +62,7 @@ int main (int argc, char ** argv) {
 
 			return ptp_connect_deinit();
 		} else if (!strcmp(argv[i], "--test")) {
-			if (app_test()) {
+			if (app_test(ptp_runtime)) {
 				puts("Test failed\n");
 				return 1;
 			}
@@ -73,15 +74,25 @@ int main (int argc, char ** argv) {
 	return app_main_window();
 }
 
-int app_test() {
+int app_test(struct PtpRuntime *r) {
+	int rc = 0;
 	for (int i = 0; i < 3; i++) {
 		if (ptp_connect_init()) {
 			printf("%s\n", T_DEV_NOT_FOUND);
 			return 1;
 		}
 
-		// TODO: .. do some stress test 
-		puts("Connected");
+		rc = mlinstall_setup_session(r);
+		if (rc) return rc;
+
+		rc = ptp_eos_activate_command(r);
+		if (rc) return rc;
+
+		rc = ptp_eos_evproc_run(r, ENABLE_BOOT_DISK);
+		if (rc) return rc;
+
+		rc = ptp_eos_evproc_run(r, DISABLE_BOOT_DISK);
+		if (rc) return rc;
 
 		if (ptp_connect_deinit()) return 1;
 	}
@@ -89,7 +100,7 @@ int app_test() {
 	return 0;
 }
 
-int ptp_connect_deinit() {
+int ptp_connect_deinit(void) {
 	int rc = ptp_close_session(ptp_runtime);
 	if (rc) return rc;
 
@@ -98,7 +109,7 @@ int ptp_connect_deinit() {
 	return 0;
 }
 
-int ptp_connect_init() {
+int ptp_connect_init(void) {
 	attempts++;
 
 	int rc;

@@ -55,9 +55,4 @@
 
 #define T_DEV_MODE_WARNING "Entering the wrong command can brick your\ncamera! Only use with guidance\nfrom a ML developer!"
 
-#define T_APP_INFO "\nMade by <a href='https://danielc.dev/'>Daniel C</a>\n" \
-		"Source code: <a href='https://github.com/petabyt/mlinstall'>github.com/petabyt/mlinstall</a>\n\n" \
-		"Licenced under GNU General Public License v2.0\n" \
-		"If it breaks, you get to keep both pieces!"
-
 #endif

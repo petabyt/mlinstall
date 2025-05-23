@@ -4,8 +4,7 @@
 #ifdef _WIN32
 #include <windows.h>
 #endif
-
-#include "app.h"
+#include "mlinstall.h"
 #include "lang.h"
 
 int app_test(struct PtpRuntime *r);
@@ -71,7 +70,7 @@ int main (int argc, char ** argv) {
 	}
 
 	puts("Starting main window...");
-	return app_main_window();
+	return mlinstall_main_window();
 }
 
 int app_test(struct PtpRuntime *r) {

@@ -22,12 +22,12 @@ enum FlagsErr {
 
 int drive_get_usable(char buffer[], int n);
 int drive_write_flag(int mode);
-int drive_openfs();
-int drive_getfs();
-void drive_close();
+int drive_openfs(void);
+int drive_getfs(void);
+void drive_close(void);
 void drive_dump(char name[]);
 
 void flag_write(long offset, char string[]);
-void update_exfat();
+void update_exfat(void);
 
 #endif

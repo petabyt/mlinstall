@@ -14,13 +14,12 @@
 #include <sys/mount.h>
 #include <unistd.h>
 
-#include "app.h"
+#include "mlinstall.h"
 #include "exfat.h"
 #include "drive.h"
 
 FILE *d;
-int drive_getfs()
-{
+int drive_getfs(void) {
 	char buffer[64];
 
 	memset(buffer, '\0', sizeof(buffer));
@@ -47,15 +46,16 @@ int drive_getfs()
 	return DRIVE_BADFS;
 }
 
-void flag_write(long int offset, char string[])
-{
+void flag_write(long int offset, char string[]) {
 	char buffer[64] = { 0 };
 
 	fseek(d, offset, SEEK_SET);
 	fread(buffer, 1, strlen(string), d);
 
+	// Sanitize the string
+	buffer[sizeof(buffer) - 1] = '\0';
 	for (int i = 0; i < sizeof(buffer); i++) {
-		if (!(i >= 'A' || i <= 'Z' || i == '_')) {
+		if (!(i >= 'A' && i <= 'Z' || i == '_')) {
 			buffer[i] = '\0';
 		}
 	}
@@ -82,8 +82,7 @@ void flag_write(long int offset, char string[])
 	fflush(d);
 }
 
-int drive_get(char buffer[], int n)
-{
+int drive_get(char buffer[], int n) {
 	// Get EOS_DIGITAL Drive
 	FILE *c = popen("mount | grep EOS_DIGITAL", "r");
 	fgets(buffer, n, c);
@@ -91,7 +90,7 @@ int drive_get(char buffer[], int n)
 	strtok(buffer, " "); // Get first token before space
 
 	// Check if extracted result is valid
-	if (strncmp(buffer, "/dev/", 5)) {
+	if (strncmp(buffer, "/dev/", 5) != 0) {
 		log_print("Make sure your EOS_DIGITAL card is mounted.");
 		return DRIVE_NONE;
 	}
@@ -99,8 +98,7 @@ int drive_get(char buffer[], int n)
 	return 0;
 }
 
-int drive_get_usable(char buffer[], int n)
-{
+int drive_get_usable(char buffer[], int n) {
 	char filesystem[64];
 	if (drive_get(filesystem, sizeof(filesystem))) {
 		return DRIVE_NONE;
@@ -119,15 +117,13 @@ int drive_get_usable(char buffer[], int n)
 	return 0;
 }
 
-int darwin_unmount(char *path)
-{
+int darwin_unmount(char *path) {
 	char buffer[64];
 	snprintf(buffer, sizeof(buffer), "diskutil unmount %s", path);
 	return system(buffer);
 }
 
-int drive_openfs()
-{
+int drive_openfs(void) {
 	if (geteuid() != 0) {
 		log_print("We needs sudo permissions. (sudo ./mlinstall)");
 		return DRIVE_ERROR;
@@ -158,17 +154,15 @@ int drive_openfs()
 	return 0;
 }
 
-void drive_close()
-{
+void drive_close(void) {
 	fclose(d);
 }
 
-void update_exfat()
-{
+void update_exfat(void) {
 	unsigned int buffer[EXFAT_VBR_SIZE + 512];
 
 	fread(buffer, 1, EXFAT_VBR_SIZE + 512, d);
-	int sum = VBRChecksum((unsigned char *)buffer, EXFAT_VBR_SIZE);
+	unsigned int sum = VBRChecksum((unsigned char *)buffer, EXFAT_VBR_SIZE);
 	for (int i = 0; i < 512 / 4; i++) {
 		buffer[i] = sum;
 	}
@@ -193,4 +187,5 @@ void drive_dump(char name[]) {
 	FILE *f = fopen(name, "w");
 	fwrite(dump, 1, TEMP_DUMP_SIZE, f);
 	fclose(f);
+	free(dump);
 }

@@ -1,7 +1,7 @@
 // Platform independent code. Will use functions from
 // either drive-win.c or drive-unix.c
 #include <stdio.h>
-#include "app.h"
+#include "mlinstall.h"
 #include "drive.h"
 
 static char flag_develop[] = "EOS_DEVELOP";
@@ -12,8 +12,7 @@ static char flag_script[] = "SCRIPT";
 
 // Detect the filesystem and write the flags
 // in the correct place
-int drive_write_flag(int mode)
-{
+int drive_write_flag(int mode) {
 	int r = drive_openfs();
 	switch (r) {
 	case DRIVE_BADFS:

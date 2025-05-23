@@ -14,8 +14,7 @@ static DWORD bytesRead = 0;
 
 static HANDLE d;
 
-int drive_getfs()
-{
+int drive_getfs(void) {
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
 	ReadFile(d, bootsector, BOOTSECTOR_SIZE, &bytesRead, NULL);
 
@@ -36,8 +35,7 @@ int drive_getfs()
 
 // WriteFile only writes to a single sector at a time, this
 // immitates fwrite to make things a little easier
-static int exfat_write(int location, int length, void *bytes)
-{
+static int exfat_write(int location, int length, void *bytes) {
 	// Get sector address to write to
 	int offset = location + (512 * 12);
 	int sector = offset - (offset % 512);
@@ -52,8 +50,7 @@ static int exfat_write(int location, int length, void *bytes)
 	return GetLastError();
 }
 
-void flag_write(long offset, char string[])
-{
+void flag_write(long offset, char string[]) {
 	char old_flag[16] = { 0 };
 
 	SetFilePointer(d, 0, NULL, FILE_BEGIN);
@@ -82,8 +79,7 @@ void flag_write(long offset, char string[])
 }
 
 // Returns drive letter as int
-int drive_get()
-{
+int drive_get(void) {
 	char id;
 	char dstr[] = "X:\\";
 
@@ -111,8 +107,7 @@ int drive_get()
 	return DRIVE_NONE;
 }
 
-int drive_get_usable(char buffer[], int n)
-{
+int drive_get_usable(char buffer[], int n) {
 	int drive = drive_get();
 	if (drive < 0) {
 		return drive;
@@ -123,8 +118,7 @@ int drive_get_usable(char buffer[], int n)
 	return 0;
 }
 
-int drive_openfs(int mode)
-{
+int drive_openfs(int mode) {
 	// Windows filesystems must be opened like this: \\.\E:
 	char buffer[64] = "\\\\.\\0:";
 	int drive = drive_get();
@@ -151,13 +145,11 @@ int drive_openfs(int mode)
 	return 0;
 }
 
-void drive_close()
-{
+void drive_close(void) {
 	CloseHandle(d);
 }
 
-void update_exfat()
-{
+void update_exfat(void) {
 	unsigned int buffer[EXFAT_VBR_SIZE + 512];
 
 	ReadFile(d, buffer, EXFAT_VBR_SIZE + 512, &bytesRead, NULL);

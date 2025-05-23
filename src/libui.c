@@ -6,7 +6,7 @@
 #include <pthread.h>
 #include <ui.h>
 #include <libpict.h>
-#include "app.h"
+#include "mlinstall.h"
 #include "lang.h"
 #include "drive.h"
 
@@ -47,8 +47,7 @@ static void log_clear_sync(void *arg) {
 	uiMultilineEntrySetText(log_widget, "");
 }
 
-void log_print(char *format, ...)
-{
+void log_print(char *format, ...) {
 	va_list args;
 	va_start(args, format);
 	char buffer[1024];
@@ -66,8 +65,7 @@ void log_print(char *format, ...)
 	uiQueueMain(log_print_str, s);
 }
 
-void log_clear()
-{
+void log_clear(void) {
 	uiQueueMain(log_clear_sync, NULL);
 }
 
@@ -88,8 +86,7 @@ void ptp_report_error(struct PtpRuntime *r, char *reason, int code) {
 	}
 }
 
-static int log_drive_error(int rc)
-{
+static int log_drive_error(int rc) {
 	switch (rc) {
 	case DRIVE_BADFS:
 		log_print(T_DRIVE_NOT_SUPPORTED);
@@ -105,8 +102,7 @@ static int log_drive_error(int rc)
 	return 0;
 }
 
-static void app_write_flag(uiButton *b, void *data)
-{
+static void app_write_flag(uiButton *b, void *data) {
 	log_clear();
 	int rc = drive_write_flag(FLAG_BOOT);
 	if (log_drive_error(rc) == 0) {
@@ -114,8 +110,7 @@ static void app_write_flag(uiButton *b, void *data)
 	}
 }
 
-static void app_destroy_flag(uiButton *b, void *data)
-{
+static void app_destroy_flag(uiButton *b, void *data) {
 	log_clear();
 	int rc = drive_write_flag(FLAG_DESTROY_BOOT);
 	if (log_drive_error(rc) == 0) {
@@ -123,8 +118,7 @@ static void app_destroy_flag(uiButton *b, void *data)
 	}
 }
 
-static void app_script_flag(uiButton *b, void *data)
-{
+static void app_script_flag(uiButton *b, void *data) {
 	log_clear();
 	int rc = drive_write_flag(FLAG_SCRIPT);
 	if (log_drive_error(rc) == 0) {
@@ -132,8 +126,7 @@ static void app_script_flag(uiButton *b, void *data)
 	}
 }
 
-static void app_destroy_script_flag(uiButton *b, void *data)
-{
+static void app_destroy_script_flag(uiButton *b, void *data) {
 	log_clear();
 	int rc = drive_write_flag(FLAG_DESTROY_SCRIPT);
 	if (log_drive_error(rc) == 0) {
@@ -313,7 +306,7 @@ static void *app_run_eventproc_thread(void *arg) {
 static void app_run_eventproc(uiButton *b, void *data) {
 	pthread_t thread;
 
-	const char *entry = uiEntryText(app.custom_entry);
+	char *entry = uiEntryText(app.custom_entry);
 
 	if (pthread_create(&thread, NULL, app_run_eventproc_thread, (void *)entry)) {
 		return;
@@ -528,9 +521,7 @@ static uiControl *page_about(void) {
 	return uiControl(vbox);
 }
 
-_UI_EXTERN void uiWindowSetIcon(uiWindow *w, const void *data, size_t length);
-
-int app_main_window() {
+int mlinstall_main_window(void) {
 	uiInitOptions o;
 	uiWindow *w;
 	uiBox *b;
@@ -548,8 +539,8 @@ int app_main_window() {
 	w = uiNewWindow(T_APP_NAME " " T_APP_VERSION, 800, 500, 0);
 	uiWindowSetMargined(w, 1);
 
-	extern const char favicon_ico[] asm("favicon_ico");
-	extern size_t favicon_ico_length asm("favicon_ico_length");
+	extern const char favicon_ico[] __asm__("favicon_ico");
+	extern size_t favicon_ico_length __asm__("favicon_ico_length");
 
 	uiWindowSetIcon(w, favicon_ico, favicon_ico_length);
 

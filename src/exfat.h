@@ -6,7 +6,7 @@
 
 #define EXFAT_VBR_SIZE (512 * 11)
 
-static unsigned int VBRChecksum(unsigned char octets[], long NumberOfBytes)
+static unsigned int VBRChecksum(const unsigned char octets[], long NumberOfBytes)
 {
 	unsigned int Checksum = 0;
 	int Index;

@@ -19,12 +19,14 @@ void ptp_error_log(char *fmt, ...) {
 	va_end(args);
 }
 
+__attribute__ ((noreturn))
 void ptp_panic(char *fmt, ...) {
+	printf("PTP abort: ");
 	va_list args;
 	va_start(args, fmt);
 	vprintf(fmt, args);
 	va_end(args);
-
-	printf("PTP triggered PANIC\n");
-	exit(1);
+	fflush(stdout);
+	putchar('\n');
+	abort();
 }

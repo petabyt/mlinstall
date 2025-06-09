@@ -150,9 +150,6 @@ int mlinstall_setup_session(struct PtpRuntime *r) {
 	ptp_eos_set_remote_mode(r, 1);
 	ptp_eos_set_event_mode(r, 1);
 
-	int length = 0;
-	struct PtpGenericEvent *s = NULL;
-
 	int rc = ptp_eos_get_event(r);
 	if (rc) {
 		ptp_report_error(r, NULL, rc);
@@ -161,14 +158,15 @@ int mlinstall_setup_session(struct PtpRuntime *r) {
 
 	int shutter_count = 0;
 
-	length = ptp_eos_events(r, &s);
-	for (int i = 0; i < length; i++) {
-		if (s[i].code == PTP_DPC_EOS_ShutterCounter) {
-			shutter_count = s[i].value;
+	struct PtpEventReader reader;
+	ptp_eos_events_open(r, &reader);
+
+	struct PtpGenericEvent event;
+	while (ptp_eos_events_next(r, &reader, &event) == 0) {
+		if (event.code == PTP_DPC_EOS_ShutterCounter) {
+			shutter_count = event.value;
 		}
 	}
-
-	if (length != 0) free(s);
 
 	// Remove the EOS '3-' prefix
 	char *fw_version = r->di->device_version;
@@ -178,7 +176,6 @@ int mlinstall_setup_session(struct PtpRuntime *r) {
 
 	log_print("Model: %s", r->di->model);
 	log_print("Firmware Version: %s", fw_version);
-	log_print("Serial Number: %s", r->di->serial_number);
 	if (shutter_count) {
 		log_print("Shutter count: %d", shutter_count);
 	} else {
@@ -186,9 +183,12 @@ int mlinstall_setup_session(struct PtpRuntime *r) {
 	}
 
 	char build_version[16];
-	ptp_eos_fa_get_build_version(r, build_version, sizeof(build_version));
-
-	log_print("Build version: %s", build_version);
+	rc = ptp_eos_fa_get_build_version(r, build_version, sizeof(build_version));
+	if (rc == 0) {
+		log_print("Build version: %s", build_version);
+	} else {
+		log_print("Failed to get build version (%d)", rc);
+	}
 	return 0;
 }
 
@@ -219,14 +219,6 @@ void *app_connect_start_thread(void *arg) {
 		}
 
 		if (!app.is_connected) pthread_exit(NULL);
-
-		struct PtpGenericEvent *s = NULL;
-		int length = ptp_eos_events(r, &s);
-		for (int i = 0; i < length; i++) {
-			// TODO...
-		}
-
-		if (length != 0) free(s);
 
 		uiQueueMain(ui_flip_status, NULL);
 
@@ -457,14 +449,13 @@ static uiControl *page_card(void) {
 		uiBox *hbox = uiNewHorizontalBox();
 		uiBoxSetPadded(hbox, 1);
 
-		label = uiNewLabel("Card Boot Flags");
-		uiBoxAppend(vbox, uiControl(label), 0);
+		uiBoxAppend(vbox, uiControl(uiNewLabel("Card Boot Flags")), 0);
+		uiBoxAppend(vbox, uiControl(uiNewLabel("Enable this if you want to boot Magic Lantern.")), 0);
 		
 		button = uiNewButton("Enable"); // T_WRITE_CARD_BOOT_FLAGS
 		uiButtonOnClicked(button, app_write_flag, NULL);
 		uiBoxAppend(hbox, uiControl(button), 1);
 		button = uiNewButton("Disable"); // T_DESTROY_CARD_BOOT_FLAGS
-		uiControlDisable(uiControl(button));
 		uiButtonOnClicked(button, app_destroy_flag, NULL);
 		uiBoxAppend(hbox, uiControl(button), 1);
 	
@@ -475,14 +466,13 @@ static uiControl *page_card(void) {
 		uiBox *hbox = uiNewHorizontalBox();
 		uiBoxSetPadded(hbox, 1);
 
-		label = uiNewLabel("Card scriptable flags");
-		uiBoxAppend(vbox, uiControl(label), 0);
-		
+		uiBoxAppend(vbox, uiControl(uiNewLabel("Card scriptable flags")), 0);
+		uiBoxAppend(vbox, uiControl(uiNewLabel("Enable this if you want to run Canon Basic scripts.")), 0);
+
 		button = uiNewButton("Enable"); // T_MAKE_CARD_SCRIPTABLE
 		uiButtonOnClicked(button, app_script_flag, NULL);
 		uiBoxAppend(hbox, uiControl(button), 1);
 		button = uiNewButton("Disable"); // T_MAKE_CARD_UNSCRIPTABLE
-		uiControlDisable(uiControl(button));
 		uiButtonOnClicked(button, app_destroy_script_flag, NULL);
 		uiBoxAppend(hbox, uiControl(button), 1);
 	

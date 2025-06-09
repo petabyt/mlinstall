@@ -18,6 +18,12 @@ static int attempts = 0;
 int main (int argc, char ** argv) {
 	ptp_runtime = ptp_new(PTP_USB);
 
+#ifdef VCAM
+	void vcam_add_usbt_device(const char *name, int argc, char **argv);
+	ptp_comm_init(ptp_runtime);
+	vcam_add_usbt_device("canon_1300d", )
+#endif
+
 #ifdef _WIN32
 	// Route stdout to console
 	AttachConsole(-1);
@@ -62,7 +68,7 @@ int main (int argc, char ** argv) {
 			return ptp_connect_deinit();
 		} else if (!strcmp(argv[i], "--test")) {
 			if (app_test(ptp_runtime)) {
-				puts("Test failed\n");
+				puts("Test failed");
 				return 1;
 			}
 			return 0;
@@ -75,26 +81,33 @@ int main (int argc, char ** argv) {
 
 int app_test(struct PtpRuntime *r) {
 	int rc = 0;
-	for (int i = 0; i < 3; i++) {
-		if (ptp_connect_init()) {
-			printf("%s\n", T_DEV_NOT_FOUND);
-			return 1;
-		}
 
-		rc = mlinstall_setup_session(r);
-		if (rc) return rc;
-
-		rc = ptp_eos_activate_command(r);
-		if (rc) return rc;
-
-		rc = ptp_eos_evproc_run(r, ENABLE_BOOT_DISK);
-		if (rc) return rc;
-
-		rc = ptp_eos_evproc_run(r, DISABLE_BOOT_DISK);
-		if (rc) return rc;
-
-		if (ptp_connect_deinit()) return 1;
+	if (ptp_connect_init()) {
+		printf("%s\n", T_DEV_NOT_FOUND);
+		return 1;
 	}
+
+	r->comm_dump = fopen("test_dump", "wb");
+	if (r->comm_dump == NULL) abort();
+
+	rc = mlinstall_setup_session(r);
+	if (rc) return rc;
+
+	rc = ptp_eos_activate_command(r);
+	if (rc) return rc;
+
+	rc = ptp_eos_evproc_run(r, ENABLE_BOOT_DISK);
+	if (rc) return rc;
+
+	rc = ptp_eos_evproc_run(r, DISABLE_BOOT_DISK);
+	if (rc) return rc;
+
+	rc = ptp_close_session(ptp_runtime);
+	if (rc) return rc;
+
+	ptp_device_close(ptp_runtime);
+
+	fclose(r->comm_dump);
 
 	return 0;
 }
@@ -153,7 +166,7 @@ int ptp_connect_init(void) {
 		return rc;
 	}
 
-	if (strcmp(ptp_runtime->di->manufacturer, "Canon Inc.")) {
+	if (ptp_device_type(ptp_runtime) != PTP_DEV_EOS) {
 		log_print(T_NOT_CANON_DEVICE, ptp_runtime->di->model);
 		ptp_connect_deinit();
 		return -1;

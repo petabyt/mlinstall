@@ -118,7 +118,7 @@ int drive_get_usable(char buffer[], int n) {
 	return 0;
 }
 
-int drive_openfs(int mode) {
+int drive_openfs(void) {
 	// Windows filesystems must be opened like this: \\.\E:
 	char buffer[64] = "\\\\.\\0:";
 	int drive = drive_get();

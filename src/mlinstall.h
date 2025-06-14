@@ -15,8 +15,8 @@ extern int dev_flag;
 void log_print(char *format, ...);
 void log_clear(void);
 
-int ptp_connect_deinit(void);
-int ptp_connect_init(void);
+int mlinstall_disconnect(void);
+int mlinstall_connect(void);
 
 int mlinstall_main_window(void);
 

@@ -70,10 +70,28 @@ void log_clear(void) {
 }
 
 void ptp_report_error(struct PtpRuntime *r, char *reason, int code) {
-	printf("Reported error: %d\n", code);
-
 	if (r->io_kill_switch) return;
+	ptp_mutex_lock(r);
+	if (r->io_kill_switch) {
+		ptp_mutex_unlock(r);
+		return;
+	}
+
+	// Safely disconnect if intentional
+	if (code == 0) {
+		ptp_verbose_log("Closing session\n");
+		ptp_close_session(r);
+	}
+
+	r->operation_kill_switch = 1;
+
+	ptp_verbose_log("Goodbye\n");
+
+	ptp_device_close(r);
+
 	r->io_kill_switch = 1;
+
+	ptp_mutex_unlock(r);
 
 	if (reason == NULL) {
 		if (code == PTP_IO_ERR) {
@@ -84,6 +102,8 @@ void ptp_report_error(struct PtpRuntime *r, char *reason, int code) {
 	} else {
 		log_print("Disconnected: %s", reason);
 	}
+
+	uiQueueMain(ui_disconnected_state, NULL);
 }
 
 static int log_drive_error(int rc) {
@@ -197,7 +217,7 @@ void *app_connect_start_thread(void *arg) {
 
 	struct PtpRuntime *r = ptp_get();
 
-	int rc = ptp_connect_init();
+	int rc = mlinstall_connect();
 	if (rc) {
 		ptp_report_error(r, NULL, rc);
 		pthread_exit(NULL);
@@ -334,19 +354,7 @@ static void app_show_drive_info(uiButton *b, void *data)
 static void *app_disconnect(void *arg) {
 	struct PtpRuntime *r = ptp_get();
 
-	// Block PTP operations while closing down
-	ptp_mutex_lock(r);
-
-	ptp_close_session(r);
-
 	ptp_report_error(r, "Intentional", 0);
-
-	ptp_device_close(r);
-
-	// killswitch is back on, we can unlock now
-	ptp_mutex_unlock(r);
-
-	uiQueueMain(ui_disconnected_state, NULL);
 
 	return NULL;
 }

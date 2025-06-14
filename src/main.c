@@ -17,6 +17,7 @@ static int attempts = 0;
 
 int main (int argc, char ** argv) {
 	ptp_runtime = ptp_new(PTP_USB);
+	ptp_runtime->di = (struct PtpDeviceInfo *)malloc(sizeof(struct PtpDeviceInfo));
 
 #ifdef VCAM
 	void vcam_add_usbt_device(const char *name, int argc, char **argv);
@@ -53,7 +54,7 @@ int main (int argc, char ** argv) {
 				return 1;
 			}
 
-			if (ptp_connect_init()) {
+			if (mlinstall_connect()) {
 				printf("%s\n", T_DEV_NOT_FOUND);
 				return 1;
 			}
@@ -65,7 +66,7 @@ int main (int argc, char ** argv) {
 
 			printf("File uploaded\n");
 
-			return ptp_connect_deinit();
+			return mlinstall_disconnect();
 		} else if (!strcmp(argv[i], "--test")) {
 			if (app_test(ptp_runtime)) {
 				puts("Test failed");
@@ -82,7 +83,7 @@ int main (int argc, char ** argv) {
 int app_test(struct PtpRuntime *r) {
 	int rc = 0;
 
-	if (ptp_connect_init()) {
+	if (mlinstall_connect()) {
 		printf("%s\n", T_DEV_NOT_FOUND);
 		return 1;
 	}
@@ -112,7 +113,7 @@ int app_test(struct PtpRuntime *r) {
 	return 0;
 }
 
-int ptp_connect_deinit(void) {
+int mlinstall_disconnect(void) {
 	int rc = ptp_close_session(ptp_runtime);
 	if (rc) return rc;
 
@@ -121,19 +122,11 @@ int ptp_connect_deinit(void) {
 	return 0;
 }
 
-int ptp_connect_init(void) {
+int mlinstall_connect(void) {
+	int rc;
 	attempts++;
 
-	int rc;
-#if 0
-	// For LibWPD, this will work just fine to detect cameras
-	rc = ptp_device_init(ptp_runtime);
-	if (rc) {
-		log_print(T_CANON_NOT_FOUND_FMT, attempts - 1);
-		return PTP_NO_DEVICE;
-	}
-#endif
-	// TODO: libWPD doesn't have ptpusb_device_list yet
+	ptp_reset(ptp_runtime);
 
 	struct PtpDeviceEntry *list = ptpusb_device_list(ptp_runtime);
 
@@ -159,17 +152,10 @@ int ptp_connect_init(void) {
 		return rc;
 	}
 
-	ptp_runtime->di = (struct PtpDeviceInfo *)malloc(sizeof(struct PtpDeviceInfo));
 	rc = ptp_get_device_info(ptp_runtime, ptp_runtime->di);
 	if (rc) {
-		ptp_connect_deinit();
+		mlinstall_disconnect();
 		return rc;
-	}
-
-	if (ptp_device_type(ptp_runtime) != PTP_DEV_EOS) {
-		log_print(T_NOT_CANON_DEVICE, ptp_runtime->di->model);
-		ptp_connect_deinit();
-		return -1;
 	}
 
 	return 0;

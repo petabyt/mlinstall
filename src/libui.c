@@ -395,8 +395,6 @@ static uiControl *page_usb(void)
 	vbox = uiNewVerticalBox();
 	uiBoxSetPadded(vbox, 1);
 
-	//label = uiNewLabel("Camera not connected");
-	//uiBoxAppend(vbox, uiControl(label), 0);
 	button = uiNewButton(T_CONNECT);
 	uiControlSetTooltip(uiControl(button), "Connect to the first Canon camera available");
 	app.connect_button = button;
@@ -405,6 +403,7 @@ static uiControl *page_usb(void)
 	label = uiNewLabel(T_ABOUT_BOOTDISK);
 	uiBoxAppend(vbox, uiControl(label), 0);
 	button = uiNewButton(T_ENABLE_BOOT_DISK);
+	uiControlSetTooltip(uiControl(button), "Enables the BootDisk flag, enabling the camera to run Magic Lantern");
 	uiButtonOnClicked(button, app_enable_bootdisk, NULL);
 	uiBoxAppend(vbox, uiControl(button), 0);
 	app.usb_widgets[0] = button;
@@ -413,6 +412,7 @@ static uiControl *page_usb(void)
 	//label = uiNewLabel("This will reset the camera to the factory state.");
 	//uiBoxAppend(vbox, uiControl(label), 0);
 	button = uiNewButton(T_DISABLE_BOOT_DISK);
+	uiControlSetTooltip(uiControl(button), "Disables the BootDisk flag, which is the factory state");
 	uiButtonOnClicked(button, app_disable_bootdisk, NULL);
 	uiBoxAppend(vbox, uiControl(button), 0);
 	app.usb_widgets[2] = button;
@@ -450,7 +450,7 @@ static uiControl *page_card(void) {
 	uiBoxSetPadded(vbox, 1);
 
 #ifdef __APPLE__
-	uiBoxAppend(vbox, uiControl(uiNewLabel("MacOS card editing is\ncurrently not supported.")), 0);
+	uiBoxAppend(vbox, uiControl(uiNewLabel("MacOS card tools are\ncurrently not supported.")), 0);
 #else
 
 	{
@@ -458,12 +458,14 @@ static uiControl *page_card(void) {
 		uiBoxSetPadded(hbox, 1);
 
 		uiBoxAppend(vbox, uiControl(uiNewLabel("Card Boot Flags")), 0);
-		uiBoxAppend(vbox, uiControl(uiNewLabel("Enable this if you want to boot Magic Lantern.")), 0);
+		uiBoxAppend(vbox, uiControl(uiNewLabel("Enabling this changes some bytes on the card which\nallows the camera to boot from it.")), 0);
 		
 		button = uiNewButton("Enable"); // T_WRITE_CARD_BOOT_FLAGS
+		uiControlSetTooltip(uiControl(button), "Make it so that a camera can boot Magic Lantern from the card");
 		uiButtonOnClicked(button, app_write_flag, NULL);
 		uiBoxAppend(hbox, uiControl(button), 1);
 		button = uiNewButton("Disable"); // T_DESTROY_CARD_BOOT_FLAGS
+		uiControlSetTooltip(uiControl(button), "Make the card non-bootable");
 		uiButtonOnClicked(button, app_destroy_flag, NULL);
 		uiBoxAppend(hbox, uiControl(button), 1);
 	
@@ -478,9 +480,11 @@ static uiControl *page_card(void) {
 		uiBoxAppend(vbox, uiControl(uiNewLabel("Enable this if you want to run Canon Basic scripts.")), 0);
 
 		button = uiNewButton("Enable"); // T_MAKE_CARD_SCRIPTABLE
+		uiControlSetTooltip(uiControl(button), "Make the card able to run a canon basic script");
 		uiButtonOnClicked(button, app_script_flag, NULL);
 		uiBoxAppend(hbox, uiControl(button), 1);
 		button = uiNewButton("Disable"); // T_MAKE_CARD_UNSCRIPTABLE
+		uiControlSetTooltip(uiControl(button), "Remove the script flag");
 		uiButtonOnClicked(button, app_destroy_script_flag, NULL);
 		uiBoxAppend(hbox, uiControl(button), 1);
 	
@@ -489,6 +493,7 @@ static uiControl *page_card(void) {
 
 	uiBoxAppend(vbox, uiControl(uiNewLabel(T_DETECT_CARD_TITLE)), 0);
 	button = uiNewButton(T_DETECT_CARD);
+	uiControlSetTooltip(uiControl(button), "Check if the card is inserted");
 	uiButtonOnClicked(button, app_show_drive_info, NULL);
 	uiBoxAppend(vbox, uiControl(button), 0);
 #endif

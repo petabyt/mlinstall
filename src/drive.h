@@ -11,13 +11,13 @@ enum FlagsMode {
 	FLAG_SCRIPT,
 
 	FLAG_DESTROY_BOOT,
-	FLAG_DESTROY_SCRIPT
+	FLAG_DESTROY_SCRIPT,
 };
 
 enum FlagsErr {
 	DRIVE_BADFS = -1,
 	DRIVE_NONE = -2,
-	DRIVE_ERROR = -3
+	DRIVE_ERROR = -3,
 };
 
 int drive_get_usable(char buffer[], int n);

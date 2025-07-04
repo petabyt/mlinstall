@@ -2,7 +2,6 @@
 // either drive-win.c or drive-unix.c
 #include <stdio.h>
 #include "mlinstall.h"
-#include "drive.h"
 
 static char flag_develop[] = "EOS_DEVELOP";
 static char flag_bootdisk[] = "BOOTDISK";

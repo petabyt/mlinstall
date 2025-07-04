@@ -2,6 +2,8 @@
 #define PLATFORM_H
 
 #include <libpict.h>
+#include <rim.h>
+#include <ui.h>
 
 // Defined in main.c
 struct PtpRuntime *ptp_get(void);
@@ -20,6 +22,11 @@ int mlinstall_connect(void);
 
 int mlinstall_main_window(void);
 
+int mlinstall_rim_window(struct RimContext *ctx, void *arg);
+
 int mlinstall_setup_session(struct PtpRuntime *r);
+
+#include "lang.h"
+#include "drive.h"
 
 #endif

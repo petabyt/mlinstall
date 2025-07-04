@@ -4,11 +4,8 @@
 #include <time.h>
 #include <stdarg.h>
 #include <pthread.h>
-#include <ui.h>
 #include <libpict.h>
 #include "mlinstall.h"
-#include "lang.h"
-#include "drive.h"
 
 struct AppGlobalState {
 	void *connect_button;

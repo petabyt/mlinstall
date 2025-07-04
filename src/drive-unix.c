@@ -16,7 +16,6 @@
 
 #include "mlinstall.h"
 #include "exfat.h"
-#include "drive.h"
 
 FILE *d;
 int drive_getfs(void) {

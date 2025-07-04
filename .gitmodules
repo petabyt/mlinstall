@@ -7,3 +7,6 @@
 [submodule "libs/libui-dev"]
 	path = libs/libui-dev
 	url = https://github.com/petabyt/libui-dev
+[submodule "libs/rim"]
+	path = libs/rim
+	url = git@github.com:petabyt/rim.git

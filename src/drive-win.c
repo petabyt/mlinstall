@@ -3,8 +3,7 @@
 
 #include <stdio.h>
 #include <windows.h>
-
-#include "drive.h"
+#include "mlinstall.h"
 #include "exfat.h"
 
 #define BOOTSECTOR_SIZE 512

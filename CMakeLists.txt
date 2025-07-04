@@ -18,27 +18,22 @@ set(FILES
 	src/ptp.c
 	src/data.S
 	src/libui.c
+	src/ui.c
 )
 
 option(PTP_DEFAULT_LOGGING "" OFF)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/libpict ${CMAKE_CURRENT_BINARY_DIR}/libpict)
 
-option(LIBUI_COMPILE_EXAMPLES "" OFF)
-option(LIBUI_INCLUDE_INSTALL "" OFF)
-if(EXISTS "${CMAKE_SOURCE_DIR}/../libui-dev")
-    add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/../libui-dev/ ${CMAKE_CURRENT_BINARY_DIR}/libui-dev)
-else()
-    include(FetchContent)
-    FetchContent_Declare(libui GIT_REPOSITORY https://github.com/petabyt/libui-dev.git GIT_TAG master GIT_SHALLOW 1)
-    FetchContent_MakeAvailable(libui)
-endif()
+option(RIM_COMPILE_DEMOS "Compile demos" OFF)
+option(RIM_COMPILE_LIBUI "Compile LibUI backend" ON)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/rim/ ${CMAKE_CURRENT_BINARY_DIR}/rim)
 
 if(UNIX)
 	list(APPEND FILES src/drive-unix.c)
-	set(LIBS LibUI::LibUI)
+	set(LIBS Rim::Rim)
 elseif(WIN32)
 	list(APPEND FILES src/drive-win.c assets/win.rc)
-	set(LIBS LibUI::LibUI)
+	set(LIBS Rim::Rim)
 	list(APPEND LIBS -luser32 -lkernel32 -lgdi32 -lcomctl32 -luxtheme -lmsimg32 -lcomdlg32 -ld2d1 -ldwrite -lole32 -loleaut32 -loleacc -lws2_32)
 	list(APPEND LIBS -lstdc++ -lgcc -static -lpthread -lssp -lurlmon -luuid)
 	list(APPEND LIBS -Wl,-subsystem,windows) # Disable cmd.exe window on open
@@ -88,12 +83,6 @@ if(MLINSTALL_CREATE_APPIMAGE)
     )
 endif()
 
-# bash assets/appify.sh -i assets/mlinstall.png -s mac.out -n mlinstall
-# mkdir mlinstall.app/Contents/Frameworks
-# cp /opt/local/lib/libusb-1.0.0.dylib mlinstall.app/Contents/Frameworks
-# cp /usr/local/lib/libui.dylib mlinstall.app/Contents/Frameworks
-# install_name_tool -change /usr/local/opt/libusb/lib/libusb-1.0.0.dylib "@executable_path/../Frameworks/libusb-1.0.0.dylib" ./mlinstall.app/Contents/MacOS/mlinstall
-# install_name_tool -change libui.dylib "@executable_path/../Frameworks/libui.dylib" ./mlinstall.app/Contents/MacOS/mlinstall
 if(MLINSTALL_CREATE_MAC_APP)
     function(create_mac_app)
         cmake_parse_arguments(PARSE_ARGV 0 ARG "" "TARGET;APP_NAME;PLIST_PATH;DYLIBS" "")
@@ -113,7 +102,7 @@ if(MLINSTALL_CREATE_MAC_APP)
             DEPENDS ${ARG_TARGET}
         )
         add_custom_target(${ARG_APP_NAME}_Package ALL
-            COMMAND tar -czf "${CMAKE_CURRENT_BINARY_DIR}/${ARG_APP_NAME}.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}" "${ARG_APP_NAME}.app"
+            COMMAND tar -czf "${CMAKE_CURRENT_BINARY_DIR}/${ARG_APP_NAME}-osx-x86_64.tar.gz" -C "${CMAKE_CURRENT_BINARY_DIR}" "${ARG_APP_NAME}.app"
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
             DEPENDS ${ARG_APP_NAME}_AppBundle
         )

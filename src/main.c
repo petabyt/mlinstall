@@ -5,7 +5,6 @@
 #include <windows.h>
 #endif
 #include "mlinstall.h"
-#include "lang.h"
 
 int app_test(struct PtpRuntime *r);
 struct PtpRuntime *ptp_runtime;
@@ -78,6 +77,7 @@ int main (int argc, char ** argv) {
 
 	puts("Starting main window...");
 	return mlinstall_main_window();
+	//return rim_start(mlinstall_rim_window, ptp_runtime);
 }
 
 int app_test(struct PtpRuntime *r) {

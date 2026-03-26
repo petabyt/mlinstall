@@ -199,12 +199,19 @@ int mlinstall_setup_session(struct PtpRuntime *r) {
 		log_print("Shutter count: ??");
 	}
 
+	if (ptp_check_opcode(r, PTP_OC_EOS_IsNeoKabotanProcMode)) {
+		log_print("The PTP unlock method (enable custom boot) is not available on this camera. Sorry!");
+		return 0;
+	}
+
 	char build_version[16];
 	rc = ptp_eos_fa_get_build_version(r, build_version, sizeof(build_version));
 	if (rc == 0) {
 		log_print("Build version: %s", build_version);
-	} else {
+	} else if (rc == PTP_RUNTIME_ERR || rc == PTP_CHECK_CODE) {
 		log_print("Failed to get build version (%d)", rc);
+	} else {
+		return rc;
 	}
 	return 0;
 }
@@ -304,7 +311,7 @@ static void *app_run_eventproc_thread(void *arg) {
 	return (void *)0;
 
 	err:;
-	log_print("Error completing operation");
+	log_print("Error executing command (%d)", rc);
 	if (rc == PTP_IO_ERR) {
 		ptp_report_error(r, NULL, rc);
 	}

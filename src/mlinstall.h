@@ -2,7 +2,6 @@
 #define PLATFORM_H
 
 #include <libpict.h>
-#include <rim.h>
 #include <ui.h>
 
 // Defined in main.c

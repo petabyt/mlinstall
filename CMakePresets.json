@@ -1,0 +1,41 @@
+{
+	"version": 3,
+	"configurePresets": [
+		{
+			"name": "build",
+			"generator": "Ninja",
+			"binaryDir": "build",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Debug"
+			}
+		},
+		{
+			"name": "release",
+			"generator": "Ninja",
+			"binaryDir": "build",
+			"cacheVariables": {
+				"MLINSTALL_CREATE_APPIMAGE": "ON",
+				"CMAKE_BUILD_TYPE": "Release"
+			}
+		},
+		{
+			"name": "win",
+			"generator": "Ninja",
+			"binaryDir": "build_win",
+			"cacheVariables": {
+				"CMAKE_BUILD_TYPE": "Release",
+				"CMAKE_TOOLCHAIN_FILE": "/home/daniel/dotfiles/mingw.cmake"
+			}
+		},
+		{
+			"name": "osx",
+			"generator": "Ninja",
+			"binaryDir": "build_osx",
+			"cacheVariables": {
+				"MLINSTALL_CREATE_MAC_APP": "ON",
+				"CMAKE_BUILD_TYPE": "Release",
+				"CMAKE_TOOLCHAIN_FILE": "/home/daniel/dotfiles/osx.cmake"
+			}
+		}
+	]
+}

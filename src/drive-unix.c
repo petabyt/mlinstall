@@ -1,10 +1,6 @@
 // Common filesystem drive code for Linux/Darwin
 // Untested on Mac OS
 
-#ifdef WIN32
-	#error "not windows code"
-#endif
-
 // Uses shell commands: mount cat grep awk
 // some GNU coreutils seem to do the same thing
 

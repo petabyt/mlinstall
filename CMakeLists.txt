@@ -18,22 +18,21 @@ set(FILES
 	src/ptp.c
 	src/data.S
 	src/libui.c
-	src/ui.c
+	src/libui.c
 )
 
 option(PTP_DEFAULT_LOGGING "" OFF)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/libpict ${CMAKE_CURRENT_BINARY_DIR}/libpict)
 
-option(RIM_COMPILE_DEMOS "Compile demos" OFF)
-option(RIM_COMPILE_LIBUI "Compile LibUI backend" ON)
-add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/rim/ ${CMAKE_CURRENT_BINARY_DIR}/rim)
+option(LIBUI_COMPILE_GL "glArea support" OFF)
+add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/libui-dev ${CMAKE_CURRENT_BINARY_DIR}/libui)
 
 if(UNIX)
 	list(APPEND FILES src/drive-unix.c)
-	set(LIBS Rim::Rim)
+	set(LIBS LibUI::LibUI)
 elseif(WIN32)
 	list(APPEND FILES src/drive-win.c assets/win.rc)
-	set(LIBS Rim::Rim)
+	set(LIBS LibUI::LibUI)
 	list(APPEND LIBS -luser32 -lkernel32 -lgdi32 -lcomctl32 -luxtheme -lmsimg32 -lcomdlg32 -ld2d1 -ldwrite -lole32 -loleaut32 -loleacc -lws2_32)
 	list(APPEND LIBS -lstdc++ -lgcc -static -lpthread -lssp -lurlmon -luuid)
 	list(APPEND LIBS -Wl,-subsystem,windows) # Disable cmd.exe window on open

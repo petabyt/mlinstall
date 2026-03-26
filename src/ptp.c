@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <libpict.h>
 
+//#define VERBOSE
 void ptp_verbose_log(char *fmt, ...) {
 #ifdef VERBOSE
 	va_list args;

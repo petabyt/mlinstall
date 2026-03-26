@@ -14,7 +14,7 @@ struct PtpRuntime *ptp_get(void) {
 int dev_flag = 0;
 static int attempts = 0;
 
-int main (int argc, char ** argv) {
+int main(int argc, char ** argv) {
 	ptp_runtime = ptp_new(PTP_USB);
 	ptp_runtime->di = (struct PtpDeviceInfo *)malloc(sizeof(struct PtpDeviceInfo));
 

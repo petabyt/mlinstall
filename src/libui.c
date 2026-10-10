@@ -76,13 +76,13 @@ void ptp_report_error(struct PtpRuntime *r, char *reason, int code) {
 
 	// Safely disconnect if intentional
 	if (code == 0) {
-		ptp_verbose_log("Closing session\n");
+		ptp_verbose_log(r, "Closing session\n");
 		ptp_close_session(r);
 	}
 
 	r->operation_kill_switch = 1;
 
-	ptp_verbose_log("Goodbye\n");
+	ptp_verbose_log(r, "Goodbye\n");
 
 	ptp_device_close(r);
 

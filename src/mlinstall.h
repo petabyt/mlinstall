@@ -21,9 +21,13 @@ int mlinstall_connect(void);
 
 int mlinstall_main_window(void);
 
-int mlinstall_rim_window(struct RimContext *ctx, void *arg);
-
 int mlinstall_setup_session(struct PtpRuntime *r);
+
+int ptp_eos_activate_command(struct PtpRuntime *r);
+int ptp_eos_exec_evproc(struct PtpRuntime *r, void *data, int length, int expect_return);
+int ptp_eos_evproc_run(struct PtpRuntime *r, char *fmt, ...);
+int ptp_eos_evproc_return_data(struct PtpRuntime *r);
+int ptp_eos_fa_get_build_version(struct PtpRuntime *r, char *buffer, unsigned int max);
 
 #include "lang.h"
 #include "drive.h"

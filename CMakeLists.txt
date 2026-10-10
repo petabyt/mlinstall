@@ -16,6 +16,7 @@ set(FILES
 	src/drive.c
 	src/model.c
 	src/ptp.c
+	src/canon.c
 	src/data.S
 	src/libui.c
 	src/libui.c
@@ -37,7 +38,7 @@ elseif(WIN32)
 	list(APPEND LIBS -lstdc++ -lgcc -static -lpthread -lssp -lurlmon -luuid)
 	list(APPEND LIBS -Wl,-subsystem,windows) # Disable cmd.exe window on open
 elseif(APPLE)
-	
+	# ...
 endif()
 
 add_executable(mlinstall ${FILES})

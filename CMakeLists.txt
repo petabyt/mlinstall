@@ -15,7 +15,6 @@ endif()
 
 set(FILES
 	src/main.c
-	src/model.c
 	src/ptp.c
 	src/canon.c
 	src/data.S

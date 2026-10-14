@@ -1,179 +1,208 @@
-// fopen/fwrite/fseek works on Windows, just but won't write to the drive, so this
-// is a separate implementation
+// Windows port of the drive_io interface: raw volume access via CreateFile.
+// fopen/fwrite won't write to a volume, and volume handles opened with
+// FILE_FLAG_NO_BUFFERING require sector-aligned transfers, hence the
+// read-modify-write emulation below.
 
 #include <stdio.h>
+#include <string.h>
 #include <windows.h>
-#include "mlinstall.h"
-#include "exfat.h"
 
-#define BOOTSECTOR_SIZE 512
+#include "drive.h"
 
-static char bootsector[BOOTSECTOR_SIZE];
-static DWORD bytesRead = 0;
+#define SECTOR_SIZE 512
 
-static HANDLE d;
+static HANDLE d = INVALID_HANDLE_VALUE;
+static unsigned char sector_buf[SECTOR_SIZE];
 
-int drive_getfs(void) {
-	SetFilePointer(d, 0, NULL, FILE_BEGIN);
-	ReadFile(d, bootsector, BOOTSECTOR_SIZE, &bytesRead, NULL);
-
-	if (!strncmp(bootsector + 54, "FAT16   ", 8)) {
-		return FAT16;
-	}
-
-	if (!strncmp(bootsector + 82, "FAT32   ", 8)) {
-		return FAT32;
-	}
-
-	if (!strncmp(bootsector + 3, "EXFAT   ", 8)) {
-		return EXFAT;
-	}
-
-	return DRIVE_BADFS;
-}
-
-// WriteFile only writes to a single sector at a time, this
-// immitates fwrite to make things a little easier
-static int exfat_write(int location, int length, void *bytes) {
-	// Get sector address to write to
-	int offset = location + (512 * 12);
-	int sector = offset - (offset % 512);
-
-	// Write to specific spot in 
-	SetFilePointer(d, sector, NULL, FILE_BEGIN);
-	ReadFile(d, bootsector, BOOTSECTOR_SIZE, &bytesRead, NULL);
-	memcpy(bootsector + (offset % 512), bytes, length);
-	SetFilePointer(d, sector, NULL, FILE_BEGIN);
-	WriteFile(d, bootsector, 512, &bytesRead, NULL);
-	
-	return GetLastError();
-}
-
-void flag_write(long offset, char string[]) {
-	char old_flag[16] = { 0 };
-
-	SetFilePointer(d, 0, NULL, FILE_BEGIN);
-	ReadFile(d, bootsector, BOOTSECTOR_SIZE, &bytesRead, NULL);
-
-	memcpy(old_flag, bootsector + offset, strlen(string) % sizeof(old_flag));
-	printf("Current Flag: %s\n", old_flag);
-	memcpy(bootsector + offset, string, strlen(string));
-	printf("New Flag:     %s\n", string);
-
-	SetFilePointer(d, 0, NULL, FILE_BEGIN);
-	if (!WriteFile(d, bootsector, BOOTSECTOR_SIZE, &bytesRead, NULL)) {
-		printf("Error writing to drive: %ld\n", GetLastError());
-		return;
-	}
-
-	if (drive_getfs() == EXFAT) {
-		printf("Card is ExFAT, writing flags in the backup VBR.\n");
-		printf("Writing \"%s\" at 0x%lx\n", string, offset + (512 * 12));
-
-		exfat_write(offset, strlen(string), string);
-	}
-	
-	SetFilePointer(d, 0, NULL, FILE_BEGIN);
-	FlushFileBuffers(d);
-}
-
-// Returns drive letter as int
-int drive_get(void) {
-	char id;
+static int find_card_drive(char *letter) {
 	char dstr[] = "X:\\";
 
 	DWORD drives = GetLogicalDrives();
 	for (int i = 0; i < 32; i++) {
 		// Check if bit is 1
-		if ((drives >> i) & 1) {
-			dstr[0] = i + 'A';
+		if (!((drives >> i) & 1)) continue;
+		dstr[0] = (char)(i + 'A');
 
-			char volname[100];
-			GetVolumeInformationA(dstr, volname, sizeof(volname), NULL, NULL, NULL,
-					      NULL, 0);
+		char volname[100];
+		if (!GetVolumeInformationA(dstr, volname, sizeof(volname), NULL, NULL, NULL,
+					   NULL, 0)) {
+			continue;
+		}
 
-			if (!strncmp(volname, "EOS_DIGITAL", 11)) {
-				if (i + 'A' == 'C') {
-					puts("PANIC, somehow got C drive...");
-					return DRIVE_NONE;
-				}
-				
-				return (int)(i + 'A');
+		if (!strncmp(volname, "EOS_DIGITAL", 11)) {
+			if (dstr[0] == 'C') {
+				puts("PANIC, somehow got C drive...");
+				return DRIVE_NONE;
 			}
+
+			*letter = dstr[0];
+			return 0;
 		}
 	}
 
 	return DRIVE_NONE;
 }
 
-int drive_get_usable(char buffer[], int n) {
-	int drive = drive_get();
-	if (drive < 0) {
-		return drive;
-	}
+int drive_io_discover(char *buf, int n) {
+	char letter;
+	int rc = find_card_drive(&letter);
+	if (rc) return rc;
 
-	strncpy(buffer, " :", n);
-	buffer[0] = (char)drive;
+	snprintf(buf, n, "\\\\.\\%c:", letter);
 	return 0;
 }
 
-int drive_openfs(void) {
-	// Windows filesystems must be opened like this: \\.\E:
-	char buffer[64] = "\\\\.\\0:";
-	int drive = drive_get();
-	if (drive == DRIVE_NONE) {
-		return DRIVE_NONE;
-	}
-	
-	buffer[4] = (char)drive;
+int drive_get_usable(char buffer[], int n) {
+	char letter;
+	int rc = find_card_drive(&letter);
+	if (rc) return rc;
 
-	d = CreateFile(buffer, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
+	if (n < 3) return DRIVE_ERROR;
+	buffer[0] = letter;
+	buffer[1] = ':';
+	buffer[2] = '\0';
+	return 0;
+}
+
+int drive_get_info(char *name, int name_n, uint64_t *bytes) {
+	char letter;
+	char dstr[] = "X:\\";
+	int rc = find_card_drive(&letter);
+	if (rc) return rc;
+
+	dstr[0] = letter;
+
+	char volname[100];
+	if (!GetVolumeInformationA(dstr, volname, sizeof(volname), NULL, NULL, NULL,
+				   NULL, 0)) {
+		return DRIVE_ERROR;
+	}
+
+	ULARGE_INTEGER total;
+	if (!GetDiskFreeSpaceExA(dstr, NULL, &total, NULL)) {
+		return DRIVE_ERROR;
+	}
+
+	snprintf(name, name_n, "%s", volname);
+	*bytes = total.QuadPart;
+	return 0;
+}
+
+int drive_io_open(const char *device) {
+	DWORD bytes;
+
+	d = CreateFile(device, GENERIC_READ | GENERIC_WRITE, FILE_SHARE_READ | FILE_SHARE_WRITE,
 		       NULL, OPEN_EXISTING, FILE_FLAG_NO_BUFFERING | FILE_FLAG_RANDOM_ACCESS, NULL);
 
 	if (d == INVALID_HANDLE_VALUE) {
-		puts("Couldn't open the filesystem. Check file explorer and make sure EOS_DIGITAL exists.");
+		DWORD err = GetLastError();
+		if (err == ERROR_ACCESS_DENIED) {
+			log_print("Access denied opening %s", device);
+			return DRIVE_PRIV;
+		}
+
+		log_print("Couldn't open %s (error %ld)", device, (long)err);
 		return DRIVE_ERROR;
 	}
-	
+
 	// Lock drive while writing to it
-	if (!DeviceIoControl(d, FSCTL_LOCK_VOLUME, NULL, 0, NULL, 0, &bytesRead, NULL)) {
-		puts("Couldn't lock drive for some reason.");
+	if (!DeviceIoControl(d, FSCTL_LOCK_VOLUME, NULL, 0, NULL, 0, &bytes, NULL)) {
+		log_print("Couldn't lock drive for some reason.");
+		CloseHandle(d);
+		d = INVALID_HANDLE_VALUE;
 		return DRIVE_ERROR;
 	}
 
 	return 0;
 }
 
-void drive_close(void) {
-	CloseHandle(d);
-}
+static int read_sector(uint64_t offset, unsigned char *buf) {
+	DWORD bytes;
+	LONG low = (LONG)(offset & 0xffffffff);
+	LONG high = (LONG)(offset >> 32);
 
-void update_exfat(void) {
-	unsigned int buffer[EXFAT_VBR_SIZE + 512];
-
-	ReadFile(d, buffer, EXFAT_VBR_SIZE + 512, &bytesRead, NULL);
-	int sum = VBRChecksum((unsigned char *)buffer, EXFAT_VBR_SIZE);
-	for (int i = 0; i < 512 / 4; i++) {
-		buffer[i] = sum;
+	SetFilePointer(d, low, &high, FILE_BEGIN);
+	if (!ReadFile(d, buf, SECTOR_SIZE, &bytes, NULL) || bytes != SECTOR_SIZE) {
+		return DRIVE_ERROR;
 	}
 
-	// "write VBR checksum (from sector 0 to sector 10) at offset 5632 (sector 11) and offset 11776 (sector 23, for backup VBR)"
-	// Don't need to use exfat_write since these regions are divisible by 512
-	SetFilePointer(d, 5632, NULL, FILE_BEGIN);
-	WriteFile(d, buffer, 512, &bytesRead, NULL);
-	SetFilePointer(d, 11776, NULL, FILE_BEGIN);
-	WriteFile(d, buffer, 512, &bytesRead, NULL);
-
-	SetFilePointer(d, 0, NULL, FILE_BEGIN);
-	FlushFileBuffers(d);
+	return 0;
 }
 
-void drive_dump(char name[]) {
-	char *dump = malloc(TEMP_DUMP_SIZE);
-	SetFilePointer(d, 0, NULL, FILE_BEGIN);
-	ReadFile(d, dump, TEMP_DUMP_SIZE, &bytesRead, NULL);
+static int write_sector(uint64_t offset, const unsigned char *buf) {
+	DWORD bytes;
+	LONG low = (LONG)(offset & 0xffffffff);
+	LONG high = (LONG)(offset >> 32);
 
-	FILE *f = fopen(name, "w");
-	fwrite(dump, 1, TEMP_DUMP_SIZE, f);
-	fclose(f);
+	SetFilePointer(d, low, &high, FILE_BEGIN);
+	if (!WriteFile(d, buf, SECTOR_SIZE, &bytes, NULL) || bytes != SECTOR_SIZE) {
+		return DRIVE_ERROR;
+	}
+
+	return 0;
+}
+
+// Emulate byte-granular I/O over sector-aligned volume transfers
+int drive_io_pread(uint64_t offset, void *buf, int len) {
+	unsigned char *out = buf;
+	int total = 0;
+
+	while (len > 0) {
+		uint64_t sector = offset - (offset % SECTOR_SIZE);
+		int off = (int)(offset % SECTOR_SIZE);
+		int chunk = SECTOR_SIZE - off;
+		if (chunk > len) chunk = len;
+
+		if (read_sector(sector, sector_buf)) return DRIVE_ERROR;
+		memcpy(out, sector_buf + off, chunk);
+
+		out += chunk;
+		offset += chunk;
+		len -= chunk;
+		total += chunk;
+	}
+
+	return total;
+}
+
+int drive_io_pwrite(uint64_t offset, const void *buf, int len) {
+	const unsigned char *in = buf;
+	int total = 0;
+
+	while (len > 0) {
+		uint64_t sector = offset - (offset % SECTOR_SIZE);
+		int off = (int)(offset % SECTOR_SIZE);
+		int chunk = SECTOR_SIZE - off;
+		if (chunk > len) chunk = len;
+
+		if (read_sector(sector, sector_buf)) return DRIVE_ERROR;
+		memcpy(sector_buf + off, in, chunk);
+		if (write_sector(sector, sector_buf)) return DRIVE_ERROR;
+
+		in += chunk;
+		offset += chunk;
+		len -= chunk;
+		total += chunk;
+	}
+
+	return total;
+}
+
+int drive_io_sync(void) {
+	SetFilePointer(d, 0, NULL, FILE_BEGIN);
+	if (!FlushFileBuffers(d)) {
+		return DRIVE_ERROR;
+	}
+
+	return 0;
+}
+
+int drive_io_close(void) {
+	if (d != INVALID_HANDLE_VALUE) {
+		// The volume lock is released when the handle closes
+		CloseHandle(d);
+		d = INVALID_HANDLE_VALUE;
+	}
+
+	return 0;
 }

@@ -1,186 +1,264 @@
-// Common filesystem drive code for Linux/Darwin
-// Untested on Mac OS
+// Linux GUI drive code. The GUI itself never needs root:
+//  - discovery/info via unprivileged udisks2 D-Bus queries
+//  - card writes via mlinstall-card, re-executed through pkexec when the
+//    helper can't open the device (polkit prompts for a password)
+//
+// Only drive_write_flag() and drive_get_usable() are linked here; the
+// shared flag semantics run inside mlinstall-card.
 
-// Uses shell commands: mount cat grep awk
-// some GNU coreutils seem to do the same thing
-
+#include <errno.h>
+#include <limits.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
-#include <sys/mount.h>
+#include <sys/wait.h>
 #include <unistd.h>
 
-#include "mlinstall.h"
-#include "exfat.h"
+#include <gio/gio.h>
+#include <udisks/udisks.h>
 
-FILE *d;
-int drive_getfs(void) {
-	char buffer[64];
+#include "drive.h"
+#include "lang.h"
 
-	memset(buffer, '\0', sizeof(buffer));
-	fseek(d, 54, SEEK_SET);
-	fread(buffer, 1, 8, d);
-	if (!strcmp(buffer, "FAT16   ")) {
-		return FAT16;
+static UDisksClient *client_new(void) {
+	GError *error = NULL;
+	UDisksClient *client = udisks_client_new_sync(NULL, &error);
+	if (client == NULL) {
+		log_print("Couldn't connect to udisks2: %s", error->message);
+		g_error_free(error);
+		return NULL;
 	}
 
-	memset(buffer, '\0', sizeof(buffer));
-	fseek(d, 82, SEEK_SET);
-	fread(buffer, 1, 8, d);
-	if (!strcmp(buffer, "FAT32   ")) {
-		return FAT32;
-	}
-
-	memset(buffer, '\0', sizeof(buffer));
-	fseek(d, 3, SEEK_SET);
-	fread(buffer, 1, 8, d);
-	if (!strcmp(buffer, "EXFAT   ")) {
-		return EXFAT;
-	}
-
-	return DRIVE_BADFS;
+	return client;
 }
 
-void flag_write(long int offset, char string[]) {
-	char buffer[64] = { 0 };
+// Card = block object whose filesystem label is EOS_DIGITAL
+static UDisksObject *find_card(UDisksClient *client) {
+	GList *objects = g_dbus_object_manager_get_objects(udisks_client_get_object_manager(client));
+	UDisksObject *found = NULL;
 
-	fseek(d, offset, SEEK_SET);
-	fread(buffer, 1, strlen(string), d);
+	for (GList *l = objects; l != NULL; l = l->next) {
+		UDisksObject *object = UDISKS_OBJECT(l->data);
+		UDisksBlock *block = udisks_object_peek_block(object);
+		if (block == NULL) continue;
 
-	// Sanitize the string
-	buffer[sizeof(buffer) - 1] = '\0';
-	for (int i = 0; i < sizeof(buffer); i++) {
-		if (!(i >= 'A' && i <= 'Z' || i == '_')) {
-			buffer[i] = '\0';
+		const gchar *label = udisks_block_get_id_label(block);
+		if (label != NULL && !strcmp(label, "EOS_DIGITAL")) {
+			found = g_object_ref(object);
+			break;
 		}
 	}
 
-	log_print("%s\t-> %s", buffer, string);
-
-	fseek(d, offset, SEEK_SET);
-	if (fwrite(string, 1, strlen(string), d) != strlen(string)) {
-		puts("Error writing to drive.");
-		return;
-	}
-
-	if (drive_getfs() == EXFAT) {
-		printf("Card is ExFAT, writing flags in the backup VBR.\n");
-		printf("Writing \"%s\" at 0x%lx\n", string, offset + (512 * 12));
-		fseek(d, offset + (512 * 12), SEEK_SET);
-		fwrite(string,  1, strlen(string), d);
-	}
-
-	// fseek-ing seems to be updating the file (?)
-	// fflush to be extra safe
-	// (required in order to apply fwrites)
-	fseek(d, 0, SEEK_SET);
-	fflush(d);
+	g_list_free_full(objects, g_object_unref);
+	return found;
 }
 
-int drive_get(char buffer[], int n) {
-	// Get EOS_DIGITAL Drive
-	FILE *c = popen("mount | grep EOS_DIGITAL", "r");
-	fgets(buffer, n, c);
-
-	strtok(buffer, " "); // Get first token before space
-
-	// Check if extracted result is valid
-	if (strncmp(buffer, "/dev/", 5) != 0) {
-		log_print("Make sure your EOS_DIGITAL card is mounted.");
-		return DRIVE_NONE;
-	}
-
-	return 0;
-}
-
+// Mountpoint of the card for the info button; mounts it if unmounted
 int drive_get_usable(char buffer[], int n) {
-	char filesystem[64];
-	if (drive_get(filesystem, sizeof(filesystem))) {
+	UDisksClient *client = client_new();
+	if (client == NULL) return DRIVE_ERROR;
+
+	UDisksObject *object = find_card(client);
+	if (object == NULL) {
+		log_print(T_DRIVE_NOT_FOUND);
+		g_object_unref(client);
 		return DRIVE_NONE;
 	}
 
-	char command[256];
-	sprintf(command, "cat /proc/mounts | grep %s | awk '{printf $2'}", filesystem);
-	if (command[1] == '\0') {
-		puts("Couldn't find the drive mounted.");
-		return DRIVE_NONE;
-	}
-
-	FILE *c = popen(command, "r");
-	fgets(buffer, n, c);
-
-	return 0;
-}
-
-int darwin_unmount(char *path) {
-	char buffer[64];
-	snprintf(buffer, sizeof(buffer), "diskutil unmount %s", path);
-	return system(buffer);
-}
-
-int drive_openfs(void) {
-	if (geteuid() != 0) {
-		log_print("We needs sudo permissions. (sudo ./mlinstall)");
-		return DRIVE_ERROR;
-	}
-
-	char buffer[128];
-	drive_get(buffer, 128);
-	d = fopen(buffer, "rw+");
-
-	if (d == NULL) {
-		return DRIVE_ERROR;
-	}
-
-	char drive[128];
-	drive_get_usable(drive, sizeof(drive));
-#ifdef __APPLE__
-	int rc = darwin_unmount(drive);
-#else
-	int rc = umount(drive);
-#endif
-	if (rc) {
-		puts("Error unmounting drive.");
-		return DRIVE_ERROR;
+	int rc = DRIVE_ERROR;
+	UDisksFilesystem *fs = udisks_object_peek_filesystem(object);
+	if (fs == NULL) {
+		log_print("Card has no filesystem?");
 	} else {
-		puts("Unmounted drive.");
+		const gchar *const *points = udisks_filesystem_get_mount_points(fs);
+		if (points != NULL && points[0] != NULL) {
+			snprintf(buffer, n, "%s", points[0]);
+			rc = 0;
+		} else {
+			// Unmounted: mount it for the user (polkit may prompt)
+			GError *error = NULL;
+			gchar *path = NULL;
+			if (udisks_filesystem_call_mount_sync(fs, g_variant_new("a{sv}", NULL),
+							       &path, NULL, &error)) {
+				snprintf(buffer, n, "%s", path);
+				g_free(path);
+				rc = 0;
+			} else {
+				log_print("Couldn't mount card: %s", error->message);
+				g_error_free(error);
+			}
+		}
 	}
 
+	g_object_unref(object);
+	g_object_unref(client);
+	return rc;
+}
+
+// Card name (volume label) and capacity, unprivileged D-Bus query
+int drive_get_info(char *name, int name_n, uint64_t *bytes) {
+	UDisksClient *client = client_new();
+	if (client == NULL) return DRIVE_ERROR;
+
+	UDisksObject *object = find_card(client);
+	if (object == NULL) {
+		g_object_unref(client);
+		return DRIVE_NONE;
+	}
+
+	UDisksBlock *block = udisks_object_peek_block(object);
+	snprintf(name, name_n, "%s", udisks_block_get_id_label(block));
+	*bytes = udisks_block_get_size(block);
+
+	g_object_unref(object);
+	g_object_unref(client);
 	return 0;
 }
 
-void drive_close(void) {
-	fclose(d);
-}
+// ---------- mlinstall-card spawn ----------
 
-void update_exfat(void) {
-	unsigned int buffer[EXFAT_VBR_SIZE + 512];
-
-	fread(buffer, 1, EXFAT_VBR_SIZE + 512, d);
-	unsigned int sum = VBRChecksum((unsigned char *)buffer, EXFAT_VBR_SIZE);
-	for (int i = 0; i < 512 / 4; i++) {
-		buffer[i] = sum;
+static char *mode_name(int mode) {
+	switch (mode) {
+	case FLAG_ALL: return "all";
+	case FLAG_BOOT: return "boot";
+	case FLAG_SCRIPT: return "script";
+	case FLAG_DESTROY_BOOT: return "destroy-boot";
+	case FLAG_DESTROY_SCRIPT: return "destroy-script";
 	}
 
-	// Write the VBR checksum, or as the old install script said:
-	// "write VBR checksum (from sector 0 to sector 10) at offset 5632 (sector 11) and offset 11776 (sector 23, for backup VBR)
-	// checksum sector is stored in $dump_file at offset 5632"
-	fseek(d, 5632, SEEK_SET);
-	fwrite(buffer, 1, 512, d);
-	fseek(d, 11776, SEEK_SET);
-	fwrite(buffer, 1, 512, d);
-
-	fseek(d, 0, SEEK_SET);
-	fflush(d);
+	return NULL;
 }
 
-void drive_dump(char name[]) {
-	char *dump = malloc(TEMP_DUMP_SIZE);
-	fseek(d, 0, SEEK_SET);
-	fread(dump, 1, TEMP_DUMP_SIZE, d);
+// Prefer the helper installed next to our own binary, fall back to $PATH
+static void resolve_helper(char *buf, int n) {
+	char self[PATH_MAX];
+	ssize_t len = readlink("/proc/self/exe", self, sizeof(self) - 1);
+	if (len > 0) {
+		self[len] = '\0';
+		char *slash = strrchr(self, '/');
+		if (slash != NULL) {
+			slash[1] = '\0';
+			snprintf(buf, n, "%smlinstall-card", self);
+			if (access(buf, X_OK) == 0) return;
+		}
+	}
 
-	FILE *f = fopen(name, "w");
-	fwrite(dump, 1, TEMP_DUMP_SIZE, f);
-	fclose(f);
-	free(dump);
+	snprintf(buf, n, "mlinstall-card");
+}
+
+// Run argv, capture stdout/stderr and log it. Returns the exit code,
+// or -1 if the process couldn't be spawned
+static int run_capture(char *const argv[]) {
+	int pipes[2];
+	if (pipe(pipes)) {
+		log_print("pipe() failed: %s", strerror(errno));
+		return -1;
+	}
+
+	pid_t pid = fork();
+	if (pid < 0) {
+		log_print("fork() failed: %s", strerror(errno));
+		close(pipes[0]);
+		close(pipes[1]);
+		return -1;
+	}
+
+	if (pid == 0) {
+		dup2(pipes[1], STDOUT_FILENO);
+		dup2(pipes[1], STDERR_FILENO);
+		close(pipes[0]);
+		close(pipes[1]);
+		execvp(argv[0], argv);
+
+		// Only reached on failure
+		fprintf(stderr, "Couldn't run %s: %s\n", argv[0], strerror(errno));
+		_exit(127);
+	}
+
+	close(pipes[1]);
+
+	char buffer[4096];
+	size_t used = 0;
+	ssize_t n;
+	while ((n = read(pipes[0], buffer + used, sizeof(buffer) - 1 - used)) > 0) {
+		used += n;
+		if (used >= sizeof(buffer) - 1) {
+			buffer[used] = '\0';
+			log_print("%s", buffer);
+			used = 0;
+		}
+	}
+	close(pipes[0]);
+
+	if (used > 0) {
+		buffer[used] = '\0';
+		log_print("%s", buffer);
+	}
+
+	int status = 0;
+	waitpid(pid, &status, 0);
+	if (WIFEXITED(status)) return WEXITSTATUS(status);
+
+	return -1;
+}
+
+int drive_write_flag(int mode) {
+	char *mname = mode_name(mode);
+	if (mname == NULL) return DRIVE_ERROR;
+
+	// Find the card device (unprivileged udisks2 query)
+	char dev[128];
+	UDisksClient *client = client_new();
+	if (client == NULL) return DRIVE_ERROR;
+
+	UDisksObject *object = find_card(client);
+	if (object == NULL) {
+		log_print(T_DRIVE_NOT_FOUND);
+		g_object_unref(client);
+		return DRIVE_NONE;
+	}
+
+	snprintf(dev, sizeof(dev), "%s", udisks_block_get_device(udisks_object_peek_block(object)));
+	g_object_unref(object);
+	g_object_unref(client);
+
+	char helper[PATH_MAX];
+	resolve_helper(helper, sizeof(helper));
+
+	char *argv[] = { helper, "write", dev, mname, NULL };
+	int rc = run_capture(argv);
+
+	if (rc == -DRIVE_PRIV) {
+		// Helper couldn't open the device: retry through pkexec,
+		// which will prompt for a password via the polkit agent
+		log_print("Retrying with elevated permissions...");
+		char *pargv[] = { "pkexec", helper, "write", dev, mname, NULL };
+		rc = run_capture(pargv);
+
+		if (rc == 126 || rc == 127) {
+			// Auth canceled, pkexec missing, or it refuses to run
+			// the helper from an untrusted (uninstalled) location
+			log_print("Try: sudo %s write %s %s", helper, dev, mname);
+			return DRIVE_PRIV;
+		}
+	}
+
+	if (rc < 0 || rc > 4) {
+		log_print("Failed to run mlinstall-card (exit %d).", rc);
+		return DRIVE_ERROR;
+	}
+
+	switch (rc) {
+	case 0:
+		return 0;
+	case -DRIVE_BADFS:
+		return DRIVE_BADFS;
+	case -DRIVE_NONE:
+		return DRIVE_NONE;
+	case -DRIVE_ERROR:
+		return DRIVE_ERROR;
+	default:
+		log_print("Elevated permissions were refused.");
+		log_print("Try: sudo %s write %s %s", helper, dev, mname);
+		return DRIVE_PRIV;
+	}
 }

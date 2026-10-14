@@ -50,8 +50,6 @@
 #define T_DESTROY_CARD_BOOT_FLAGS "Disable Card Boot Flags"
 #define T_MAKE_CARD_SCRIPTABLE "Enable Card Scripting Flags"
 #define T_MAKE_CARD_UNSCRIPTABLE "Disable Card Scripting Flags"
-#define T_DETECT_CARD_TITLE "Check for the EOS_DIGITAL card."
-#define T_DETECT_CARD "Detect EOS_DIGITAL"
 
 #define T_DEV_MODE_WARNING "Entering the wrong command can brick your\ncamera! Only use with guidance\nfrom a ML developer!"
 

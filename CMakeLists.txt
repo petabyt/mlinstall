@@ -4,6 +4,8 @@ project(mlinstall)
 enable_language(C ASM)
 set(CMAKE_EXPORT_COMPILE_COMMANDS 1)
 
+option(MLI_ENABLE_TESTS "Enable tests" ON)
+
 if (CMAKE_BUILD_TYPE STREQUAL "Release")
     set(CMAKE_C_FLAGS_RELEASE "-O2")
 else()
@@ -13,12 +15,10 @@ endif()
 
 set(FILES
 	src/main.c
-	src/drive.c
 	src/model.c
 	src/ptp.c
 	src/canon.c
 	src/data.S
-	src/libui.c
 	src/libui.c
 )
 
@@ -28,23 +28,61 @@ add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/libpict ${CMAKE_CURRENT_BINARY
 option(LIBUI_COMPILE_GL "glArea support" OFF)
 add_subdirectory(${CMAKE_CURRENT_SOURCE_DIR}/libs/libui-dev ${CMAKE_CURRENT_BINARY_DIR}/libui)
 
-if(UNIX)
-	list(APPEND FILES src/drive-unix.c)
-	set(LIBS LibUI::LibUI)
-elseif(WIN32)
-	list(APPEND FILES src/drive-win.c assets/win.rc)
-	set(LIBS LibUI::LibUI)
+set(LIBS LibUI::LibUI)
+
+if(WIN32)
+	list(APPEND FILES src/drive.c src/drive-win.c assets/win.rc)
 	list(APPEND LIBS -luser32 -lkernel32 -lgdi32 -lcomctl32 -luxtheme -lmsimg32 -lcomdlg32 -ld2d1 -ldwrite -lole32 -loleaut32 -loleacc -lws2_32)
 	list(APPEND LIBS -lstdc++ -lgcc -static -lpthread -lssp -lurlmon -luuid)
 	list(APPEND LIBS -Wl,-subsystem,windows) # Disable cmd.exe window on open
 elseif(APPLE)
-	# ...
+	list(APPEND FILES src/drive.c src/drive-io-posix.c)
+else()
+	list(APPEND FILES src/drive-unix.c)
+
+	find_package(PkgConfig REQUIRED)
+	pkg_check_modules(UDISKS REQUIRED IMPORTED_TARGET udisks2 gio-2.0)
+	list(APPEND LIBS PkgConfig::UDISKS)
+
+	add_executable(mlinstall-card
+		src/card-main.c
+		src/drive.c
+		src/drive-udisks.c
+	)
+	target_link_libraries(mlinstall-card PkgConfig::UDISKS)
+	target_include_directories(mlinstall-card PRIVATE src)
+	target_compile_options(mlinstall-card PRIVATE -Wshadow -Wcast-qual -Wpedantic -Werror=incompatible-pointer-types -O2)
+	install(TARGETS mlinstall-card RUNTIME DESTINATION bin)
 endif()
 
 add_executable(mlinstall ${FILES})
 target_link_libraries(mlinstall libpict ${LIBS})
 target_include_directories(mlinstall PRIVATE src)
 target_compile_options(mlinstall PRIVATE -Wshadow -Wcast-qual -Wpedantic -Werror=incompatible-pointer-types -O2)
+
+if(MLI_ENABLE_TESTS)
+    enable_testing()
+    add_executable(test-drive
+    	test/test-drive.c
+    	test/fake-io.c
+    	src/drive.c
+    )
+    target_include_directories(test-drive PRIVATE src)
+    target_compile_options(test-drive PRIVATE -Wshadow -Wcast-qual -Wpedantic -Werror=incompatible-pointer-types)
+    add_test(NAME drive COMMAND test-drive)
+
+    if(NOT WIN32 AND NOT APPLE)
+    	add_executable(test-udisks
+    		test/test-udisks.c
+    		src/drive-unix.c
+    	)
+    	target_link_libraries(test-udisks PkgConfig::UDISKS)
+    	target_include_directories(test-udisks PRIVATE src)
+    	target_compile_options(test-udisks PRIVATE -Wshadow -Wcast-qual -Wpedantic -Werror=incompatible-pointer-types)
+    	add_test(NAME udisks COMMAND test-udisks)
+    	set_tests_properties(udisks PROPERTIES SKIP_RETURN_CODE 77)
+    endif()
+endif()
 
 if(WIN32)
     set_target_properties(mlinstall PROPERTIES LINK_FLAGS_RELEASE "-s -static")
@@ -56,6 +94,9 @@ if(MLINSTALL_CREATE_APPIMAGE)
         cmake_parse_arguments(PARSE_ARGV 0 ARG "" "TARGET;ICON;DESKTOP" "")
 
         install(TARGETS ${ARG_TARGET} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/AppDir/usr/bin)
+        if(ARG_ADDITIONAL_TARGETS)
+            install(TARGETS ${ARG_ADDITIONAL_TARGETS} DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/AppDir/usr/bin)
+        endif()
 
         find_program(LINUXDEPLOY linuxdeploy)
         if(NOT LINUXDEPLOY)
@@ -72,12 +113,13 @@ if(MLINSTALL_CREATE_APPIMAGE)
             COMMAND NO_STRIP=true linuxdeploy --appdir=${CMAKE_CURRENT_BINARY_DIR}/AppDir --executable=$<TARGET_FILE:${ARG_TARGET}> -d ${ARG_DESKTOP} -i ${ARG_ICON} --output appimage
             COMMAND appimagetool ${CMAKE_CURRENT_BINARY_DIR}/AppDir
             WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
-            DEPENDS ${ARG_TARGET}
+            DEPENDS ${ARG_TARGET} ${ARG_ADDITIONAL_TARGETS}
         )
     endfunction()
 
     create_appimage(
         TARGET mlinstall
+        ADDITIONAL_TARGETS mlinstall-card
         ICON ${CMAKE_CURRENT_SOURCE_DIR}/assets/mlinstall.png
         DESKTOP ${CMAKE_CURRENT_SOURCE_DIR}/assets/mlinstall.desktop
     )

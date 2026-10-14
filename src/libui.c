@@ -14,6 +14,8 @@ struct AppGlobalState {
 	void *title_text;
 	void *custom_entry;
 	int ticks;
+	void *card_combo;
+	void *card_widgets[4];
 }app = {0};
 
 static uiMultilineEntry *log_widget = NULL;
@@ -32,6 +34,24 @@ void usb_enable_all(void *arg) {
 	for (int i = 0; i < (int)(sizeof(app.usb_widgets) / sizeof(void *)); i++) {
 		if (app.usb_widgets[i] == NULL) continue;
 		uiControlEnable(uiControl(app.usb_widgets[i]));
+	}
+}
+
+static void card_disable_all(void) {
+	if (app.card_combo != NULL) uiControlDisable(uiControl(app.card_combo));
+
+	for (int i = 0; i < (int)(sizeof(app.card_widgets) / sizeof(void *)); i++) {
+		if (app.card_widgets[i] == NULL) continue;
+		uiControlDisable(uiControl(app.card_widgets[i]));
+	}
+}
+
+static void card_enable_all(void) {
+	if (app.card_combo != NULL) uiControlEnable(uiControl(app.card_combo));
+
+	for (int i = 0; i < (int)(sizeof(app.card_widgets) / sizeof(void *)); i++) {
+		if (app.card_widgets[i] == NULL) continue;
+		uiControlEnable(uiControl(app.card_widgets[i]));
 	}
 }
 
@@ -113,6 +133,9 @@ static int log_drive_error(int rc) {
 		return rc;
 	case DRIVE_ERROR:
 		log_print(T_DRIVE_ERROR);
+		return rc;
+	case DRIVE_PRIV:
+		log_print(T_DRIVE_ERROR_LINUX);
 		return rc;
 	}
 
@@ -345,14 +368,49 @@ static void app_disable_bootdisk(uiButton *b, void *data)
 	}
 }
 
-static void app_show_drive_info(uiButton *b, void *data)
-{
-	log_clear();
-	char buffer[1024];
-	int rc = drive_get_usable(buffer, sizeof(buffer));
-	if (log_drive_error(rc) == 0) {
-		log_print(buffer);
+// Decimal GB, matching how SD cards are marketed
+static void format_card_size(uint64_t bytes, char *buf, int n) {
+	if (bytes >= 1000000000) {
+		snprintf(buf, n, "%.1f GB", (double)bytes / 1000000000.0);
+	} else {
+		snprintf(buf, n, "%.0f MB", (double)bytes / 1000000.0);
 	}
+}
+
+// Query the drive layer and reflect the result in the combobox and
+// button state. Silent: the greyed-out UI is the feedback.
+static void card_refresh_impl(void) {
+	// macOS Card page is a stub for now
+	if (app.card_combo == NULL) return;
+
+	char name[128] = { 0 };
+	uint64_t bytes = 0;
+	int rc = drive_get_info(name, sizeof(name), &bytes);
+
+	uiComboboxClear(app.card_combo);
+
+	if (rc == 0) {
+		char size[32];
+		format_card_size(bytes, size, sizeof(size));
+
+		char item[192];
+		snprintf(item, sizeof(item), "%s (%s)", name, size);
+
+		uiComboboxAppend(app.card_combo, item);
+		uiComboboxSetSelected(app.card_combo, 0);
+		card_enable_all();
+	} else {
+		card_disable_all();
+	}
+}
+
+static void card_refresh(uiButton *b, void *data) {
+	card_refresh_impl();
+}
+
+static void on_tab_selected(uiTab *t, void *data) {
+	// Card tab is index 1
+	if (uiTabSelected(t) == 1) card_refresh_impl();
 }
 
 static void *app_disconnect(void *arg) {
@@ -448,7 +506,6 @@ static uiControl *page_usb(void)
 static uiControl *page_card(void) {
 	uiBox *vbox;
 	uiButton *button;
-	uiLabel *label;
 
 	vbox = uiNewVerticalBox();
 	uiBoxSetPadded(vbox, 1);
@@ -456,6 +513,21 @@ static uiControl *page_card(void) {
 #ifdef __APPLE__
 	uiBoxAppend(vbox, uiControl(uiNewLabel("MacOS card tools are\ncurrently not supported.")), 0);
 #else
+	{
+		uiBox *hbox = uiNewHorizontalBox();
+		uiBoxSetPadded(hbox, 1);
+
+		uiCombobox *combo = uiNewCombobox();
+		app.card_combo = combo;
+		uiBoxAppend(hbox, uiControl(combo), 1);
+
+		button = uiNewButton("Refresh");
+		uiControlSetTooltip(uiControl(button), "Check again for the card");
+		uiButtonOnClicked(button, card_refresh, NULL);
+		uiBoxAppend(hbox, uiControl(button), 0);
+
+		uiBoxAppend(vbox, uiControl(hbox), 0);
+	}
 
 	{
 		uiBox *hbox = uiNewHorizontalBox();
@@ -463,16 +535,18 @@ static uiControl *page_card(void) {
 
 		uiBoxAppend(vbox, uiControl(uiNewLabel("Card Boot Flags")), 0);
 		uiBoxAppend(vbox, uiControl(uiNewLabel("Enabling this changes some bytes on the card which\nallows the camera to boot from it.")), 0);
-		
+
 		button = uiNewButton("Enable"); // T_WRITE_CARD_BOOT_FLAGS
 		uiControlSetTooltip(uiControl(button), "Make it so that a camera can boot Magic Lantern from the card");
 		uiButtonOnClicked(button, app_write_flag, NULL);
+		app.card_widgets[0] = button;
 		uiBoxAppend(hbox, uiControl(button), 1);
 		button = uiNewButton("Disable"); // T_DESTROY_CARD_BOOT_FLAGS
 		uiControlSetTooltip(uiControl(button), "Make the card non-bootable");
 		uiButtonOnClicked(button, app_destroy_flag, NULL);
+		app.card_widgets[1] = button;
 		uiBoxAppend(hbox, uiControl(button), 1);
-	
+
 		uiBoxAppend(vbox, uiControl(hbox), 0);
 	}
 
@@ -486,20 +560,19 @@ static uiControl *page_card(void) {
 		button = uiNewButton("Enable"); // T_MAKE_CARD_SCRIPTABLE
 		uiControlSetTooltip(uiControl(button), "Make the card able to run a canon basic script");
 		uiButtonOnClicked(button, app_script_flag, NULL);
+		app.card_widgets[2] = button;
 		uiBoxAppend(hbox, uiControl(button), 1);
 		button = uiNewButton("Disable"); // T_MAKE_CARD_UNSCRIPTABLE
 		uiControlSetTooltip(uiControl(button), "Remove the script flag");
 		uiButtonOnClicked(button, app_destroy_script_flag, NULL);
+		app.card_widgets[3] = button;
 		uiBoxAppend(hbox, uiControl(button), 1);
-	
+
 		uiBoxAppend(vbox, uiControl(hbox), 0);
 	}
 
-	uiBoxAppend(vbox, uiControl(uiNewLabel(T_DETECT_CARD_TITLE)), 0);
-	button = uiNewButton(T_DETECT_CARD);
-	uiControlSetTooltip(uiControl(button), "Check if the card is inserted");
-	uiButtonOnClicked(button, app_show_drive_info, NULL);
-	uiBoxAppend(vbox, uiControl(button), 0);
+	// Startup state: no card detected yet
+	card_disable_all();
 #endif
 
 	return uiControl(vbox);
@@ -586,6 +659,8 @@ int mlinstall_main_window(void) {
 
 	uiTabAppend(tab, T_ABOUT, page_about());
 	uiTabSetMargined(tab, 2, 1);
+
+	uiTabOnSelected(tab, on_tab_selected, NULL);
 
 	uiControlShow(uiControl(tab));
 
